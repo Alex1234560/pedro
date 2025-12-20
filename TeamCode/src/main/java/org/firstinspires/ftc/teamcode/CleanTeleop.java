@@ -399,11 +399,13 @@ public class CleanTeleop extends LinearOpMode {
 
 
         follower.setTeleOpDrive(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x,
-                fieldCentricDrive // Robot Centric
+                -gamepad1.left_stick_y*speed,
+                -gamepad1.left_stick_x*speed,
+                -gamepad1.right_stick_x*speed,
+                !fieldCentricDrive // Robot Centric
         );
+
+
 
 
         /**/ // this is for field centric
