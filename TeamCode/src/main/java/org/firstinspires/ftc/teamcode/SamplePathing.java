@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import androidx.annotation.NonNull;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -132,7 +130,7 @@ public class SamplePathing extends OpMode {
 
     public enum PathState{
         // StartPos - EndPos
-        DRIVE_TO_INTAKE,
+        DRIVE_TO_SHOOT_POS,
         SHOOT_PRELOAD,
         INTAKE_BALLS
     }
@@ -140,8 +138,8 @@ public class SamplePathing extends OpMode {
 
     private final Pose startPose = new Pose(17.992, 118.676, Math.toRadians(53));
     private final Pose shootPos = new Pose(59, 85, Math.toRadians(53));
-    private final Pose intakeStart = new Pose();
-    private final Pose intakeEnd = new Pose();
+    private final Pose intakeStart = new Pose(44.147, 59.348, Math.toRadians(90));
+    private final Pose intakeEnd = new Pose(20.662,   59.348, Math.toRadians(90));
 
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;
 
@@ -160,6 +158,7 @@ public class SamplePathing extends OpMode {
                 .addPath(new BezierLine(shootPos, intakeStart))
                 .setLinearHeadingInterpolation(shootPos.getHeading(), intakeStart.getHeading())
                 .build();
+
         driveIntakeForward = follower.pathBuilder()
                 .addPath(new BezierLine(intakeStart, intakeEnd))
                 .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
@@ -174,7 +173,7 @@ public class SamplePathing extends OpMode {
 
     public void statePathUpdate() {
         switch(pathState) {
-            case DRIVE_TO_INTAKE:
+            case DRIVE_TO_SHOOT_POS:
                 follower.followPath(driveStartToShootPos, true);
                 setPathState(PathState.SHOOT_PRELOAD);
                 break;
@@ -205,7 +204,7 @@ public class SamplePathing extends OpMode {
 
     @Override
     public void init(){
-        pathState = PathState.DRIVE_TO_INTAKE;
+        pathState = PathState.DRIVE_TO_SHOOT_POS;
         pathTimer = new Timer();
         opModeTimer = new Timer();
         follower = Constants.createFollower(hardwareMap);
@@ -234,7 +233,7 @@ public class SamplePathing extends OpMode {
         telemetry.addData("Path State", pathState.toString());
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
         telemetry.addData("Path time", pathTimer.getElapsedTimeSeconds());
 
     }
