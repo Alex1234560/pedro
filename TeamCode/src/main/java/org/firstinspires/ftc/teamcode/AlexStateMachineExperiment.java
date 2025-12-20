@@ -73,20 +73,22 @@ public class AlexStateMachineExperiment extends OpMode {
     public void statePathUpdate() {
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS:
+                if (!shotsTriggered){
+                    shooter.fireShots(3);
+                    shotsTriggered=true;
+                }
+
                 follower.followPath(driveStartToShootPos, true);
                 setPathState(PathState.SHOOT_PRELOAD);
 
-
                 break;
+
             case SHOOT_PRELOAD:
 
                 if (!follower.isBusy()){
                     //requested shots yet?
-                    if (!shotsTriggered){
-                        shooter.fireShots(3);
-                        shotsTriggered=true;
-                    }
-                    else if (shotsTriggered && !shooter.isBusy()){
+
+                    if (!shooter.isBusy()){
 
                         follower.followPath(driveShootPosToIntake, true);
                         setPathState(PathState.INTAKE_BALLS);
@@ -100,7 +102,9 @@ public class AlexStateMachineExperiment extends OpMode {
             case INTAKE_BALLS:
                 if (!follower.isBusy()) {
 
-                    //Intook balls, move backwards
+                    follower.followPath(driveIntakeForward, true);
+
+                    //intake stuff logic
 
                 }
             default:
@@ -134,6 +138,7 @@ public class AlexStateMachineExperiment extends OpMode {
 
     public void start() {
         opModeTimer.resetTimer();
+        shooter.start(); // to start spinning up flywheel from the start
         setPathState(pathState);
     }
 

@@ -60,8 +60,14 @@ public class FlywheelLogic {
 
     }
 
+    public void start(){
+        ShooterMotor.setPower(FAndV.calculateSpeedForShooter(TARGET_FLYWHEEL_RPM));
+        ShooterMotor2.setPower(FAndV.calculateSpeedForShooter(TARGET_FLYWHEEL_RPM));
+    }
+
     public void update(){
         flywheelVelocity= FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
+
         switch (flywheelState) {
             case IDLE:
                 if (shotsRemaining > 0) {
