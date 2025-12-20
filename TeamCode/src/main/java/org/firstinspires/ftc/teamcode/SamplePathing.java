@@ -123,7 +123,6 @@ public class SamplePathing extends OpMode {
             ShooterMotor.setPower(ShooterMotorPower);
             ShooterMotor2.setPower(ShooterMotorPower);
 
-            telemetry.update();
         }
     }
 }
@@ -173,7 +172,7 @@ public class SamplePathing extends OpMode {
                 .addTemporalCallback(0.0, () -> intake.IntakeOn())
 
                 // Stop intake 2.0 seconds after this path starts
-                .addTemporalCallback(2.0, () -> intake.IntakeOff())
+                .addTemporalCallback(2000, () -> intake.IntakeOff())
 
                 .build();
     }
@@ -234,6 +233,7 @@ public class SamplePathing extends OpMode {
         follower.update();
         statePathUpdate();
 
+        telemetry.update();
         //Bunch of random telemetry shit he added in, im lazy and it has no function so lets js ignore
     }
 
