@@ -85,6 +85,9 @@ public class AlexStateMachineExperiment extends OpMode {
 
             case SHOOT_PRELOAD:
 
+                telemetry.addData("Follower Busy", follower.isBusy());
+                telemetry.addData("Shooter Busy", shooter.isBusy());
+
                 if (!follower.isBusy()){
                     //requested shots yet?
 
@@ -98,9 +101,8 @@ public class AlexStateMachineExperiment extends OpMode {
 
                 break;
 
-
             case INTAKE_BALLS:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 0.2) {
 
                     follower.followPath(driveIntakeForward, true);
 
