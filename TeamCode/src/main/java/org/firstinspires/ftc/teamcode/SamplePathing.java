@@ -30,7 +30,6 @@ public class SamplePathing extends OpMode {
 
     private Intake intake;
 
-
     public class Intake{
         private DcMotorEx intakeMotor;
         private DcMotor StopIntakeMotor;
@@ -127,9 +126,6 @@ public class SamplePathing extends OpMode {
     }
 }
 
-
-
-
     private Follower follower;
 
     private Timer pathTimer, opModeTimer;
@@ -137,7 +133,6 @@ public class SamplePathing extends OpMode {
     public enum PathState{
         // StartPos - EndPos
         DRIVE_TO_INTAKE,
-
         SHOOT_PRELOAD,
         INTAKE_BALLS
     }
@@ -235,6 +230,13 @@ public class SamplePathing extends OpMode {
 
         telemetry.update();
         //Bunch of random telemetry shit he added in, im lazy and it has no function so lets js ignore
+
+        telemetry.addData("Path State", pathState.toString());
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
+        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("Path time", pathTimer.getElapsedTimeSeconds());
+
     }
 
 }
