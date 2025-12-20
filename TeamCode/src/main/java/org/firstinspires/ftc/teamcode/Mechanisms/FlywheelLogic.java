@@ -98,7 +98,7 @@ public class FlywheelLogic {
                 }
                 break;
             case LAUNCH:
-                if (stateTimer.seconds() > FEEDER_ON_TIME) {
+                if (stateTimer.seconds() > FEEDER_ON_TIME || Math.abs(Math.abs(flywheelVelocity) - Math.abs(TARGET_FLYWHEEL_RPM)) > FunctionsAndValues.SpeedToleranceToStartShooting){
                     shotsRemaining--;
                     BallFeederServo.setPower(0);
                     BallFeederServo2.setPower(0);
