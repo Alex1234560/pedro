@@ -1,0 +1,6 @@
+0 Make TurretRotation work, and add limits so that it won't break the cables.
+1 Create simpler TeleOp with shared functions (auto & teleop)
+2 Make 2 sides for the auto
+3 Make Back auto that shoots and then moves out of the way
+4 Make Back Auto detect balls.
+5 In Every auto add a timer that when it runs out it triggers a park function out of the launch zone.
