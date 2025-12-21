@@ -22,7 +22,7 @@ public class TurretRotation {
 //    public static double MAX_TICKS_ROTATION = 1000;
 //    public static double MIN_TICKS_ROTATION = -1000;
 
-    public static double FULL_TURN = 2400;// ticks that make a full turn
+    public static double FULL_TURN = 2614;// ticks that make a full turn
 
     public static double GoalAngle = 10;
 
