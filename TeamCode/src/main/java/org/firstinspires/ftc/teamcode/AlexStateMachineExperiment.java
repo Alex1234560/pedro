@@ -7,15 +7,9 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
+import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @TeleOp
@@ -28,14 +22,16 @@ public class AlexStateMachineExperiment extends OpMode {
     // -------- FLYWHEEL SETUP -------
 
     private FlywheelLogic shooter = new FlywheelLogic();
+    private Intake intake = new Intake();
     private boolean shotsTriggered=false;
 
 
     public enum PathState{
         // StartPos - EndPos
         DRIVE_TO_SHOOT_POS,
-        SHOOT_PRELOAD,
-        INTAKE_BALLS
+        DRIVE_TO_INTAKE_POS,
+        INTAKE_BALLS,
+        FINISHED
     }
     PathState pathState;
 
@@ -79,14 +75,13 @@ public class AlexStateMachineExperiment extends OpMode {
                 }
 
                 follower.followPath(driveStartToShootPos, true);
-                setPathState(PathState.SHOOT_PRELOAD);
+                setPathState(PathState.DRIVE_TO_INTAKE_POS);
 
                 break;
 
-            case SHOOT_PRELOAD:
+            case DRIVE_TO_INTAKE_POS:
 
-                telemetry.addData("Follower Busy", follower.isBusy());
-                telemetry.addData("Shooter Busy", shooter.isBusy());
+
 
                 if (!follower.isBusy()){
                     //requested shots yet?
@@ -102,14 +97,19 @@ public class AlexStateMachineExperiment extends OpMode {
                 break;
 
             case INTAKE_BALLS:
-                if (!follower.isBusy()) {
 
-                    follower.followPath(driveIntakeForward, true);
+                follower.followPath(driveIntakeForward, true);
+                setPathState(PathState.FINISHED);
 
-                    //intake stuff logic
 
-                }
+                break;
+
+            case FINISHED:
+                break;
+
+
             default:
+                //intake.intakeOff();
                 break;
         }
     }
@@ -130,6 +130,7 @@ public class AlexStateMachineExperiment extends OpMode {
         //We might want follower = new Follower(hardwareMap);, just check this if it doesnt work
 
         shooter.init(hardwareMap);
+        intake.init(hardwareMap);
 
         //intake = new Intake(hardwareMap);
 
@@ -146,11 +147,14 @@ public class AlexStateMachineExperiment extends OpMode {
 
     @Override
     public void loop(){
+        telemetry.addData("Latest Upload dec 20 6:29 pm", true);
+
+
         follower.update();
         shooter.update();
         statePathUpdate();
 
-        telemetry.update();
+
         //Bunch of random telemetry shit he added in, im lazy and it has no function so lets js ignore
 
         telemetry.addData("Path State", pathState.toString());
@@ -158,6 +162,8 @@ public class AlexStateMachineExperiment extends OpMode {
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
         telemetry.addData("Path time", pathTimer.getElapsedTimeSeconds());
+
+        telemetry.update();
 
     }
 
