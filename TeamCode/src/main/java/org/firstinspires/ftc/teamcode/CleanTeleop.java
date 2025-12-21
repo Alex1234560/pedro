@@ -80,7 +80,7 @@ public class CleanTeleop extends LinearOpMode {
     //pedro stuff
     private Follower follower;
     public static Pose startingPose; //See ExampleAuto to understand how to use this
-    private TelemetryManager telemetryM;
+    //private TelemetryManager telemetryM;
 
     private FunctionsAndValues FAndV;
 
@@ -119,12 +119,16 @@ public class CleanTeleop extends LinearOpMode {
         SetupHardware();
 
         turretRotation.init(hardwareMap);
+        // remove the following once the turret stuff is integrated into the auto, this will go in the auto
+        turretRotation.TurretCalibrateToCenter();
+        //--------------- ^^ -------------------------
+
         vision = new AprilTagVision(hardwareMap, "Webcam");
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
-        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+        //telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
 
         FAndV = new FunctionsAndValues();
@@ -144,9 +148,9 @@ public class CleanTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             //pedro
-            turretRotation.update(Math.toDegrees(follower.getHeading()));
+            turretRotation.update(Math.toDegrees(follower.getHeading()),follower.getPose().getX(),follower.getPose().getY());
             follower.update();
-            telemetryM.update();
+            //telemetryM.update();
 
             if (gamepad2.aWasPressed()) {AutoAim = true;}
             if (gamepad2.bWasPressed()) {AutoAim = false;}
@@ -163,8 +167,8 @@ public class CleanTeleop extends LinearOpMode {
             handleUserShootingRanges();
             updateReadyToShoot();
 
-            telemetryM.debug("position", follower.getPose());
-            telemetryM.debug("velocity", follower.getVelocity());
+            //telemetryM.debug("position", follower.getPose());
+            //telemetryM.debug("velocity", follower.getVelocity());
 
             //autoLock();
         }
@@ -185,18 +189,14 @@ public class CleanTeleop extends LinearOpMode {
 }
 
     private void TelemetryStatements(){
-        //telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("FieldCentricDrive?: ", fieldCentricDrive);
+        telemetry.addData("EncoderPosition", turretRotation.GetCurrentPos());
+        telemetry.addData("Heading", follower.getHeading());
 
-
-        //telemetry.addData("Heading ( Encoders prob )= ", Math.toDegrees(pose.heading.toDouble()));
-        //telemetry.addData("Heading ( IMU )= ", Math.toDegrees(robotHeading));
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
 
         telemetry.addData("GoalShooterPower= ", GoalShooterMotorTPS);
-        boolean stabilized;
-        if (Math.abs(shooterTPS - GoalShooterMotorTPS) <= FunctionsAndValues.SpeedToleranceToStartShooting) {
-            stabilized = true;
-        } else{stabilized=false;}
-        telemetry.addData("Stablized?: ", stabilized);
         telemetry.addData("ShooterMotorTickPerSecond= ", shooterTPS);
 
 
@@ -337,32 +337,16 @@ public class CleanTeleop extends LinearOpMode {
         double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
         double yaw = -gamepad1.right_stick_x * speed;
 
-        if (gamepad1.dpad_right){
-            lateral= +.2;
-        }
-        if (gamepad1.dpad_left){
-            lateral= -.2;
-        }
-        if (gamepad1.dpad_up){
-            axial= +.1;
-        }
-        if (gamepad1.dpad_down){
-            axial= -.1;
-        }
-        if (gamepad1.x){
-            yaw = -.1;
-        }
-        if (gamepad1.b){
-            yaw = +.1;
-        }
+        //parking precisly
 
-        //depends on the auto u can add code here to change the starting angle of the field centric drive
+        if (gamepad1.dpad_right){lateral= +.2;}
+        if (gamepad1.dpad_left){lateral= -.2;}
+        if (gamepad1.dpad_up){axial= +.1;}
+        if (gamepad1.dpad_down){axial= -.1;}
+        if (gamepad1.x){yaw = -.1;}
+        if (gamepad1.b){yaw = +.1;}
 
-       // double robotHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-
-//        double fieldCentricAxial = axial * Math.cos(robotHeading) - lateral * Math.sin(robotHeading);
-//        double fieldCentricLateral = axial * Math.sin(robotHeading) + lateral * Math.cos(robotHeading);
-
+        //field centric
 
         if (gamepad1.yWasPressed()) {
             fieldCentricDrive = true;
@@ -371,6 +355,7 @@ public class CleanTeleop extends LinearOpMode {
             fieldCentricDrive = false;
         }
 
+        //send commands to pedro.
 
         follower.setTeleOpDrive(
                 axial,
@@ -381,12 +366,6 @@ public class CleanTeleop extends LinearOpMode {
 
 
 
-
-        /**/ // this is for field centric
-
-        //robotDrive.move(axial, lateral, yaw, speed);
-
-        telemetry.addData("FieldCentricDrive?: ", fieldCentricDrive);
 
     }
 
