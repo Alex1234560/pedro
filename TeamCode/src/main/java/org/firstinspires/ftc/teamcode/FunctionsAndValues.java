@@ -173,7 +173,7 @@ public class FunctionsAndValues {
         return MotorSpeed;
     }
 
-    public class SimplePIDF {
+    public static class SimplePIDF {
         public double kP, kI, kD;
 
         private double integral = 0;

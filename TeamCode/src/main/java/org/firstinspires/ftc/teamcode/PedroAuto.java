@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @TeleOp
-public class AlexStateMachineExperiment extends OpMode {
+public class PedroAuto extends OpMode {
 
     private Follower follower;
 

@@ -42,11 +42,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
+import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -60,7 +63,7 @@ public class CleanTeleop extends LinearOpMode {
     //setting up motors and time
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotorEx IntakeMotor = null;
-    private DcMotor StopIntakeMotor = null;
+    //private CRServo StopIntakeServo = null;
     private DcMotorEx ShooterMotor = null;
     private DcMotorEx ShooterMotor2 = null;
     private CRServo BallFeederServo = null;
@@ -107,12 +110,15 @@ public class CleanTeleop extends LinearOpMode {
     //private boolean autoAimButton = false;
     public static boolean AutoAim = false;
 
+    private TurretRotation turretRotation = new TurretRotation();
+
     @Override
     public void runOpMode() {
         currentAngle=90;//center current angle for shooter
         InitializeIMU();
         SetupHardware();
 
+        turretRotation.init(hardwareMap);
         vision = new AprilTagVision(hardwareMap, "Webcam");
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
@@ -138,6 +144,7 @@ public class CleanTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             //pedro
+            turretRotation.update(Math.toDegrees(follower.getHeading()));
             follower.update();
             telemetryM.update();
 
@@ -316,39 +323,9 @@ public class CleanTeleop extends LinearOpMode {
         }
 
         IntakeMotor.setPower(IntakePowerValue);
-        StopIntakeMotor.setPower(-IntakePowerValue);
+        //StopIntakeServo.setPower(-IntakePowerValue);
 
 
-        /*if (!gamepad2.right_bumper && gamepad2.right_trigger > 0 && Math.abs(GoalShooterMotorTPS - shooterTPS) <= FunctionsAndValues.SpeedToleranceToStartShooting) {//(Math.abs(GoalShooterMotorTPS - shooterTPS) <= ToleranceForShooting)
-
-            if (vision.isTagVisible() && Math.abs(AprilTagBearing) < FunctionsAndValues.AngleToleranceToStartShooting){}
-
-            IntakeMotor.setPower(-gamepad2.right_trigger /1.2);
-            StopIntakeMotor.setPower(gamepad2.right_trigger / 1.2);
-            BallFeederServo.setPower(gamepad2.right_trigger);
-
-
-        }
-        // so u can force it to shoot if it isnt ready
-        else if (gamepad2.right_bumper&& gamepad2.right_trigger > 0) {
-            BallFeederServo.setPower(gamepad2.right_trigger);
-            IntakeMotor.setPower(-gamepad2.right_trigger /1.2);
-            StopIntakeMotor.setPower(gamepad2.right_trigger / 1.2);
-        }
-        // SPIT BALL BACK
-        else if (gamepad2.back) {
-            BallFeederServo.setPower(-1);
-            IntakeMotor.setPower(.8);
-            StopIntakeMotor.setPower(-.8);
-        }
-
-
-
-        else{
-            BallFeederServo.setPower(0);
-        }
-
-        BallFeederServo2.setPower(BallFeederServo.getPower());*/
     }
 
     private void handleDriving() {
@@ -357,8 +334,8 @@ public class CleanTeleop extends LinearOpMode {
         speed += gamepad1.right_trigger/2 ; // trigger makes it slower
 
         double axial = -gamepad1.left_stick_y * speed;
-        double lateral = gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
-        double yaw = gamepad1.right_stick_x * speed;
+        double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
+        double yaw = -gamepad1.right_stick_x * speed;
 
         if (gamepad1.dpad_right){
             lateral= +.2;
@@ -373,22 +350,19 @@ public class CleanTeleop extends LinearOpMode {
             axial= -.1;
         }
         if (gamepad1.x){
-            yaw -= .1;
+            yaw = -.1;
         }
         if (gamepad1.b){
-            yaw += .1;
+            yaw = +.1;
         }
 
         //depends on the auto u can add code here to change the starting angle of the field centric drive
 
-        double robotHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+       // double robotHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
-        double fieldCentricAxial = axial * Math.cos(robotHeading) - lateral * Math.sin(robotHeading);
-        double fieldCentricLateral = axial * Math.sin(robotHeading) + lateral * Math.cos(robotHeading);
+//        double fieldCentricAxial = axial * Math.cos(robotHeading) - lateral * Math.sin(robotHeading);
+//        double fieldCentricLateral = axial * Math.sin(robotHeading) + lateral * Math.cos(robotHeading);
 
-        if (gamepad1.backWasPressed()) {
-            imu.resetYaw();
-        }
 
         if (gamepad1.yWasPressed()) {
             fieldCentricDrive = true;
@@ -399,9 +373,9 @@ public class CleanTeleop extends LinearOpMode {
 
 
         follower.setTeleOpDrive(
-                -gamepad1.left_stick_y*speed,
-                -gamepad1.left_stick_x*speed,
-                -gamepad1.right_stick_x*speed,
+                axial,
+                lateral,
+                yaw,
                 !fieldCentricDrive // Robot Centric
         );
 
@@ -459,7 +433,7 @@ public class CleanTeleop extends LinearOpMode {
 
     private void SetupHardware(){
         IntakeMotor = hardwareMap.get(DcMotorEx.class, "INTAKE");
-        StopIntakeMotor = hardwareMap.get(DcMotor.class, "StopIntake");
+        //StopIntakeServo = hardwareMap.get(DcMotor.class, "StopIntake");
         ShooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");
         ShooterMotor2 = hardwareMap.get(DcMotorEx.class, "Shooter2");
         BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
