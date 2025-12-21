@@ -51,10 +51,7 @@ public class TurretRotation {
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
-    public void start(){
-
-
-    }
+    //public void start(){}
 
     public void update(double RobotAngleDeg, double RobotX, double RobotY){
         if (AutoRotate) {
@@ -71,12 +68,9 @@ public class TurretRotation {
                 ActualTargetAngle += 360;
             }
 
-            //for this i need to add limiting logic so that it doesnt go over certain angle
-
-
-
             double GoalTickPos = (FULL_TURN / 360) * ActualTargetAngle;
 
+            // -------- line below is for tuning values ----------
             RotationalPIDF.updateCoefficients(kP,kI,kD,kF);
 
             double newPower = RotationalPIDF.calculate(GoalTickPos, CurrentPos);
