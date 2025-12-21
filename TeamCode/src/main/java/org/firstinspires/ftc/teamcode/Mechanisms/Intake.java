@@ -23,9 +23,9 @@ public class Intake {
 
     }
 
-    public void intakeOn() {
-        IntakeMotor.setPower(1);
-        IntakeHelperCRServo.setPower(1);
+    public void intakeOn(double power) {
+        IntakeMotor.setPower(power);
+        IntakeHelperCRServo.setPower(power);
     }
     public void intakeOff() {
         IntakeMotor.setPower(0);

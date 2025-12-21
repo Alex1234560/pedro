@@ -49,6 +49,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
+import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -62,14 +63,14 @@ public class CleanTeleop extends LinearOpMode {
     private static double ShooterAngle = FunctionsAndValues.startPoint;
     //setting up motors and time
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotorEx IntakeMotor = null;
+    //private DcMotorEx IntakeMotor = null;
     //private CRServo StopIntakeServo = null;
     private DcMotorEx ShooterMotor = null;
     private DcMotorEx ShooterMotor2 = null;
     private CRServo BallFeederServo = null;
     private CRServo BallFeederServo2 = null;
 
-    private Servo ShooterRotatorServo = null;
+    //private Servo ShooterRotatorServo = null;
     private IMU imu;
 
     //classes
@@ -77,9 +78,13 @@ public class CleanTeleop extends LinearOpMode {
     private double startingAngleRad = Math.toRadians(0);
     private AprilTagVision vision;
 
+    private Intake intake = new Intake();
+
+
     //pedro stuff
     private Follower follower;
     public static Pose startingPose; //See ExampleAuto to understand how to use this
+
     //private TelemetryManager telemetryM;
 
     private FunctionsAndValues FAndV;
@@ -124,6 +129,7 @@ public class CleanTeleop extends LinearOpMode {
         //--------------- ^^ -------------------------
 
         vision = new AprilTagVision(hardwareMap, "Webcam");
+        intake.init(hardwareMap);
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
@@ -161,7 +167,7 @@ public class CleanTeleop extends LinearOpMode {
             handleIntake();
             handleShooterServos();
             handleFlywheel();
-            handleShooterRotation();
+            //handleShooterRotation();
             SpeedAndAngleAutoAimUpdate();
             TelemetryStatements();
             handleUserShootingRanges();
@@ -203,7 +209,7 @@ public class CleanTeleop extends LinearOpMode {
 
         telemetry.update();
     }
-
+    /*
     private void handleShooterRotation(){
         //this function will return current value unless able to adjust it, with autoaim and autoaim activated
         double[] ShooterRotatorServoAngle = FAndV.calculateShooterRotation(AprilTagBearing, AutoAim,currentAngle,false , range);
@@ -219,7 +225,7 @@ public class CleanTeleop extends LinearOpMode {
 
         if (gamepad2.right_stick_button){currentAngle = 90;}
 
-    }
+    }*/
 
     private void SpeedAndAngleAutoAimUpdate(){
 
@@ -322,8 +328,8 @@ public class CleanTeleop extends LinearOpMode {
             IntakePowerValue = 1;
         }
 
-        IntakeMotor.setPower(IntakePowerValue);
-        //StopIntakeServo.setPower(-IntakePowerValue);
+        intake.intakeOn(IntakePowerValue);
+
 
 
     }
@@ -411,13 +417,13 @@ public class CleanTeleop extends LinearOpMode {
     }
 
     private void SetupHardware(){
-        IntakeMotor = hardwareMap.get(DcMotorEx.class, "INTAKE");
+        //IntakeMotor = hardwareMap.get(DcMotorEx.class, "INTAKE");
         //StopIntakeServo = hardwareMap.get(DcMotor.class, "StopIntake");
         ShooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");
         ShooterMotor2 = hardwareMap.get(DcMotorEx.class, "Shooter2");
         BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
         BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");
-        ShooterRotatorServo = hardwareMap.get(Servo.class, "ShooterRotatorServo");
+        //ShooterRotatorServo = hardwareMap.get(Servo.class, "ShooterRotatorServo");
         ServoShooter1 = hardwareMap.get(Servo.class, "ServoShooter1");
         ReadyToShootServo = hardwareMap.get(Servo.class, "IndicatorServo");
 
@@ -429,7 +435,7 @@ public class CleanTeleop extends LinearOpMode {
         // run shooter with encoder
         ShooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         ShooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        IntakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //IntakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
   }
