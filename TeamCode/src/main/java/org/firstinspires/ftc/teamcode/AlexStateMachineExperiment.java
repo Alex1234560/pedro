@@ -102,7 +102,7 @@ public class AlexStateMachineExperiment extends OpMode {
                 break;
 
             case INTAKE_BALLS:
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 0.2) {
+                if (!follower.isBusy()) {
 
                     follower.followPath(driveIntakeForward, true);
 

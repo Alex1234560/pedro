@@ -116,6 +116,8 @@ public class FlywheelLogic {
                 else{
                     ShooterMotor.setPower(0);
                     ShooterMotor2.setPower(0);
+                    stateTimer.reset();
+                    flywheelState= FlywheelState.IDLE;
                 }
                 break;
 
