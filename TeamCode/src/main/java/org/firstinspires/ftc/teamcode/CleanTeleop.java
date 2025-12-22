@@ -132,7 +132,9 @@ public class CleanTeleop extends LinearOpMode {
         intake.init(hardwareMap);
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
+        follower.setStartingPose(new Pose(0,0,Math.toRadians(0)));
+        // ---- below is for after, when auto starts and then the position is used ----
+        //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
         //telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
