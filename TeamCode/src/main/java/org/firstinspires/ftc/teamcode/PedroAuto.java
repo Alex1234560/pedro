@@ -17,6 +17,9 @@ public class PedroAuto extends OpMode {
 
     private Follower follower;
 
+    //1 == true, 0 == false
+    private double isRed = 1;
+
     private Timer pathTimer, opModeTimer;
 
     // -------- FLYWHEEL SETUP -------
@@ -35,12 +38,32 @@ public class PedroAuto extends OpMode {
     }
     PathState pathState;
 
+    private double Switcher = 144 * isRed; // if red ==144, else == 0
+    private double AngleFlip = 180 *isRed;
 
+    private double xFlip(double oPos){
+        //return Switcher + oPos * nFin; Levi
+        return Switcher-oPos; // Alex
+    }
 
-    private final Pose startPose = new Pose(18, 121.2, Math.toRadians(144));
+    private double angleFlip(double oAng) {
+        //double DtC = oAng + 90;
+        //return Math.toRadians((DtC*negSwitch) - 90); LEVI
+        return AngleFlip-oAng;
+    }
+
+    /*private final Pose startPose = new Pose(18, 121.2, Math.toRadians(144));
     private final Pose shootPos = new Pose(59, 85, Math.toRadians(144));
     private final Pose intakeStart = new Pose(44.147, 59.348, Math.toRadians(180));
-    private final Pose intakeEnd = new Pose(20.662,   59.348, Math.toRadians(180));
+    private final Pose intakeEnd = new Pose(20.662,   59.348, Math.toRadians(180));*/
+
+    //Wrap x in xF, this accounts for left to right swapping. Wrap anlges in aF, this accounts for rotational mirroring and also takes care of the toRad
+
+    private final Pose startPose = new Pose(xFlip(18), 121.2, angleFlip(144));
+    private final Pose shootPos = new Pose(xFlip(59), 85, angleFlip(144));
+    private final Pose intakeStart = new Pose(xFlip(44.147), 59.348, angleFlip(180));
+    private final Pose intakeEnd = new Pose(xFlip(20.662),  59.348, angleFlip(180));
+
 
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;
 
