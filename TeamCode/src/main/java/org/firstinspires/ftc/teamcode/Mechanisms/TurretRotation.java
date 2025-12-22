@@ -44,16 +44,7 @@ public class TurretRotation {
             kF
     );
 
-    //Returns angle of robot to goal
-    //Needs to be linked and idk if this is what you meant
-    public double getM (double goalPosx, double goalPosy, double curPosx, double curPosy){
 
-
-        double x = goalPosx - curPosx;
-        double y = goalPosy - curPosy;
-
-        return Math.atan(y/x);
-    }
 
 
     public void init(HardwareMap hardwareMap){
@@ -106,6 +97,15 @@ public class TurretRotation {
         return TurretRotatorMotor.getCurrentPosition();
     }
 
+    public double getM (double goalPosx, double goalPosy, double curPosx, double curPosy){
+
+
+        double x = goalPosx - curPosx;
+        double y = goalPosy - curPosy;
+
+        return Math.atan(y/x);
+        //if doesnt work can try this: return Math.atan2(x, y); // angle from Y-axis
+    }
 
     public static class SimplePIDF {
         public double kP, kI, kD,kF;
