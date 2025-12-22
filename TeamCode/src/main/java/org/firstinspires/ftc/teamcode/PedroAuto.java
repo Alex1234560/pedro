@@ -35,6 +35,8 @@ public class PedroAuto extends OpMode {
     }
     PathState pathState;
 
+
+
     private final Pose startPose = new Pose(18, 121.2, Math.toRadians(144));
     private final Pose shootPos = new Pose(59, 85, Math.toRadians(144));
     private final Pose intakeStart = new Pose(44.147, 59.348, Math.toRadians(180));

@@ -30,6 +30,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
@@ -53,7 +54,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-
+@Configurable
 @TeleOp
 //
 public class CleanTeleop extends LinearOpMode {
@@ -83,13 +84,14 @@ public class CleanTeleop extends LinearOpMode {
 
     //pedro stuff
     private Follower follower;
-    public static Pose startingPose; //See ExampleAuto to understand how to use this
+    //public static Pose startingPose; //See ExampleAuto to understand how to use this
 
     //private TelemetryManager telemetryM;
 
     private FunctionsAndValues FAndV;
 
     public static boolean fieldCentricDrive = false;
+    public static double side = 1; // 1 == blue, -1==red
 
     // angle for hooded shooter
     double HoodAngle = 0;// value from 0 to 1.0
@@ -125,13 +127,14 @@ public class CleanTeleop extends LinearOpMode {
 
         turretRotation.init(hardwareMap);
         // remove the following once the turret stuff is integrated into the auto, this will go in the auto
-        turretRotation.TurretCalibrateToCenter();
+        //turretRotation.TurretCalibrateToCenter();
         //--------------- ^^ -------------------------
 
         vision = new AprilTagVision(hardwareMap, "Webcam");
         intake.init(hardwareMap);
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
+        //hard set pose for now
         follower.setStartingPose(new Pose(0,0,Math.toRadians(0)));
         // ---- below is for after, when auto starts and then the position is used ----
         //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
@@ -211,23 +214,6 @@ public class CleanTeleop extends LinearOpMode {
 
         telemetry.update();
     }
-    /*
-    private void handleShooterRotation(){
-        //this function will return current value unless able to adjust it, with autoaim and autoaim activated
-        double[] ShooterRotatorServoAngle = FAndV.calculateShooterRotation(AprilTagBearing, AutoAim,currentAngle,false , range);
-        ShooterRotatorServo.setPosition(ShooterRotatorServoAngle[0]);
-        currentAngle = ShooterRotatorServoAngle[1];
-        AprilTagBearing = ShooterRotatorServoAngle[2];
-
-        //if (gamepad2.dpad_left && currentAngle < 180) {currentAngle += 2;}
-        //if (gamepad2.dpad_right && currentAngle > 0) {currentAngle -= 2;}
-        currentAngle -= gamepad2.right_stick_x*5;
-        if (currentAngle > 180) {currentAngle = 180;}
-        if (currentAngle < 0) {currentAngle = 0;}
-
-        if (gamepad2.right_stick_button){currentAngle = 90;}
-
-    }*/
 
     private void SpeedAndAngleAutoAimUpdate(){
 
@@ -365,12 +351,33 @@ public class CleanTeleop extends LinearOpMode {
 
         //send commands to pedro.
 
-        follower.setTeleOpDrive(
-                axial,
-                lateral,
-                yaw,
-                !fieldCentricDrive // Robot Centric
-        );
+        if (!fieldCentricDrive){
+
+            follower.setTeleOpDrive(
+                    axial,
+                    lateral,
+                    yaw,
+                    true // Robot Centric
+            );
+        }
+        else if (side==1){
+            follower.setTeleOpDrive(
+
+                    -lateral,
+                    axial,
+                    yaw,
+                    false // Robot Centric
+            );
+        }
+        else if (side==-1){
+            follower.setTeleOpDrive(
+
+                    lateral,
+                    -axial,
+                    yaw,
+                    false // Robot Centric
+            );
+        }
 
 
 

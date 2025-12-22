@@ -32,10 +32,10 @@ public class TurretRotation {
 
     public static double GoalAngle = 10;
 
-    public static double kP = 0.000001;
-    public static double kI = 0.005;
-    public static double kD = 0.0001;
-    public static double kF = .097;
+    public static double kP = 0.002;
+    public static double kI = 0;
+    public static double kD = 0.00001;
+    public static double kF = .05;
 
     SimplePIDF RotationalPIDF = new SimplePIDF(
             kP,  // kP  (start small)

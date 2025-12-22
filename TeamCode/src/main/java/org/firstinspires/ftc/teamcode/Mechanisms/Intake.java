@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Mechanisms;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -17,6 +18,8 @@ public class Intake {
     public void init(HardwareMap hardwareMap) {
         IntakeMotor = hardwareMap.get(DcMotorEx.class, "INTAKE");
         IntakeHelperCRServo = hardwareMap.get(CRServo.class, "ServoHelper");
+
+        IntakeHelperCRServo.setDirection(CRServo.Direction.REVERSE);
     }
 
     public void start() {

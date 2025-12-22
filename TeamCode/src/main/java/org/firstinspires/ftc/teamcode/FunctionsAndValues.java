@@ -51,7 +51,7 @@ public class FunctionsAndValues {
     public double ReCalibrateShooterSpeed(double GoalTPS) {
         return calculateSpeedForShooter(GoalTPS);
     }
-
+/*
     public double[] calculateShooterRotation(double bearing, boolean autorotate, double currentAngle, boolean auto, double range) {
         double rotationCompensation = 0;
         if (auto){
@@ -112,7 +112,7 @@ public class FunctionsAndValues {
         ValuesForAngleAndCurrentAngleAndNewBearing[2] = newBearing;
 
         return ValuesForAngleAndCurrentAngleAndNewBearing;
-    }
+    }*/
 
 
     //range to rpm and angle
