@@ -46,6 +46,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -63,14 +64,15 @@ public class CleanTeleop extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     //private DcMotorEx IntakeMotor = null;
     //private CRServo StopIntakeServo = null;
-    private DcMotorEx ShooterMotor = null;
-    private DcMotorEx ShooterMotor2 = null;
-    private CRServo BallFeederServo = null;
-    private CRServo BallFeederServo2 = null;
+//    private DcMotorEx ShooterMotor = null;
+//    private DcMotorEx ShooterMotor2 = null;
+//    private CRServo BallFeederServo = null;
+//    private CRServo BallFeederServo2 = null;
 
 
 
     private Intake intake = new Intake();
+    private FlywheelLogic shooter = new FlywheelLogic();
 
 
     //pedro stuff
@@ -101,6 +103,7 @@ public class CleanTeleop extends LinearOpMode {
 
     // --- Button Variables For Shooter ---
     private boolean shooterMotorOn = false;      // Tracks if the motor should be on or off
+    private double ShootMechanismPower;
 
     //declaring button globally
     //private boolean autoAimButton = false;
@@ -113,7 +116,7 @@ public class CleanTeleop extends LinearOpMode {
     public void runOpMode() {
         //currentAngle=90;//center current angle for shooter
         SetupHardware();
-
+        shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
         // remove the following once the turret stuff is integrated into the auto, this will go in the auto
 
@@ -149,6 +152,7 @@ public class CleanTeleop extends LinearOpMode {
             //pedro
             turretRotation.update(Math.toDegrees(follower.getHeading()),follower.getPose().getX(),follower.getPose().getY());
             follower.update();
+            shooter.update();
             //telemetryM.update();
 
             if (gamepad2.aWasPressed()) {AutoAim = true;}
@@ -158,7 +162,7 @@ public class CleanTeleop extends LinearOpMode {
             handleDriving();
             handleIntake();
             handleShooterServos();
-            handleFlywheel();
+            //handleFlywheel();
             //handleShooterRotation();
             SpeedAndAngleAutoAimUpdate();
             TelemetryStatements();
@@ -168,6 +172,35 @@ public class CleanTeleop extends LinearOpMode {
             //telemetryM.debug("velocity", follower.getVelocity());
 
             //autoLock();
+
+//
+
+//            if (!shooterMotorOn){
+//                shooter.TurnFlywheelOff();
+//                shooter.SetIdle();
+//            }
+
+            if (gamepad2.xWasPressed()) {//(isXPressed && !wasXButtonPressed) {
+                shooterMotorOn = true;
+                shooter.fireShots(1);
+            }
+            if (gamepad2.yWasPressed()) {//(isXPressed && !wasXButtonPressed) {
+                shooterMotorOn = false;
+            }
+
+
+            telemetry.addData("isFlywheelUpToSpeed: " ,shooter.IsFlywheelUpToSpeed());
+            telemetry.addData("FlywheelSpeed: " ,shooter.GetFLywheelSpeed());
+
+//            if (ShootMechanismPower == 0){
+//                shooter.fireShots(0);
+//            }
+//            else if (!shooter.isBusy() && shooterMotorOn && ShootMechanismPower==1){
+//                shooter.fireShots(1);
+//            }
+//
+
+            //ShootMechanismPower
         }
     }
 
@@ -219,6 +252,7 @@ public class CleanTeleop extends LinearOpMode {
         }
     }
 
+    /*
     private void handleFlywheel(){
 
         shooterTPS = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
@@ -245,11 +279,11 @@ public class CleanTeleop extends LinearOpMode {
         ShooterMotor2.setPower(ShooterMotorPower);
 
         telemetry.addData("ShooterMotorSpeed= ", ShooterMotorPower);
-    }
+    }*/
 
     private void handleIntake() {
         // handle feeding to shooter
-        double ShootMechanismPower = 0; //Positive value = shooting, negative value = retract balls and spit them out
+         ShootMechanismPower = 0; //Positive value = shooting, negative value = retract balls and spit them out
 
         if (!gamepad2.right_bumper && gamepad2.right_trigger > 0 && Math.abs(GoalShooterMotorTPS - shooterTPS) <= FunctionsAndValues.SpeedToleranceToStartShooting) {//(Math.abs(GoalShooterMotorTPS - shooterTPS) <= ToleranceForShooting)
             ShootMechanismPower=1;
@@ -268,11 +302,13 @@ public class CleanTeleop extends LinearOpMode {
         }
 
 
-        //IntakeMotor.setPower(-gamepad2.right_trigger * ShootMechanismPower);
+        /*//IntakeMotor.setPower(-gamepad2.right_trigger * ShootMechanismPower);
         //StopIntakeMotor.setPower(gamepad2.right_trigger *ShootMechanismPower);
         BallFeederServo.setPower(gamepad2.right_trigger * ShootMechanismPower);
         if (ShootMechanismPower==-1){BallFeederServo.setPower(-1);}
         BallFeederServo2.setPower(BallFeederServo.getPower());
+
+         */
 
 
         //handle normal intake stuff
@@ -374,10 +410,10 @@ public class CleanTeleop extends LinearOpMode {
     private void SetupHardware(){
         //IntakeMotor = hardwareMap.get(DcMotorEx.class, "INTAKE");
         //StopIntakeServo = hardwareMap.get(DcMotor.class, "StopIntake");
-        ShooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");
+        /*ShooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");
         ShooterMotor2 = hardwareMap.get(DcMotorEx.class, "Shooter2");
         BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
-        BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");
+        BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");*/
         //ShooterRotatorServo = hardwareMap.get(Servo.class, "ShooterRotatorServo");
         ServoShooter1 = hardwareMap.get(Servo.class, "ServoShooter1");
         ReadyToShootServo = hardwareMap.get(Servo.class, "IndicatorServo");
@@ -386,10 +422,10 @@ public class CleanTeleop extends LinearOpMode {
         //directions
         //BallFeederServo2.setDirection(CRServo.Direction.REVERSE);
         //ServoShooter1.setDirection(Servo.Direction.REVERSE);
-        ShooterMotor2.setDirection(DcMotorEx.Direction.REVERSE);
+        /*ShooterMotor2.setDirection(DcMotorEx.Direction.REVERSE);
         // run shooter with encoder
         ShooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        ShooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ShooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); */
         //IntakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 

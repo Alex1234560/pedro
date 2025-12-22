@@ -3,14 +3,19 @@ package org.firstinspires.ftc.teamcode.Mechanisms;
 
 
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.teamcode.FunctionsAndValues;
 
+import java.util.function.Function;
+
+@Configurable
 public class FlywheelLogic {
     private FunctionsAndValues FAndV;
     private DcMotorEx ShooterMotor = null;
@@ -30,16 +35,24 @@ public class FlywheelLogic {
     private FlywheelState flywheelState;
 
     // ----------- FEEDER CONSTANTS -------------
-    private double FEEDER_ON_TIME = 1;
+    public static double FEEDER_ON_TIME = 5;
 
     //------------- FLYWHEEL CONSTANTS ------------
+
+    // ------------- adjust depending on flywheel accuracy, it will change how much the flywheel slows down, which u can detect.
+    public static double FLYWHEEL_AFTER_SHOT_SLOWDOWN = FunctionsAndValues.SpeedToleranceToStartShooting;
+
+
     private int shotsRemaining = 0;
     private double flywheelVelocity = 0;
-    private double TARGET_FLYWHEEL_RPM = 1200;
-    private double FLYWHEEL_MAX_SPINUP_TIME = 2;
+    public static double TARGET_FLYWHEEL_RPM = 1300;
+    public static double FLYWHEEL_MAX_SPINUP_TIME = 2.5;
+    //so flywheel is stable when starting to spin up, cuz it overshoots, and it allows it to launch but then it exceeds it cuz it overshoots.
+    public static double FLYWHEEL_MIN_SPINUP_TIME = .5;
 
     public void init(HardwareMap hardwareMap){
         FAndV = new FunctionsAndValues();
+
 
         BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
         BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");
@@ -61,26 +74,43 @@ public class FlywheelLogic {
     }
 
     public void SetMotorPowerToTarget(){
-        flywheelVelocity= FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
-        double power = FAndV.handleShooter(flywheelVelocity, true, TARGET_FLYWHEEL_RPM, ShooterMotor.getPower());
+        double power = FAndV.handleShooter(flywheelVelocity,true,TARGET_FLYWHEEL_RPM,ShooterMotor.getPower());
+        if (power<0){power=0;}
+        //double power = FAndV.handleShooter(flywheelVelocity, true, TARGET_FLYWHEEL_RPM, ShooterMotor.getPower());
         ShooterMotor.setPower(power);
         ShooterMotor2.setPower(power);
     }
 
-    public void FlywheelOff() {
+    public void TurnFlywheelOff() {
         ShooterMotor.setPower(0);
         ShooterMotor2.setPower(0);
+        flywheelState = FlywheelState.IDLE;
+    }
+
+    public void SetIdle(){
+        stateTimer.reset();
+        flywheelState = FlywheelState.IDLE;
     }
 
     public boolean IsFlywheelUpToSpeed(){
         return Math.abs(Math.abs(flywheelVelocity) - Math.abs(TARGET_FLYWHEEL_RPM)) < FunctionsAndValues.SpeedToleranceToStartShooting;
+    }
+    public boolean IsFlywheelSlowedFromShot(){
+        return Math.abs(TARGET_FLYWHEEL_RPM) - Math.abs(flywheelVelocity)  > FLYWHEEL_AFTER_SHOT_SLOWDOWN;
     }
 
     public void start(){
         SetMotorPowerToTarget();
     }
 
+    public double GetFLywheelSpeed(){
+        return flywheelVelocity;
+    }
+
+
+
     public void update(){
+        flywheelVelocity= FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
 
         switch (flywheelState) {
             case IDLE:
@@ -93,16 +123,15 @@ public class FlywheelLogic {
 
             case SPIN_UP:
                 SetMotorPowerToTarget();
-                if (IsFlywheelUpToSpeed() || stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
+                if (IsFlywheelUpToSpeed() && stateTimer.seconds() > FLYWHEEL_MIN_SPINUP_TIME|| stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
                     BallFeederServo.setPower(1);
                     BallFeederServo2.setPower(1);
-
                     stateTimer.reset();
                     flywheelState = FlywheelState.LAUNCH;
                 }
                 break;
             case LAUNCH:
-                if (stateTimer.seconds() > FEEDER_ON_TIME || !IsFlywheelUpToSpeed()){
+                if (stateTimer.seconds() > FEEDER_ON_TIME || IsFlywheelSlowedFromShot() ){
                     shotsRemaining--;
                     BallFeederServo.setPower(0);
                     BallFeederServo2.setPower(0);
@@ -118,9 +147,8 @@ public class FlywheelLogic {
                     flywheelState= FlywheelState.SPIN_UP;
                 }
                 else{
-                    FlywheelOff();
+                    TurnFlywheelOff();
                     stateTimer.reset();
-                    flywheelState= FlywheelState.IDLE;
                 }
                 break;
 

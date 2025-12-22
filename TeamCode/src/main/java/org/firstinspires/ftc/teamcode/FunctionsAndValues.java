@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode; // Make sure this matches your team's package name
 
 //import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.util.Range;
 
 /**
@@ -8,7 +9,7 @@ import com.qualcomm.robotcore.util.Range;
  * It simplifies OpModes by hiding the complex setup of the VisionPortal and providing
  * easy-to-use methods for accessing detection data.
  */
-
+@Configurable
 public class FunctionsAndValues {
 
     private static double BackRangeStart = 90;
@@ -33,7 +34,7 @@ public class FunctionsAndValues {
 
     public static double GearRatio = 3;
 
-
+    public static double kF = 0.000415873;
     public static double kP = 0.005;
     public static double kI = 0;
     public static double kD = 0;
@@ -41,7 +42,8 @@ public class FunctionsAndValues {
     SimplePIDF flywheelPIDF = new SimplePIDF(
             kP,  // kP  (start small)
             kI,     // kI  (usually 0)
-            kD     // kD  (often 0)
+            kD,     // kD  (often 0)
+            kF
     );
 
     public FunctionsAndValues() {
@@ -174,15 +176,16 @@ public class FunctionsAndValues {
     }
 
     public static class SimplePIDF {
-        public double kP, kI, kD;
+        public double kP, kI, kD,kF;
 
         private double integral = 0;
         private double lastError = 0;
 
-        public SimplePIDF(double kP, double kI, double kD) {
+        public SimplePIDF(double kP, double kI, double kD,double kF) {
             this.kP = kP;
             this.kI = kI;
             this.kD = kD;
+            this.kF = kF;
 
         }
 
@@ -201,7 +204,7 @@ public class FunctionsAndValues {
             lastError = error;
 
             // F
-            double f =0.000415873 * target + 0.0117401;  // feedforward based on target RPM
+            double f = kF * target;  // feedforward based on target RPM
 
             return p + i + d + f;
         }

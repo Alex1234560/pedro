@@ -173,8 +173,6 @@ public class PedroAuto extends OpMode {
 
     @Override
     public void loop(){
-        telemetry.addData("Latest Upload dec 20 6:29 pm", true);
-
 
         follower.update();
         shooter.update();
