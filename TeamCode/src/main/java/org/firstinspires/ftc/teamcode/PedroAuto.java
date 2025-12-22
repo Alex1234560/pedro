@@ -15,6 +15,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @TeleOp
 public class PedroAuto extends OpMode {
 
+    //1 == true, 0 == false
+    private double isRed = 1;
+    
     private Follower follower;
 
     private Timer pathTimer, opModeTimer;
@@ -35,10 +38,25 @@ public class PedroAuto extends OpMode {
     }
     PathState pathState;
 
-    private final Pose startPose = new Pose(18, 121.2, Math.toRadians(144));
-    private final Pose shootPos = new Pose(59, 85, Math.toRadians(144));
-    private final Pose intakeStart = new Pose(44.147, 59.348, Math.toRadians(180));
-    private final Pose intakeEnd = new Pose(20.662,   59.348, Math.toRadians(180));
+
+    private double Switcher = 144 * isRed;
+    private double nFin = (-2*isRed) + 1;
+    private double negSwitch = 1-(2*isRed);
+    private double xF(double oPos){
+        return Switcher + oPos * nFin;
+    }
+
+    private double aF(double oAng) {
+        double DtC = oAng + 90;
+        return Math.toRadians((DtC*negSwitch) - 90);
+    }
+
+    //Wrap x in xF, this accounts for left to right swapping. Wrap anlges in aF, this accounts for rotational mirroring and also takes care of the toRad
+    
+    private final Pose startPose = new Pose(xF(18), 121.2, aF(144));
+    private final Pose shootPos = new Pose(xF(59), 85, aF(144));
+    private final Pose intakeStart = new Pose(xF(44.147), 59.348, aF(180));
+    private final Pose intakeEnd = new Pose(xF(20.662),  59.348, aF(180));
 
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;
 
