@@ -32,7 +32,7 @@ public class TurretRotation {
 
     public static double GoalAngle = 0;
 
-    public static double SWITCH_ANGLE = 215;
+    public static double SWITCH_ANGLE = 135;
 
     public static double kP = 0.0025;
     public static double kI = 0.0001;
