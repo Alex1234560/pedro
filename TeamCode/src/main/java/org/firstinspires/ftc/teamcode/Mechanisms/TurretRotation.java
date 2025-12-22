@@ -46,7 +46,7 @@ public class TurretRotation {
 
     //Returns angle of robot to goal
     //Needs to be linked and idk if this is what you meant
-    public double getM (goalPosx, goalPosy, curPosx, curPosy){
+    public double getM (double goalPosx, double goalPosy, double curPosx, double curPosy){
 
 
         double x = goalPosx - curPosx;
