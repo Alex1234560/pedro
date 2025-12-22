@@ -35,12 +35,12 @@ public class FlywheelLogic {
     private FlywheelState flywheelState;
 
     // ----------- FEEDER CONSTANTS -------------
-    public static double FEEDER_ON_TIME = 5;
+    public static double FEEDER_ON_TIME = 3;
 
     //------------- FLYWHEEL CONSTANTS ------------
 
     // ------------- adjust depending on flywheel accuracy, it will change how much the flywheel slows down, which u can detect.
-    public static double FLYWHEEL_AFTER_SHOT_SLOWDOWN = FunctionsAndValues.SpeedToleranceToStartShooting;
+    public static double FLYWHEEL_AFTER_SHOT_SLOWDOWN = 100;
 
 
     private int shotsRemaining = 0;
@@ -85,6 +85,8 @@ public class FlywheelLogic {
         ShooterMotor.setPower(0);
         ShooterMotor2.setPower(0);
         flywheelState = FlywheelState.IDLE;
+        BallFeederServo.setPower(0);
+        BallFeederServo2.setPower(0);
     }
 
     public void SetIdle(){

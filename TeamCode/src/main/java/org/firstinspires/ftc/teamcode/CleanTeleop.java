@@ -182,22 +182,28 @@ public class CleanTeleop extends LinearOpMode {
 
             if (gamepad2.xWasPressed()) {//(isXPressed && !wasXButtonPressed) {
                 shooterMotorOn = true;
-                shooter.fireShots(1);
             }
             if (gamepad2.yWasPressed()) {//(isXPressed && !wasXButtonPressed) {
                 shooterMotorOn = false;
             }
+            //if (!shooterMotorOn){shooter.TurnFlywheelOff();}
+
+            if (shooterMotorOn){shooter.SetMotorPowerToTarget();}
+            else{shooter.TurnFlywheelOff();}
 
 
-            telemetry.addData("isFlywheelUpToSpeed: " ,shooter.IsFlywheelUpToSpeed());
-            telemetry.addData("FlywheelSpeed: " ,shooter.GetFLywheelSpeed());
+
 
 //            if (ShootMechanismPower == 0){
 //                shooter.fireShots(0);
+//                shooter.SetIdle();
 //            }
 //            else if (!shooter.isBusy() && shooterMotorOn && ShootMechanismPower==1){
 //                shooter.fireShots(1);
 //            }
+
+            telemetry.addData("isFlywheelUpToSpeed: " ,shooter.IsFlywheelUpToSpeed());
+            telemetry.addData("FlywheelSpeed: " ,shooter.GetFLywheelSpeed());
 //
 
             //ShootMechanismPower
@@ -285,15 +291,15 @@ public class CleanTeleop extends LinearOpMode {
         // handle feeding to shooter
          ShootMechanismPower = 0; //Positive value = shooting, negative value = retract balls and spit them out
 
-        if (!gamepad2.right_bumper && gamepad2.right_trigger > 0 && Math.abs(GoalShooterMotorTPS - shooterTPS) <= FunctionsAndValues.SpeedToleranceToStartShooting) {//(Math.abs(GoalShooterMotorTPS - shooterTPS) <= ToleranceForShooting)
-            ShootMechanismPower=1;
-//            if (vision.isTagVisible() && Math.abs(AprilTagBearing) > FunctionsAndValues.AngleToleranceToStartShooting){
-//                // should make it so that if ur scanning the code and bearing is more than blah blah, it doesnt let u shoot
-//                ShootMechanismPower=0;
-//            }
-        }
+//        if (!gamepad2.right_bumper && gamepad2.right_trigger > 0 && Math.abs(GoalShooterMotorTPS - shooterTPS) <= FunctionsAndValues.SpeedToleranceToStartShooting) {//(Math.abs(GoalShooterMotorTPS - shooterTPS) <= ToleranceForShooting)
+//            ShootMechanismPower=1;
+////            if (vision.isTagVisible() && Math.abs(AprilTagBearing) > FunctionsAndValues.AngleToleranceToStartShooting){
+////                // should make it so that if ur scanning the code and bearing is more than blah blah, it doesnt let u shoot
+////                ShootMechanismPower=0;
+////            }
+//        }
 
-        else if (gamepad2.right_bumper&& gamepad2.right_trigger > 0) {
+        if ( gamepad2.right_trigger > 0) {
             ShootMechanismPower=1;
         }
 
