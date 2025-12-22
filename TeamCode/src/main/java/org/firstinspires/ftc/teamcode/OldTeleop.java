@@ -54,7 +54,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @TeleOp
 @Disabled
 //
-public class CleanTeleop extends LinearOpMode {
+public class OldTeleop extends LinearOpMode {
     // Hardware Setup Variables
     private Servo ServoShooter1;
     private Servo ReadyToShootServo;
@@ -68,7 +68,13 @@ public class CleanTeleop extends LinearOpMode {
     private CRServo BallFeederServo = null;
     private CRServo BallFeederServo2 = null;
 
+    //private Servo ShooterRotatorServo = null;
+    private IMU imu;
 
+    //classes
+    //Vision !!!
+    private double startingAngleRad = Math.toRadians(0);
+    private AprilTagVision vision;
 
     private Intake intake = new Intake();
 
@@ -90,6 +96,8 @@ public class CleanTeleop extends LinearOpMode {
     //april tag stuff
     private double AprilTagBearing = 0;
 
+    private boolean SelfAimToggle = true;
+    public static double currentAngle = 90;
 
     //Variables for statement printing
     private static double ShooterMotorPower = 0;
@@ -110,7 +118,8 @@ public class CleanTeleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        //currentAngle=90;//center current angle for shooter
+        currentAngle=90;//center current angle for shooter
+        InitializeIMU();
         SetupHardware();
 
         turretRotation.init(hardwareMap);
@@ -118,6 +127,7 @@ public class CleanTeleop extends LinearOpMode {
         //turretRotation.TurretCalibrateToCenter();
         //--------------- ^^ -------------------------
 
+        vision = new AprilTagVision(hardwareMap, "Webcam");
         intake.init(hardwareMap);
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
@@ -138,6 +148,9 @@ public class CleanTeleop extends LinearOpMode {
         waitForStart();
         //pedro
         follower.startTeleopDrive();
+
+        vision.setManualExposure(AprilTagVision.myExposure, AprilTagVision.myGain);
+        imu.resetYaw();
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
@@ -150,7 +163,8 @@ public class CleanTeleop extends LinearOpMode {
             if (gamepad2.aWasPressed()) {AutoAim = true;}
             if (gamepad2.bWasPressed()) {AutoAim = false;}
 
-
+            vision.update();
+            updateBearing();
             handleDriving();
             handleIntake();
             handleShooterServos();
@@ -159,6 +173,7 @@ public class CleanTeleop extends LinearOpMode {
             SpeedAndAngleAutoAimUpdate();
             TelemetryStatements();
             handleUserShootingRanges();
+            updateReadyToShoot();
 
             //telemetryM.debug("position", follower.getPose());
             //telemetryM.debug("velocity", follower.getVelocity());
@@ -166,6 +181,20 @@ public class CleanTeleop extends LinearOpMode {
             //autoLock();
         }
     }
+
+    private void updateReadyToShoot(){
+        //(Math.abs(GoalShooterMotorTPS - shooterTPS) <= FunctionsAndValues.SpeedToleranceToStartShooting){
+        if (vision.isTagVisible()) {
+            if (Math.abs(AprilTagBearing) < FunctionsAndValues.AngleToleranceToStartShooting && shooterTPS > FunctionsAndValues.MinimumSpeed) {
+                ReadyToShootServo.setPosition(1);
+            } else {
+                ReadyToShootServo.setPosition(.66666666);
+            }
+        }
+        else{
+            ReadyToShootServo.setPosition(.33333);
+        }
+}
 
     private void TelemetryStatements(){
         telemetry.addData("FieldCentricDrive?: ", fieldCentricDrive);
@@ -185,9 +214,9 @@ public class CleanTeleop extends LinearOpMode {
 
     private void SpeedAndAngleAutoAimUpdate(){
 
-//        if (vision.getRange()!=-1) {
-//            range = vision.getRange();
-//        }
+        if (vision.getRange()!=-1) {
+            range = vision.getRange();
+        }
 
 
         if (AutoAim){
@@ -202,7 +231,7 @@ public class CleanTeleop extends LinearOpMode {
         if (gamepad2.left_bumper){
             AutoAim = false;
             //ShooterRotatorServo.setPosition(.5);
-            //currentAngle = 90;
+            currentAngle = 90;
             GoalShooterMotorTPS = 1025;
             ShooterAngle = .15;
         }
@@ -219,28 +248,28 @@ public class CleanTeleop extends LinearOpMode {
 
         shooterTPS = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
 
-        //flywheel stuff.
+    //flywheel stuff.
 
-        if (gamepad2.xWasPressed()) {//(isXPressed && !wasXButtonPressed) {
-            shooterMotorOn = true;
-        }
+    if (gamepad2.xWasPressed()) {//(isXPressed && !wasXButtonPressed) {
+        shooterMotorOn = true;
+    }
         if (gamepad2.yWasPressed()) {//(isXPressed && !wasXButtonPressed) {
             shooterMotorOn = false;
         }
 
-        if (gamepad2.dpadDownWasPressed() && GoalShooterMotorTPS > FunctionsAndValues.MinimumSpeed) {
-            GoalShooterMotorTPS -= 20;
-        }
-        else if (gamepad2.dpadUpWasPressed() && GoalShooterMotorTPS < 2400) {
-            GoalShooterMotorTPS += 20;
+    if (gamepad2.dpadDownWasPressed() && GoalShooterMotorTPS > FunctionsAndValues.MinimumSpeed) {
+        GoalShooterMotorTPS -= 20;
+    }
+    else if (gamepad2.dpadUpWasPressed() && GoalShooterMotorTPS < 2400) {
+        GoalShooterMotorTPS += 20;
 
-        }
+    }
 
-        ShooterMotorPower = FAndV.handleShooter(shooterTPS,shooterMotorOn,GoalShooterMotorTPS, ShooterMotorPower);
-        ShooterMotor.setPower(ShooterMotorPower);
-        ShooterMotor2.setPower(ShooterMotorPower);
+    ShooterMotorPower = FAndV.handleShooter(shooterTPS,shooterMotorOn,GoalShooterMotorTPS, ShooterMotorPower);
+    ShooterMotor.setPower(ShooterMotorPower);
+    ShooterMotor2.setPower(ShooterMotorPower);
 
-        telemetry.addData("ShooterMotorSpeed= ", ShooterMotorPower);
+    telemetry.addData("ShooterMotorSpeed= ", ShooterMotorPower);
     }
 
     private void handleIntake() {
@@ -367,6 +396,32 @@ public class CleanTeleop extends LinearOpMode {
 
     }
 
+    private void updateBearing(){
+        if (vision.isTagVisible()) {
+            //telemetry.addData("ID", vision.getID());
+            if (vision.getID() == 20 || vision.getID() == 24) {
+                telemetry.addData("GOAL TAG?: ", vision.isTagVisible());
+                telemetry.addData("Range", "%.2f in", vision.getRange());
+                //telemetry.addData("Yaw", "%.2f deg", vision.getYaw());
+                //telemetry.addData("X Offset", "%.2f in", vision.getX());
+                AprilTagBearing = vision.getBearing();
+            }
+        }
+        telemetry.addData("Bearing", "%.2f Deg", AprilTagBearing);
+    }
+
+    private void InitializeIMU() {
+        // Drivetrain & IMU
+        imu = hardwareMap.get(IMU.class, "imu");
+
+        // Configure the IMU. This is critical for field-centric drive.
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+        imu.initialize(parameters);
+
+    }
+
     private void SetupHardware(){
         //IntakeMotor = hardwareMap.get(DcMotorEx.class, "INTAKE");
         //StopIntakeServo = hardwareMap.get(DcMotor.class, "StopIntake");
@@ -389,4 +444,4 @@ public class CleanTeleop extends LinearOpMode {
         //IntakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-}
+  }

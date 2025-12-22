@@ -60,45 +60,49 @@ public class FlywheelLogic {
 
     }
 
+    public void SetMotorPowerToTarget(){
+        flywheelVelocity= FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
+        double power = FAndV.handleShooter(flywheelVelocity, true, TARGET_FLYWHEEL_RPM, ShooterMotor.getPower());
+        ShooterMotor.setPower(power);
+        ShooterMotor2.setPower(power);
+    }
+
+    public void FlywheelOff() {
+        ShooterMotor.setPower(0);
+        ShooterMotor2.setPower(0);
+    }
+
+    public boolean IsFlywheelUpToSpeed(){
+        return Math.abs(Math.abs(flywheelVelocity) - Math.abs(TARGET_FLYWHEEL_RPM)) < FunctionsAndValues.SpeedToleranceToStartShooting;
+    }
+
     public void start(){
-        ShooterMotor.setPower(FAndV.calculateSpeedForShooter(TARGET_FLYWHEEL_RPM));
-        ShooterMotor2.setPower(FAndV.calculateSpeedForShooter(TARGET_FLYWHEEL_RPM));
+        SetMotorPowerToTarget();
     }
 
     public void update(){
-        flywheelVelocity= FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
 
         switch (flywheelState) {
             case IDLE:
                 if (shotsRemaining > 0) {
-
-                    ShooterMotor.setPower(FAndV.calculateSpeedForShooter(TARGET_FLYWHEEL_RPM));
-                    ShooterMotor2.setPower(FAndV.calculateSpeedForShooter(TARGET_FLYWHEEL_RPM));
-
+                    SetMotorPowerToTarget();
                     stateTimer.reset();
                     flywheelState = FlywheelState.SPIN_UP;
-
                 }
                 break;
 
             case SPIN_UP:
-
-                double power = FAndV.handleShooter(flywheelVelocity, true, TARGET_FLYWHEEL_RPM, ShooterMotor.getPower());
-                ShooterMotor.setPower(power);
-                ShooterMotor2.setPower(power);
-
-                if (Math.abs(Math.abs(flywheelVelocity) - Math.abs(TARGET_FLYWHEEL_RPM)) < FunctionsAndValues.SpeedToleranceToStartShooting
-                        || stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
+                SetMotorPowerToTarget();
+                if (IsFlywheelUpToSpeed() || stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
                     BallFeederServo.setPower(1);
                     BallFeederServo2.setPower(1);
 
                     stateTimer.reset();
-
                     flywheelState = FlywheelState.LAUNCH;
                 }
                 break;
             case LAUNCH:
-                if (stateTimer.seconds() > FEEDER_ON_TIME || Math.abs(Math.abs(flywheelVelocity) - Math.abs(TARGET_FLYWHEEL_RPM)) > FunctionsAndValues.SpeedToleranceToStartShooting){
+                if (stateTimer.seconds() > FEEDER_ON_TIME || !IsFlywheelUpToSpeed()){
                     shotsRemaining--;
                     BallFeederServo.setPower(0);
                     BallFeederServo2.setPower(0);
@@ -114,8 +118,7 @@ public class FlywheelLogic {
                     flywheelState= FlywheelState.SPIN_UP;
                 }
                 else{
-                    ShooterMotor.setPower(0);
-                    ShooterMotor2.setPower(0);
+                    FlywheelOff();
                     stateTimer.reset();
                     flywheelState= FlywheelState.IDLE;
                 }
