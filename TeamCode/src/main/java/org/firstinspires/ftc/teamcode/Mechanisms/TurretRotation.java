@@ -28,13 +28,15 @@ public class TurretRotation {
 
     public static boolean AutoRotate = true;
 
-    public static double FULL_TURN = 2614;// ticks that make a full turn
+    public static double FULL_TURN = 2725;// ticks that make a full turn
 
-    public static double GoalAngle = 10;
+    public static double GoalAngle = 0;
 
-    public static double kP = 0.002;
-    public static double kI = 0;
-    public static double kD = 0.00001;
+    public static double SWITCH_ANGLE = 215;
+
+    public static double kP = 0.0025;
+    public static double kI = 0.0001;
+    public static double kD = 0.007;
     public static double kF = .05;
 
     SimplePIDF RotationalPIDF = new SimplePIDF(
@@ -56,16 +58,19 @@ public class TurretRotation {
 
     public void update(double RobotAngleDeg, double RobotX, double RobotY){
         if (AutoRotate) {
+
+            //i think ti doesnt handle floats well, so im rounding it.
+            int IntRobotAngleDeg = (int) Math.round( RobotAngleDeg);
             double CurrentPos = TurretRotatorMotor.getCurrentPosition();
 
             //telemetry.addData("CurrentPos ", CurrentPos);
 
-            double ActualTargetAngle = GoalAngle+RobotAngleDeg;
+            double ActualTargetAngle = GoalAngle+IntRobotAngleDeg;
 
-            if (ActualTargetAngle > 180) {
+            if (ActualTargetAngle > SWITCH_ANGLE) {
                 ActualTargetAngle -= 360;
             }
-            if (ActualTargetAngle < -180) {
+            if (ActualTargetAngle < -SWITCH_ANGLE) {
                 ActualTargetAngle += 360;
             }
 
@@ -90,6 +95,7 @@ public class TurretRotation {
     public void TurretCalibrateToCenter(){
         TurretRotatorMotor.setPower(0);
         TurretRotatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
 

@@ -52,7 +52,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 @TeleOp
-@Disabled
+
 //
 public class CleanTeleop extends LinearOpMode {
     // Hardware Setup Variables
@@ -108,6 +108,7 @@ public class CleanTeleop extends LinearOpMode {
 
     private TurretRotation turretRotation = new TurretRotation();
 
+
     @Override
     public void runOpMode() {
         //currentAngle=90;//center current angle for shooter
@@ -115,7 +116,7 @@ public class CleanTeleop extends LinearOpMode {
 
         turretRotation.init(hardwareMap);
         // remove the following once the turret stuff is integrated into the auto, this will go in the auto
-        //turretRotation.TurretCalibrateToCenter();
+
         //--------------- ^^ -------------------------
 
         intake.init(hardwareMap);
@@ -139,6 +140,9 @@ public class CleanTeleop extends LinearOpMode {
         //pedro
         follower.startTeleopDrive();
         runtime.reset();
+
+        //test
+        turretRotation.TurretCalibrateToCenter();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
