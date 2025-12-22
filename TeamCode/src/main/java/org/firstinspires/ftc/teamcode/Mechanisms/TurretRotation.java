@@ -44,6 +44,16 @@ public class TurretRotation {
             kF
     );
 
+    //Returns angle of robot to goal
+    //Needs to be linked and idk if this is what you meant
+    public double getM (goalPosx, goalPosy, curPosx, curPosy){
+
+
+        double x = goalPosx - curPosx;
+        double y = goalPosy - curPosy;
+
+        return Math.atan(y/x);
+    }
 
 
     public void init(HardwareMap hardwareMap){
