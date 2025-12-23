@@ -1,4 +1,5 @@
 Make TurretRotation work, and add limits so that it won't break the cables.
+0 adapt the ranges thign, so that the top angle and speed of the shooter change as the position of the robot in the field changes.
 0 Adjust PIDF for shooter if neccesary, and make the delay between balls smaller
 1 Create simpler TeleOp with shared functions (auto & teleop)
 2 Make 2 sides for the auto
