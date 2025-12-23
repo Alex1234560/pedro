@@ -49,10 +49,6 @@ public class FunctionsAndValues {
     public FunctionsAndValues() {
 
     }
-
-    public double ReCalibrateShooterSpeed(double GoalTPS) {
-        return calculateSpeedForShooter(GoalTPS);
-    }
 /*
     public double[] calculateShooterRotation(double bearing, boolean autorotate, double currentAngle, boolean auto, double range) {
         double rotationCompensation = 0;
@@ -168,12 +164,6 @@ public class FunctionsAndValues {
         turretGoals[1] = targSpeed;
         return turretGoals;
     }
-    //rpm to power
-    public double calculateSpeedForShooter(double GoalTPS) {
-        // tweak these numbers if you need to recalibrate
-        double MotorSpeed = 0.000415873 * GoalTPS + 0.0117401;
-        return MotorSpeed;
-    }
 
     public static class SimplePIDF {
         public double kP, kI, kD,kF;
@@ -220,6 +210,7 @@ public class FunctionsAndValues {
         return newPower;
 
     }
+
     public double GetSpeedAvgFromTwoMotors(double Motor1Speed, double Motor2Speed ){
         double Speed = 0;
         double Motor1Vel = Math.abs(Motor1Speed);
@@ -242,7 +233,6 @@ public class FunctionsAndValues {
 
         return Speed;
     }
-
     }
 
 

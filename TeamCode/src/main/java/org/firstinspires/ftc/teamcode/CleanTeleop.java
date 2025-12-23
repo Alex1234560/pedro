@@ -52,16 +52,10 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public class CleanTeleop extends LinearOpMode {
     // Hardware Setup Variables
     private Servo ServoShooter1;
-    private Servo ReadyToShootServo;
+    //private Servo ReadyToShootServo;
     private static double ShooterAngle = FunctionsAndValues.startPoint;
     //setting up motors and time
     private ElapsedTime runtime = new ElapsedTime();
-    //private DcMotorEx IntakeMotor = null;
-    //private CRServo StopIntakeServo = null;
-//    private DcMotorEx ShooterMotor = null;
-//    private DcMotorEx ShooterMotor2 = null;
-//    private CRServo BallFeederServo = null;
-//    private CRServo BallFeederServo2 = null;
 
 
 
@@ -394,7 +388,7 @@ public class CleanTeleop extends LinearOpMode {
 
     private void SetupHardware(){
         ServoShooter1 = hardwareMap.get(Servo.class, "ServoShooter1");
-        ReadyToShootServo = hardwareMap.get(Servo.class, "IndicatorServo");
+        //ReadyToShootServo = hardwareMap.get(Servo.class, "IndicatorServo");
     }
 
 }
