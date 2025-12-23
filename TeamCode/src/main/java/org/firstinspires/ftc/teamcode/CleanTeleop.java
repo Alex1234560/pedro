@@ -35,14 +35,8 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -180,33 +174,21 @@ public class CleanTeleop extends LinearOpMode {
 //                shooter.SetIdle();
 //            }
 
-            if (gamepad2.xWasPressed()) {//(isXPressed && !wasXButtonPressed) {
-                shooterMotorOn = true;
-            }
-            if (gamepad2.yWasPressed()) {//(isXPressed && !wasXButtonPressed) {
-                shooterMotorOn = false;
-            }
+            if (gamepad2.xWasPressed()) {shooterMotorOn = true;}
+            if (gamepad2.yWasPressed()) {shooterMotorOn = false;}
             //if (!shooterMotorOn){shooter.TurnFlywheelOff();}
 
             if (shooterMotorOn){shooter.SetMotorPowerToTarget();}
             else{shooter.TurnFlywheelOff();}
 
 
+            if (ShootMechanismPower == 1 && shooter.IsFlywheelUpToSpeed()){
+                shooter.SpinBallFeeder(true);
+            }
+            else{shooter.SpinBallFeeder(false);}
 
+            telemetry.addData("FlywheelSpeed: " ,shooter.GetFlywheelSpeed());
 
-//            if (ShootMechanismPower == 0){
-//                shooter.fireShots(0);
-//                shooter.SetIdle();
-//            }
-//            else if (!shooter.isBusy() && shooterMotorOn && ShootMechanismPower==1){
-//                shooter.fireShots(1);
-//            }
-
-            telemetry.addData("isFlywheelUpToSpeed: " ,shooter.IsFlywheelUpToSpeed());
-            telemetry.addData("FlywheelSpeed: " ,shooter.GetFLywheelSpeed());
-//
-
-            //ShootMechanismPower
         }
     }
 
@@ -331,9 +313,6 @@ public class CleanTeleop extends LinearOpMode {
         }
 
         intake.intakeOn(IntakePowerValue);
-
-
-
     }
 
     private void handleDriving() {
@@ -414,25 +393,8 @@ public class CleanTeleop extends LinearOpMode {
     }
 
     private void SetupHardware(){
-        //IntakeMotor = hardwareMap.get(DcMotorEx.class, "INTAKE");
-        //StopIntakeServo = hardwareMap.get(DcMotor.class, "StopIntake");
-        /*ShooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");
-        ShooterMotor2 = hardwareMap.get(DcMotorEx.class, "Shooter2");
-        BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
-        BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");*/
-        //ShooterRotatorServo = hardwareMap.get(Servo.class, "ShooterRotatorServo");
         ServoShooter1 = hardwareMap.get(Servo.class, "ServoShooter1");
         ReadyToShootServo = hardwareMap.get(Servo.class, "IndicatorServo");
-
-
-        //directions
-        //BallFeederServo2.setDirection(CRServo.Direction.REVERSE);
-        //ServoShooter1.setDirection(Servo.Direction.REVERSE);
-        /*ShooterMotor2.setDirection(DcMotorEx.Direction.REVERSE);
-        // run shooter with encoder
-        ShooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        ShooterMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); */
-        //IntakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
 }
