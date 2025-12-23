@@ -17,8 +17,31 @@ public class ShooterAngle {
     private static double START_POINT = .15;
     private static double END_POINT = .9;//.7
 
+    private double normalize(double value){
+        double newValue = value;
+        if (value>END_POINT) {
+            newValue = END_POINT;
+        }
+        if (value<START_POINT) {
+            newValue = START_POINT;
+        }
+        return newValue;
+    }
+
     public void init(HardwareMap hardwareMap){
         ServoShooter1 = hardwareMap.get(Servo.class, "ServoShooter1");
+    }
+
+    public void SetPosition(double position){
+
+    }
+
+    public double getPosition(){
+        //give position so that when moving manually it can start from the current place.
+        return 1984;//position
+    }
+
+    public void SetPositionBasedOnDistance(double Distance){
 
     }
 
