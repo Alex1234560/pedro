@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.FunctionsAndValues;
 
 public class ShooterAngle {
     private Servo ServoShooter1;
-    private static double ShooterAngle = FunctionsAndValues.startPoint;
+    //private static double ShooterAngle = FunctionsAndValues.startPoint;
 
     private static double START_POINT = .15;
     private static double END_POINT = .9;//.7
@@ -33,7 +33,8 @@ public class ShooterAngle {
     }
 
     public void SetPosition(double position){
-
+        position = normalize(position);
+        ServoShooter1.setPosition(position);
     }
 
     public double getPosition(){

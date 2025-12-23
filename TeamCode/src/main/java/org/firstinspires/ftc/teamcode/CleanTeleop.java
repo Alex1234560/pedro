@@ -42,6 +42,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
+import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -51,7 +52,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 //
 public class CleanTeleop extends LinearOpMode {
     // Hardware Setup Variables
-    private Servo ServoShooter1;
+    //private Servo ServoShooter1;
     //private Servo ReadyToShootServo;
     private static double ShooterAngle = FunctionsAndValues.startPoint;
     //setting up motors and time
@@ -61,6 +62,7 @@ public class CleanTeleop extends LinearOpMode {
 
     private Intake intake = new Intake();
     private FlywheelLogic shooter = new FlywheelLogic();
+    private ShooterAngle hood = new ShooterAngle();
 
 
     //pedro stuff
@@ -103,14 +105,16 @@ public class CleanTeleop extends LinearOpMode {
     @Override
     public void runOpMode() {
         //currentAngle=90;//center current angle for shooter
-        SetupHardware();
+        hood.init(hardwareMap);
         shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
+        intake.init(hardwareMap);
+
         // remove the following once the turret stuff is integrated into the auto, this will go in the auto
 
         //--------------- ^^ -------------------------
 
-        intake.init(hardwareMap);
+
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
         //hard set pose for now
@@ -183,19 +187,20 @@ public class CleanTeleop extends LinearOpMode {
 
             telemetry.addData("FlywheelSpeed: " ,shooter.GetFlywheelSpeed());
 
+
         }
     }
 
     private void TelemetryStatements(){
-        telemetry.addData("FieldCentricDrive?: ", fieldCentricDrive);
-        telemetry.addData("EncoderPosition", turretRotation.GetCurrentPos());
+        //telemetry.addData("FieldCentricDrive?: ", fieldCentricDrive);
+        telemetry.addData("Turret Rotation Ticks/Sec ", turretRotation.GetCurrentVel());
+        telemetry.addData("Turret Rotation Ticks ", turretRotation.GetCurrentPos());
         telemetry.addData("Heading", follower.getHeading());
+        telemetry.addData("TurretRotatorLocation: " ,shooter.GetFlywheelSpeed());
 
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
+        //telemetry.addData("x", follower.getPose().getX());
+        //telemetry.addData("y", follower.getPose().getY());
 
-        telemetry.addData("GoalShooterPower= ", GoalShooterMotorTPS);
-        telemetry.addData("ShooterMotorTickPerSecond= ", shooterTPS);
 
 
 
@@ -377,18 +382,10 @@ public class CleanTeleop extends LinearOpMode {
         // This ensures it always has a value.
 
         ShooterAngle-=gamepad2.left_stick_y/22;
-        //normalize
-        if (ShooterAngle> FunctionsAndValues.endPoint){ShooterAngle= FunctionsAndValues.endPoint;}
-        if (ShooterAngle< FunctionsAndValues.startPoint){ShooterAngle= FunctionsAndValues.startPoint;}
-
-        ServoShooter1.setPosition(ShooterAngle);
+        hood.SetPosition(ShooterAngle);
         telemetry.addData("ServoAngle ", ShooterAngle );
 
     }
 
-    private void SetupHardware(){
-        ServoShooter1 = hardwareMap.get(Servo.class, "ServoShooter1");
-        //ReadyToShootServo = hardwareMap.get(Servo.class, "IndicatorServo");
-    }
 
 }

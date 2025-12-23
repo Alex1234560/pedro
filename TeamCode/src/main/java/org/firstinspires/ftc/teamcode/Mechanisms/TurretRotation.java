@@ -28,16 +28,17 @@ public class TurretRotation {
 
     public static boolean AutoRotate = true;
 
-    public static double FULL_TURN = 2725;// ticks that make a full turn
+    public static double FULL_TURN = 1660;// ticks that make a full turn
 
     public static double GoalAngle = 0;
 
     public static double SWITCH_ANGLE = 135;
+    public static double DONT_SWITCH_VALUE = 100;
 
-    public static double kP = 0.0025;
-    public static double kI = 0.0001;
-    public static double kD = 0.007;
-    public static double kF = .05;
+    public static double kP = 0.004;
+    public static double kI = 0.0005;
+    public static double kD = 0.005;
+    public static double kF = 0.025;
 
     SimplePIDF RotationalPIDF = new SimplePIDF(
             kP,  // kP  (start small)
@@ -61,7 +62,8 @@ public class TurretRotation {
 
             //i think ti doesnt handle floats well, so im rounding it.
             int IntRobotAngleDeg = (int) Math.round( RobotAngleDeg);
-            double CurrentPos = TurretRotatorMotor.getCurrentPosition();
+            double CurrentPos = GetCurrentPos();
+            double CurrentVel = GetCurrentVel();
 
             //telemetry.addData("CurrentPos ", CurrentPos);
 
@@ -81,7 +83,29 @@ public class TurretRotation {
 
             double newPower = RotationalPIDF.calculate(GoalTickPos, CurrentPos);
 
+            // -------------- LOGIC FOR NO SUDDEN DIRECTION CHANGE ------------------------
+
+            double sign = 0;
+            if (newPower!=0){sign = newPower/Math.abs(newPower);};
+            double lastSign= 0;
+            double TurretLastPower = TurretRotatorMotor.getPower();
+            if (TurretLastPower!=0) {lastSign = TurretLastPower/Math.abs( TurretLastPower);}
+
+            if (Math.abs(CurrentVel)>DONT_SWITCH_VALUE ){
+                if (sign != lastSign && sign!=0){
+                    newPower=0;
+                }
+            }
+
+            // ---------- setting power to motor -----------
+
             TurretRotatorMotor.setPower(newPower);
+
+
+
+
+
+
 
 
         }
@@ -101,6 +125,9 @@ public class TurretRotation {
 
     public double GetCurrentPos(){
         return TurretRotatorMotor.getCurrentPosition();
+    }
+    public double GetCurrentVel(){
+        return TurretRotatorMotor.getVelocity();
     }
 
     public double getM (double goalPosx, double goalPosy, double curPosx, double curPosy){
