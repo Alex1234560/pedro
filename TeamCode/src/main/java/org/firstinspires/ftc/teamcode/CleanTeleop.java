@@ -139,21 +139,7 @@ public class CleanTeleop extends LinearOpMode {
 //                shooter.SetIdle();
 //            }
 
-            if (gamepad2.xWasPressed()) {shooterMotorOn = true;}
-            if (gamepad2.yWasPressed()) {shooterMotorOn = false;}
-            //if (!shooterMotorOn){shooter.TurnFlywheelOff();}
-
-            if (shooterMotorOn){shooter.SetMotorPowerToTarget();}
-            else{shooter.TurnFlywheelOff();}
-
-
-            if (ShootMechanismPower == 1 && shooter.IsFlywheelUpToSpeed()){
-                shooter.SpinBallFeeder(1);
-            }
-            else if (ShootMechanismPower==-1){shooter.SpinBallFeeder(-1);}
-            else{shooter.SpinBallFeeder(0);}
-
-            telemetry.addData("FlywheelSpeed: " ,shooter.GetFlywheelSpeed());
+            handleTeleOpShooting();
 
 
         }
