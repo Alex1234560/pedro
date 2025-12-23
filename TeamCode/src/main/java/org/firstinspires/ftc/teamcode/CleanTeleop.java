@@ -129,16 +129,6 @@ public class CleanTeleop extends LinearOpMode {
             handleShooterServos();
             TelemetryStatements();
 
-            //telemetryM.debug("position", follower.getPose());
-            //telemetryM.debug("velocity", follower.getVelocity());
-
-//
-
-//            if (!shooterMotorOn){
-//                shooter.TurnFlywheelOff();
-//                shooter.SetIdle();
-//            }
-
             handleTeleOpShooting();
 
 
@@ -312,7 +302,7 @@ public class CleanTeleop extends LinearOpMode {
         }
         else if (ShootMechanismPower==-1){shooter.SpinBallFeeder(-1);}
         else{shooter.SpinBallFeeder(0);}
-        
+
     }
 
 }
