@@ -5,6 +5,9 @@
 1 Make eveyrthing in the autoaiming work again
 
 
+----------- Medium Priority ----------
+1 also make everything manually adjustable in case of trouble.
+
  ----- Mostly done ----------
 Create simpler TeleOp with shared functions (auto & teleop)
 
