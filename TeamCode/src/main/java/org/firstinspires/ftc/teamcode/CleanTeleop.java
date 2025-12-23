@@ -41,32 +41,18 @@ public class CleanTeleop extends LinearOpMode {
 
     //private TelemetryManager telemetryM;
 
-    private FunctionsAndValues FAndV;
-
     public static boolean fieldCentricDrive = false;
     public static double side = 1; // 1 == blue, -1==red
 
     private final Pose GoalLocationPose = new Pose(73, 140, Math.toRadians(0));
     public static Pose StartingPosition = new Pose(73,120,Math.toRadians(0));
 
-    // angle for hooded shooter
-    double HoodAngle = 0;// value from 0 to 1.0
-
-    //april tag stuff
-    private double AprilTagBearing = 0;
-
-
-    //Variables for statement printing
-    private static double ShooterMotorPower = 0;
-    public static double GoalShooterMotorTPS = 1200;// rotation ticks per seond
-
-    //variables avobe for testing
-    public double shooterTPS = 0; // Ticks per second
-    public double range = 0;
 
     // --- Button Variables For Shooter ---
     private boolean shooterMotorOn = false;      // Tracks if the motor should be on or off
-    private double ShootMechanismPower;
+
+    private boolean Reversing = false;      // Tracks if the motor should be on or off
+
 
     //declaring button globally
     //private boolean autoAimButton = false;
@@ -98,7 +84,7 @@ public class CleanTeleop extends LinearOpMode {
         //telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
 
-        FAndV = new FunctionsAndValues();
+
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -130,6 +116,11 @@ public class CleanTeleop extends LinearOpMode {
             TelemetryStatements();
 
             handleTeleOpShooting();
+
+            if (gamepad2.back){
+                Reversing=true;
+            }
+            else{Reversing=false;}
 
 
         }
@@ -179,40 +170,30 @@ public class CleanTeleop extends LinearOpMode {
 
     private void handleIntake() {
         // handle feeding to shooter
-         ShootMechanismPower = 0; //Positive value = shooting, negative value = retract balls and spit them out
-
-        if ( gamepad2.right_trigger > 0) {
-            ShootMechanismPower=1;
-        }
-
-        else if(gamepad2.back) {
-            ShootMechanismPower=-1;
-        }
 
 
-        /*//IntakeMotor.setPower(-gamepad2.right_trigger * ShootMechanismPower);
-        //StopIntakeMotor.setPower(gamepad2.right_trigger *ShootMechanismPower);
-        BallFeederServo.setPower(gamepad2.right_trigger * ShootMechanismPower);
-        if (ShootMechanismPower==-1){BallFeederServo.setPower(-1);}
-        BallFeederServo2.setPower(BallFeederServo.getPower());
-
-         */
-
-
-        //handle normal intake stuff
 
         double IntakePowerValue = -Math.abs(gamepad2.left_trigger);
         if (Math.abs(gamepad1.left_trigger) > Math.abs(gamepad2.left_trigger)){
             IntakePowerValue = -Math.abs(gamepad1.left_trigger);
         }
-        if (Math.abs(gamepad2.right_trigger) > Math.abs(gamepad2.left_trigger)){
+        if (Math.abs(gamepad2.right_trigger) > Math.abs(gamepad2.left_trigger) && !Reversing){
             IntakePowerValue = -Math.abs(gamepad2.right_trigger);
         }
-        if (ShootMechanismPower==-1){
-            IntakePowerValue = 1;
+
+
+        if (Reversing){
+            intake.intakeOn(-IntakePowerValue,0);
+        }
+        else if(IntakePowerValue!=0){
+            intake.intakeOn(IntakePowerValue,-1);
+        }
+        else{
+            intake.intakeOff();
         }
 
-        intake.intakeOn(IntakePowerValue);
+
+
     }
 
     private void handleDriving() {
@@ -296,11 +277,15 @@ public class CleanTeleop extends LinearOpMode {
         if (shooterMotorOn){shooter.SetMotorPowerToTarget();}
         else{shooter.TurnFlywheelOff();}
 
+        if (Reversing && gamepad2.right_trigger>0){shooter.SpinBallFeeder(-1);}
 
-        if (ShootMechanismPower == 1 && shooter.IsFlywheelUpToSpeed()){
+        else if (gamepad2.right_trigger > 0 && shooter.IsFlywheelUpToSpeed()){
             shooter.SpinBallFeeder(1);
         }
-        else if (ShootMechanismPower==-1){shooter.SpinBallFeeder(-1);}
+        else if (gamepad2.right_trigger > 0 && gamepad2.right_bumper){
+            shooter.SpinBallFeeder(1);
+        }
+
         else{shooter.SpinBallFeeder(0);}
 
     }
