@@ -82,18 +82,14 @@ public class FlywheelLogic {
         ShooterMotor.setPower(0);
         ShooterMotor2.setPower(0);
         flywheelState = FlywheelState.IDLE;
-        SpinBallFeeder(false);
+        SpinBallFeeder(0);
     }
 
-    public void SpinBallFeeder(boolean On){
-        if (On) {
-            BallFeederServo.setPower(1);
-            BallFeederServo2.setPower(1);
-        }
-        if (!On) {
-            BallFeederServo.setPower(0);
-            BallFeederServo2.setPower(0);
-        }
+    public void SpinBallFeeder(double power){
+
+        BallFeederServo.setPower(power);
+        BallFeederServo2.setPower(power);
+
     }
 
     public boolean IsFlywheelUpToSpeed(){
@@ -127,7 +123,7 @@ public class FlywheelLogic {
             case SPIN_UP:
                 SetMotorPowerToTarget();
                 if (IsFlywheelUpToSpeed() && stateTimer.seconds() > FLYWHEEL_MIN_SPINUP_TIME|| stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
-                    SpinBallFeeder(true);
+                    SpinBallFeeder(1);
                     stateTimer.reset();
                     flywheelState = FlywheelState.LAUNCH;
                 }
@@ -135,7 +131,7 @@ public class FlywheelLogic {
             case LAUNCH:
                 if (stateTimer.seconds() > FEEDER_ON_TIME || IsFlywheelSlowedFromShot() ){
                     shotsRemaining--;
-                    SpinBallFeeder(false);
+                    SpinBallFeeder(0);
                     stateTimer.reset();
 
                     flywheelState = FlywheelState.RESET;

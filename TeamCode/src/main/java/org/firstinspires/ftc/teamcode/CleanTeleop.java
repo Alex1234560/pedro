@@ -1,33 +1,3 @@
-/* Copyright (c) 2021 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -76,6 +46,9 @@ public class CleanTeleop extends LinearOpMode {
     public static boolean fieldCentricDrive = false;
     public static double side = 1; // 1 == blue, -1==red
 
+    private final Pose GoalLocationPose = new Pose(73, 140, Math.toRadians(0));
+    public static Pose StartingPosition = new Pose(73,120,Math.toRadians(0));
+
     // angle for hooded shooter
     double HoodAngle = 0;// value from 0 to 1.0
 
@@ -118,7 +91,7 @@ public class CleanTeleop extends LinearOpMode {
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
         //hard set pose for now
-        follower.setStartingPose(new Pose(0,0,Math.toRadians(0)));
+        follower.setStartingPose(StartingPosition); // in front of blue goal pos
         // ---- below is for after, when auto starts and then the position is used ----
         //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
@@ -142,7 +115,7 @@ public class CleanTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             //pedro
-            turretRotation.update(Math.toDegrees(follower.getHeading()),follower.getPose().getX(),follower.getPose().getY());
+            turretRotation.update(Math.toDegrees(follower.getHeading()),follower.getPose(),GoalLocationPose);
             follower.update();
             shooter.update();
             //telemetryM.update();
@@ -154,16 +127,10 @@ public class CleanTeleop extends LinearOpMode {
             handleDriving();
             handleIntake();
             handleShooterServos();
-            //handleFlywheel();
-            //handleShooterRotation();
-            SpeedAndAngleAutoAimUpdate();
             TelemetryStatements();
-            handleUserShootingRanges();
 
             //telemetryM.debug("position", follower.getPose());
             //telemetryM.debug("velocity", follower.getVelocity());
-
-            //autoLock();
 
 //
 
@@ -181,9 +148,10 @@ public class CleanTeleop extends LinearOpMode {
 
 
             if (ShootMechanismPower == 1 && shooter.IsFlywheelUpToSpeed()){
-                shooter.SpinBallFeeder(true);
+                shooter.SpinBallFeeder(1);
             }
-            else{shooter.SpinBallFeeder(false);}
+            else if (ShootMechanismPower==-1){shooter.SpinBallFeeder(-1);}
+            else{shooter.SpinBallFeeder(0);}
 
             telemetry.addData("FlywheelSpeed: " ,shooter.GetFlywheelSpeed());
 
@@ -192,52 +160,17 @@ public class CleanTeleop extends LinearOpMode {
     }
 
     private void TelemetryStatements(){
-        //telemetry.addData("FieldCentricDrive?: ", fieldCentricDrive);
+        telemetry.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetry.addData("Turret Rotation Ticks/Sec ", turretRotation.GetCurrentVel());
         telemetry.addData("Turret Rotation Ticks ", turretRotation.GetCurrentPos());
         telemetry.addData("Heading", follower.getHeading());
-        telemetry.addData("TurretRotatorLocation: " ,shooter.GetFlywheelSpeed());
+        telemetry.addData("Flywheel Speed: " ,shooter.GetFlywheelSpeed());
 
         //telemetry.addData("x", follower.getPose().getX());
         //telemetry.addData("y", follower.getPose().getY());
-
-
-
-
         telemetry.update();
     }
 
-    private void SpeedAndAngleAutoAimUpdate(){
-
-//        if (vision.getRange()!=-1) {
-//            range = vision.getRange();
-//        }
-
-
-        if (AutoAim){
-            double[] shooterGoals = FAndV.handleShootingRanges(range);
-            ShooterAngle = shooterGoals[0];
-            GoalShooterMotorTPS = shooterGoals[1];
-
-        }
-    }
-
-    private void handleUserShootingRanges(){
-        if (gamepad2.left_bumper){
-            AutoAim = false;
-            //ShooterRotatorServo.setPosition(.5);
-            //currentAngle = 90;
-            GoalShooterMotorTPS = 1025;
-            ShooterAngle = .15;
-        }
-
-        if (gamepad2.dpad_left){
-
-        }
-        if (gamepad2.dpad_right){
-
-        }
-    }
 
     /*
     private void handleFlywheel(){
@@ -271,14 +204,6 @@ public class CleanTeleop extends LinearOpMode {
     private void handleIntake() {
         // handle feeding to shooter
          ShootMechanismPower = 0; //Positive value = shooting, negative value = retract balls and spit them out
-
-//        if (!gamepad2.right_bumper && gamepad2.right_trigger > 0 && Math.abs(GoalShooterMotorTPS - shooterTPS) <= FunctionsAndValues.SpeedToleranceToStartShooting) {//(Math.abs(GoalShooterMotorTPS - shooterTPS) <= ToleranceForShooting)
-//            ShootMechanismPower=1;
-////            if (vision.isTagVisible() && Math.abs(AprilTagBearing) > FunctionsAndValues.AngleToleranceToStartShooting){
-////                // should make it so that if ur scanning the code and bearing is more than blah blah, it doesnt let u shoot
-////                ShootMechanismPower=0;
-////            }
-//        }
 
         if ( gamepad2.right_trigger > 0) {
             ShootMechanismPower=1;

@@ -7,7 +7,6 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
@@ -19,7 +18,7 @@ public class PedroAuto extends OpMode {
     private Follower follower;
 
     //1 == true, 0 == false
-    private double isRed = 1;
+    private boolean IsRed = true;
 
     private Timer pathTimer, opModeTimer;
 
@@ -39,18 +38,21 @@ public class PedroAuto extends OpMode {
     }
     PathState pathState;
 
-    private double Switcher = 144 * isRed; // if red ==144, else == 0
-    private double AngleFlip = 180 *isRed;
 
-    private double xFlip(double oPos){
+    public double xFlip(double oPos, boolean Red){
+        double switcher;
+        if (Red){switcher=144;}
+        else{switcher=0;}
         //return Switcher + oPos * nFin; Levi
-        return Switcher-oPos; // Alex
+        return switcher-oPos; // Alex
     }
 
-    private double angleFlip(double oAng) {
-        //double DtC = oAng + 90;
+    public double angleFlip(double oAng, boolean Red) {
+        double flipVal;
+        if (Red){flipVal = 180;}
+        else{flipVal = 0;}
         //return Math.toRadians((DtC*negSwitch) - 90); LEVI
-        return AngleFlip-oAng;
+        return flipVal-oAng;
     }
 
     /*private final Pose startPose = new Pose(18, 121.2, Math.toRadians(144));
@@ -60,10 +62,10 @@ public class PedroAuto extends OpMode {
 
     //Wrap x in xF, this accounts for left to right swapping. Wrap anlges in aF, this accounts for rotational mirroring and also takes care of the toRad
 
-    private final Pose startPose = new Pose(xFlip(18), 121.2, angleFlip(144));
-    private final Pose shootPos = new Pose(xFlip(59), 85, angleFlip(144));
-    private final Pose intakeStart = new Pose(xFlip(44.147), 59.348, angleFlip(180));
-    private final Pose intakeEnd = new Pose(xFlip(20.662),  59.348, angleFlip(180));
+    private final Pose startPose = new Pose(xFlip(18, IsRed), 121.2, angleFlip(144, IsRed));
+    private final Pose shootPos = new Pose(xFlip(59, IsRed), 85, angleFlip(144, IsRed));
+    private final Pose intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, angleFlip(180, IsRed));
+    private final Pose intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, angleFlip(180, IsRed));
 
 
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;

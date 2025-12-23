@@ -1,9 +1,19 @@
-Make TurretRotation work, and add limits so that it won't break the cables.
-0 adapt the ranges thign, so that the top angle and speed of the shooter change as the position of the robot in the field changes.
-0 Adjust PIDF for shooter if neccesary, and make the delay between balls smaller
-1 Create simpler TeleOp with shared functions (auto & teleop)
+
+ -------- High Priority -------
+1 make turret auto aiming work, make sure limits work.
+1 Make new quadratic equations or pass the existing ones to the new system
+1 Make eveyrthing in the autoaiming work again
+
+
+ ----- Mostly done ----------
+Create simpler TeleOp with shared functions (auto & teleop)
+
+-------- needs testing ----
 2 Make 2 sides for the auto
-3 Make Back auto that shoots and then moves out of the way
-4 Make Back Auto detect balls.
+
+- --- ---- Low Priority ---------
+0 Adjust PIDF for shooter if neccesary, and make the delay between balls smaller
 5 In Every auto add a timer that when it runs out it triggers a park function out of the launch zone.
 6 Make parking button for teleop.
+3 Make Back auto that shoots and then moves out of the way
+4 Make Back Auto detect balls.
