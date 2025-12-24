@@ -160,4 +160,8 @@ public class FlywheelLogic {
     public boolean isBusy(){
         return flywheelState != FlywheelState.IDLE;
     }
+
+    public double GetBallFeederPowerForDebugging(){
+        return BallFeederServo.getPower();
+    }
 }

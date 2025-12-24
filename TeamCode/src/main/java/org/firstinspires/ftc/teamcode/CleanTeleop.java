@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
@@ -39,7 +41,7 @@ public class CleanTeleop extends LinearOpMode {
     private Follower follower;
     //public static Pose startingPose; //See ExampleAuto to understand how to use this
 
-    //private TelemetryManager telemetryM;
+    private TelemetryManager telemetryM;
 
     public static boolean fieldCentricDrive = false;
     public static double side = 1; // 1 == blue, -1==red
@@ -68,6 +70,7 @@ public class CleanTeleop extends LinearOpMode {
         shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
         intake.init(hardwareMap);
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         // remove the following once the turret stuff is integrated into the auto, this will go in the auto
 
@@ -104,7 +107,7 @@ public class CleanTeleop extends LinearOpMode {
             turretRotation.update(Math.toDegrees(follower.getHeading()),follower.getPose(),GoalLocationPose);
             follower.update();
             shooter.update();
-            //telemetryM.update();
+
 
             if (gamepad2.aWasPressed()) {AutoAim = true;}
             if (gamepad2.bWasPressed()) {AutoAim = false;}
@@ -127,15 +130,18 @@ public class CleanTeleop extends LinearOpMode {
     }
 
     private void TelemetryStatements(){
-        telemetry.addData("FieldCentricDrive?: ", fieldCentricDrive);
-        telemetry.addData("Turret Rotation Ticks/Sec ", turretRotation.GetCurrentVel());
-        telemetry.addData("Turret Rotation Ticks ", turretRotation.GetCurrentPos());
-        telemetry.addData("Heading", follower.getHeading());
-        telemetry.addData("Flywheel Speed: " ,shooter.GetFlywheelSpeed());
+        telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
+        telemetryM.addData("Turret Rotation Ticks/Sec ", turretRotation.GetCurrentVel());
+        telemetryM.addData("Turret Rotation Ticks ", turretRotation.GetCurrentPos());
+        telemetryM.addData("Heading", follower.getHeading());
+
+        telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
+        telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
 
         //telemetry.addData("x", follower.getPose().getX());
         //telemetry.addData("y", follower.getPose().getY());
-        telemetry.update();
+        //telemetry.update();
+        telemetryM.update(telemetry);
     }
 
 

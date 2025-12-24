@@ -8,6 +8,8 @@
 ----------- Medium Priority ----------
 1 also make everything manually adjustable in case of trouble.
 2 in auto, make the ball feeder stop if flywheel isnt up to speed, and count balls based on speed change witouth changing states each time it happens.
+3 Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
+
 
  ----- Mostly done ----------
 Create simpler TeleOp with shared functions (auto & teleop)
