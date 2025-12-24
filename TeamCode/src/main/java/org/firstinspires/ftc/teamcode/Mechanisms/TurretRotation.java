@@ -31,14 +31,14 @@ public class TurretRotation {
     public static boolean AutoRotate = true;
     public static boolean TrackGOAL = false;
 
-    public static boolean LimitVelocitySwitches = false;
-    public static double DONT_SWITCH_VALUE = 100;
+    public static boolean LimitVelocitySwitches = true;
+    public static double DONT_SWITCH_VALUE = 800;
 
-    public static double FULL_TURN = 1660;// ticks that make a full turn
+    public static double FULL_TURN = 1666;// ticks that make a full turn
 
     public static double GoalAngle = 0;
 
-    public static double SWITCH_ANGLE = 135;
+    public static double SWITCH_ANGLE = 180;
 
 
 
