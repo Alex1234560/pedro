@@ -132,8 +132,8 @@ public class CleanTeleop extends LinearOpMode {
     private void TelemetryStatements(){
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("Turret Rotation Ticks/Sec ", turretRotation.GetCurrentVel());
-        telemetryM.addData("Turret Rotation Ticks ", turretRotation.GetCurrentPos());
-        telemetryM.addData("Heading", follower.getHeading());
+        telemetryM.addData("Turret Rotation Deg ", turretRotation.GetCurrentPosDeg());
+        telemetryM.addData("Heading", Math.toDegrees(follower.getHeading()));
 
         telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
         telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);

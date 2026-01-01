@@ -30,6 +30,7 @@ public class TurretRotation {
 
     public static boolean AutoRotate = true;
     public static boolean TrackGOAL = false;
+    public static boolean MOTOR_ACTIVE = true;
 
     public static boolean LimitVelocitySwitches = false;
     public static double DONT_SWITCH_VALUE = 800;
@@ -38,7 +39,8 @@ public class TurretRotation {
 
     public static double GoalAngle = 180;
 
-    public static double SWITCH_ANGLE = 0;
+    public static double SWITCH_ANGLE_POS = 0;
+    public static double SWITCH_ANGLE_NEG = 0;
 
     private double ActualTargetAngle = 0;
 
@@ -96,10 +98,10 @@ public class TurretRotation {
 
             //ActualTargetAngle = normalizeDeg(ActualTargetAngle);
 
-            if (ActualTargetAngle > SWITCH_ANGLE) {
+            if (ActualTargetAngle > SWITCH_ANGLE_POS) {
                 ActualTargetAngle -= 360;
             }
-            if (ActualTargetAngle < -SWITCH_ANGLE) {
+            if (ActualTargetAngle < SWITCH_ANGLE_NEG) {
                 ActualTargetAngle += 360;
             }
 
@@ -132,9 +134,12 @@ public class TurretRotation {
                 }
             }
             // ---------- setting power to motor -----------
-
-            TurretRotatorMotor.setPower(newPower);
-
+            if (MOTOR_ACTIVE) {
+                TurretRotatorMotor.setPower(newPower);
+            }
+            else{
+                TurretRotatorMotor.setPower(0);
+            }
 
 
 
@@ -154,6 +159,10 @@ public class TurretRotation {
     }
     public double GetTargetAngle(){
         return ActualTargetAngle;
+    }
+
+    public double GetCurrentPosDeg(){
+        return -(180-(TurretRotatorMotor.getCurrentPosition()/FULL_TURN)*360);
     }
 
     public double GetCurrentPos(){
