@@ -31,14 +31,16 @@ public class TurretRotation {
     public static boolean AutoRotate = true;
     public static boolean TrackGOAL = false;
 
-    public static boolean LimitVelocitySwitches = true;
+    public static boolean LimitVelocitySwitches = false;
     public static double DONT_SWITCH_VALUE = 800;
 
     public static double FULL_TURN = 1666;// ticks that make a full turn
 
-    public static double GoalAngle = 0;
+    public static double GoalAngle = 180;
 
-    public static double SWITCH_ANGLE = 180;
+    public static double SWITCH_ANGLE = 0;
+
+    private double ActualTargetAngle = 0;
 
 
 
@@ -74,7 +76,7 @@ public class TurretRotation {
     //public void start(){}
 
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose){
-        if (AutoRotate) {
+
 
             //i think ti doesnt handle floats well, so im rounding it.
             int IntRobotAngleDeg = (int) Math.round( RobotAngleDeg );//- CleanTeleop.StartingPosition.getHeading());
@@ -83,8 +85,10 @@ public class TurretRotation {
             double CurrentVel = GetCurrentVel();
 
             //telemetry.addData("CurrentPos ", CurrentPos);
+            ActualTargetAngle = GoalAngle;
 
-            double ActualTargetAngle = GoalAngle+IntRobotAngleDeg;
+            if (AutoRotate) { ActualTargetAngle +=IntRobotAngleDeg;}
+
 
             if (TrackGOAL){
                 ActualTargetAngle += (90 - getM(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
@@ -99,7 +103,7 @@ public class TurretRotation {
                 ActualTargetAngle += 360;
             }
 
-            double GoalTickPos = (FULL_TURN / 360) * ActualTargetAngle;
+            double GoalTickPos = (FULL_TURN / 360) * -(180-ActualTargetAngle); // the 180 makes it so that it normalizes the value hopefully so it knows that its being started at the back
 
             // -------- line below is for tuning values ----------
             RotationalPIDF.updateCoefficients(kP,kI,kD,kF);
@@ -136,21 +140,20 @@ public class TurretRotation {
 
 
 
-
-
-        }
-        else{
-            TurretRotatorMotor.setPower(MotorPowerWitouthAutoDebugging);
         }
 
 
-    }
+
+
 
     public void TurretCalibrateToCenter(){
         TurretRotatorMotor.setPower(0);
         TurretRotatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+    }
+    public double GetTargetAngle(){
+        return ActualTargetAngle;
     }
 
     public double GetCurrentPos(){
@@ -160,15 +163,22 @@ public class TurretRotation {
         return TurretRotatorMotor.getVelocity();
     }
 
-    public double getM (double goalPosx, double goalPosy, double curPosx, double curPosy){
+    public double getM(double goalPosx, double goalPosy, double curPosx, double curPosy){
 
         double x = goalPosx - curPosx;
         double y = goalPosy - curPosy;
 
-        return Math.toDegrees(Math.atan(y/x));
+        double angleRad = Math.atan2(y, x);          // angle from +X axis
+        double angleDeg = Math.toDegrees(angleRad);  // convert to degrees
 
-        //if doesnt work can try this: return Math.atan2(x, y); // angle from Y-axis
+        // normalize to 0–360
+        if (angleDeg < 0) {
+            angleDeg += 360;
+        }
+
+        return angleDeg;
     }
+
 
     public static class SimplePIDF {
         public double kP, kI, kD,kF;
