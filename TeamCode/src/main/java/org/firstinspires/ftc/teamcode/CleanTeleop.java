@@ -46,8 +46,8 @@ public class CleanTeleop extends LinearOpMode {
     public static boolean fieldCentricDrive = false;
     public static double side = 1; // 1 == blue, -1==red
 
-    private final Pose GoalLocationPose = new Pose(0, 20, Math.toRadians(0));
-    private final Pose StartingPosition = new Pose(0,0,Math.toRadians(0));
+    private final Pose GoalLocationPose = new Pose(0, 10, Math.toRadians(0));
+    private final Pose StartingPosition = new Pose(0,0,Math.toRadians(90));
 
 
     // --- Button Variables For Shooter ---

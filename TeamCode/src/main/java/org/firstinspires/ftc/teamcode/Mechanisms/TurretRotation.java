@@ -24,7 +24,7 @@ public class TurretRotation {
     public static boolean TrackGOAL = false;
     public static boolean MOTOR_ACTIVE = true;
 
-    public static double AUTO_AIMING_TURRET_OFFSET = 180;
+    public static double AUTO_AIMING_TURRET_OFFSET = 270;
 
     public static boolean LimitVelocitySwitches = false;
     public static boolean LimitMaxSpeed = true;
@@ -93,7 +93,7 @@ public class TurretRotation {
 
 
             if (TrackGOAL){
-                ActualTargetAngle += (getM(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
+                ActualTargetAngle -= (getM(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
             }
 
             //ActualTargetAngle = normalizeDeg(ActualTargetAngle);
