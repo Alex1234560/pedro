@@ -104,7 +104,8 @@ public class CleanTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             //pedro
-            turretRotation.update(Math.toDegrees(follower.getHeading()),follower.getPose(),GoalLocationPose);
+            turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose);
+
             follower.update();
             shooter.update();
 

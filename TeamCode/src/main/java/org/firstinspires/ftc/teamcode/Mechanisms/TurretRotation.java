@@ -1,20 +1,12 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.robot.Robot;
 
-import org.firstinspires.ftc.robotcore.external.Func;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.Rotation;
-import org.firstinspires.ftc.teamcode.CleanTeleop;
-import org.firstinspires.ftc.teamcode.FunctionsAndValues;
 @Configurable
 public class TurretRotation {
     private DcMotorEx TurretRotatorMotor = null;
@@ -33,16 +25,20 @@ public class TurretRotation {
     public static boolean MOTOR_ACTIVE = true;
 
     public static boolean LimitVelocitySwitches = false;
+    public static boolean LimitMaxSpeed = false;
+
     public static double DONT_SWITCH_VALUE = 800;
+    public static double MAX_MOTOR_POWER = .5;
 
     public static double FULL_TURN = 1666;// ticks that make a full turn
 
-    public static double GoalAngle = 180;
+    public static double GoalAngle = 0;
 
-    public static double SWITCH_ANGLE_POS = 0;
-    public static double SWITCH_ANGLE_NEG = 0;
+    public static double SWITCH_ANGLE_POS = 180;
+    public static double SWITCH_ANGLE_NEG = -190;
 
     private double ActualTargetAngle = 0;
+    private double ChangeInAngleAccumulation = 0;
 
 
 
@@ -64,13 +60,14 @@ public class TurretRotation {
     public void init(HardwareMap hardwareMap){
         TurretRotatorMotor = hardwareMap.get(DcMotorEx.class, "TurretRotator");
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //TurretRotatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
     }
 
     public double normalizeDeg(double deg){
         double newDeg = deg;
-        if (newDeg>360){newDeg-=360;}
-        if (newDeg<0){newDeg+=360;}
+        if (newDeg>180){newDeg-=360;}
+        if (newDeg<-180){newDeg+=360;}
 
         return newDeg;
 
@@ -81,7 +78,7 @@ public class TurretRotation {
 
 
             //i think ti doesnt handle floats well, so im rounding it.
-            int IntRobotAngleDeg = (int) Math.round( RobotAngleDeg );//- CleanTeleop.StartingPosition.getHeading());
+            int IntRobotAngleDeg = (int) Math.round( RobotAngleDeg ) + (int) Math.round(ChangeInAngleAccumulation);//- CleanTeleop.StartingPosition.getHeading());
 
             double CurrentPos = GetCurrentPos();
             double CurrentVel = GetCurrentVel();
@@ -98,14 +95,18 @@ public class TurretRotation {
 
             //ActualTargetAngle = normalizeDeg(ActualTargetAngle);
 
+            //ActualTargetAngle = normalizeDeg(ActualTargetAngle);
+
             if (ActualTargetAngle > SWITCH_ANGLE_POS) {
                 ActualTargetAngle -= 360;
+                ChangeInAngleAccumulation -= 360;
             }
             if (ActualTargetAngle < SWITCH_ANGLE_NEG) {
                 ActualTargetAngle += 360;
+                ChangeInAngleAccumulation += 360;
             }
 
-            double GoalTickPos = (FULL_TURN / 360) * -(180-ActualTargetAngle); // the 180 makes it so that it normalizes the value hopefully so it knows that its being started at the back
+            double GoalTickPos = (FULL_TURN / 360) * ActualTargetAngle; // the 180 makes it so that it normalizes the value hopefully so it knows that its being started at the back
 
             // -------- line below is for tuning values ----------
             RotationalPIDF.updateCoefficients(kP,kI,kD,kF);
@@ -114,6 +115,7 @@ public class TurretRotation {
 
             // -------------- LOGIC FOR NO SUDDEN DIRECTION CHANGE -------------------  -----
 
+            double TurretLastPower = TurretRotatorMotor.getPower();
             if (LimitVelocitySwitches){
 
                 double sign = 0;
@@ -122,7 +124,7 @@ public class TurretRotation {
                 }
                 ;
                 double lastSign = 0;
-                double TurretLastPower = TurretRotatorMotor.getPower();
+
                 if (TurretLastPower != 0) {
                     lastSign = TurretLastPower / Math.abs(TurretLastPower);
                 }
@@ -132,6 +134,12 @@ public class TurretRotation {
                         newPower = 0;
                     }
                 }
+
+            }
+
+            if (LimitMaxSpeed){
+                if (Math.abs(newPower)>MAX_MOTOR_POWER)
+                    newPower = MAX_MOTOR_POWER * Math.signum(newPower);
             }
             // ---------- setting power to motor -----------
             if (MOTOR_ACTIVE) {
@@ -162,7 +170,7 @@ public class TurretRotation {
     }
 
     public double GetCurrentPosDeg(){
-        return -(180-(TurretRotatorMotor.getCurrentPosition()/FULL_TURN)*360);
+        return (GetCurrentPos()/FULL_TURN)*360;
     }
 
     public double GetCurrentPos(){
