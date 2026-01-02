@@ -46,8 +46,8 @@ public class CleanTeleop extends LinearOpMode {
     public static boolean fieldCentricDrive = false;
     public static double side = 1; // 1 == blue, -1==red
 
-    private final Pose GoalLocationPose = new Pose(73, 140, Math.toRadians(0));
-    public static Pose StartingPosition = new Pose(73,120,Math.toRadians(0));
+    private final Pose GoalLocationPose = new Pose(0, 20, Math.toRadians(0));
+    private final Pose StartingPosition = new Pose(0,0,Math.toRadians(0));
 
 
     // --- Button Variables For Shooter ---
@@ -133,8 +133,9 @@ public class CleanTeleop extends LinearOpMode {
     private void TelemetryStatements(){
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("Turret Rotation Ticks/Sec ", turretRotation.GetCurrentVel());
+        telemetryM.addData("Target Angle", turretRotation.GetTargetAngle());
         telemetryM.addData("Turret Rotation Deg ", turretRotation.GetCurrentPosDeg());
-        telemetryM.addData("Heading", Math.toDegrees(follower.getHeading()));
+        telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
 
         telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
         telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);

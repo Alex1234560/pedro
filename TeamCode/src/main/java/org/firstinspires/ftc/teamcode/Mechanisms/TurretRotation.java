@@ -24,8 +24,10 @@ public class TurretRotation {
     public static boolean TrackGOAL = false;
     public static boolean MOTOR_ACTIVE = true;
 
+    public static double AUTO_AIMING_TURRET_OFFSET = 180;
+
     public static boolean LimitVelocitySwitches = false;
-    public static boolean LimitMaxSpeed = false;
+    public static boolean LimitMaxSpeed = true;
 
     public static double DONT_SWITCH_VALUE = 800;
     public static double MAX_MOTOR_POWER = .5;
@@ -66,8 +68,8 @@ public class TurretRotation {
 
     public double normalizeDeg(double deg){
         double newDeg = deg;
-        if (newDeg>180){newDeg-=360;}
-        if (newDeg<-180){newDeg+=360;}
+        if (newDeg>SWITCH_ANGLE_POS){newDeg-=360;}
+        if (newDeg<SWITCH_ANGLE_NEG){newDeg+=360;}
 
         return newDeg;
 
@@ -78,7 +80,8 @@ public class TurretRotation {
 
 
             //i think ti doesnt handle floats well, so im rounding it.
-            int IntRobotAngleDeg = (int) Math.round( RobotAngleDeg ) + (int) Math.round(ChangeInAngleAccumulation);//- CleanTeleop.StartingPosition.getHeading());
+            int IntRobotAngleDeg = (int) Math.round(RobotAngleDeg)  + (int) Math.round(ChangeInAngleAccumulation);//- CleanTeleop.StartingPosition.getHeading());
+
 
             double CurrentPos = GetCurrentPos();
             double CurrentVel = GetCurrentVel();
@@ -90,20 +93,22 @@ public class TurretRotation {
 
 
             if (TrackGOAL){
-                ActualTargetAngle += (90 - getM(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
+                ActualTargetAngle += (getM(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
             }
 
             //ActualTargetAngle = normalizeDeg(ActualTargetAngle);
 
             //ActualTargetAngle = normalizeDeg(ActualTargetAngle);
 
-            if (ActualTargetAngle > SWITCH_ANGLE_POS) {
-                ActualTargetAngle -= 360;
-                ChangeInAngleAccumulation -= 360;
-            }
-            if (ActualTargetAngle < SWITCH_ANGLE_NEG) {
-                ActualTargetAngle += 360;
-                ChangeInAngleAccumulation += 360;
+            while ( ActualTargetAngle > SWITCH_ANGLE_POS || ActualTargetAngle < SWITCH_ANGLE_NEG) { // so if any of  the other functions mess up, this catches it.
+                if (ActualTargetAngle > SWITCH_ANGLE_POS) {
+                    ActualTargetAngle -= 360;
+                    ChangeInAngleAccumulation -= 360;
+                }
+                if (ActualTargetAngle < SWITCH_ANGLE_NEG) {
+                    ActualTargetAngle += 360;
+                    ChangeInAngleAccumulation += 360;
+                }
             }
 
             double GoalTickPos = (FULL_TURN / 360) * ActualTargetAngle; // the 180 makes it so that it normalizes the value hopefully so it knows that its being started at the back
@@ -188,13 +193,41 @@ public class TurretRotation {
         double angleRad = Math.atan2(y, x);          // angle from +X axis
         double angleDeg = Math.toDegrees(angleRad);  // convert to degrees
 
+        angleDeg+=AUTO_AIMING_TURRET_OFFSET;
+        angleDeg = getContinuousAngle(angleDeg);
+
         // normalize to 0–360
-        if (angleDeg < 0) {
-            angleDeg += 360;
-        }
+
 
         return angleDeg;
     }
+
+    //logic for unwrapping angle for turret autoaiming
+    double lastAngle;
+    double unwrappedAngle;
+
+    public double getContinuousAngle(double curAngleDegrees) {
+
+        double delta = curAngleDegrees - lastAngle;
+
+        // unwrap through ±180 boundary
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+
+        unwrappedAngle += delta;
+
+        lastAngle = curAngleDegrees;
+
+        if (curAngleDegrees<SWITCH_ANGLE_NEG){
+            unwrappedAngle += 360;
+        }
+        if (curAngleDegrees>SWITCH_ANGLE_POS){
+            unwrappedAngle -= 360;
+        }
+
+        return unwrappedAngle;
+    }
+
 
 
     public static class SimplePIDF {
