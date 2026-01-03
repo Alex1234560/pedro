@@ -9,7 +9,6 @@ import com.pedropathing.geometry.Pose;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
@@ -44,10 +43,14 @@ public class CleanTeleop extends LinearOpMode {
     private TelemetryManager telemetryM;
 
     public static boolean fieldCentricDrive = false;
-    public static boolean IsRed = false;
+    public static double GOAL_X = 0;
+    public static double GOAL_Y = 30;
+    public static double STARTING_ANGLE_ROBOT = 90;
 
-    private final Pose GoalLocationPose = new Pose(0, 10, Math.toRadians(0));
-    private final Pose StartingPosition = new Pose(0,0,Math.toRadians(90));
+    private boolean IsRed = false;
+
+    private Pose GoalLocationPose, StartingPosition;
+
 
 
     // --- Button Variables For Shooter ---
@@ -63,20 +66,25 @@ public class CleanTeleop extends LinearOpMode {
     private TurretRotation turretRotation = new TurretRotation();
 
 
+
     @Override
     public void runOpMode() {
         //currentAngle=90;//center current angle for shooter
         IsRed = PedroAuto.IsRed; // defines the side of the field based on what the auto had selected as the side of the field.
+
+        GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
+        StartingPosition = new Pose(0,0,Math.toRadians(STARTING_ANGLE_ROBOT));
+
+        //rn will only work for blue sicne i need to fix some stuff for translation to other side,
+        //GoalLocationPose = new Pose(16, 132, Math.toRadians(0));
+        //StartingPosition = new Pose(18, 121.2, Math.toRadians(144));
+
+
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
         intake.init(hardwareMap);
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-
-        // remove the following once the turret stuff is integrated into the auto, this will go in the auto
-
-        //--------------- ^^ -------------------------
-
 
         //pedro stuff
         follower = Constants.createFollower(hardwareMap);
@@ -85,10 +93,6 @@ public class CleanTeleop extends LinearOpMode {
         // ---- below is for after, when auto starts and then the position is used ----
         //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
-        //telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-
-
-
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -104,6 +108,8 @@ public class CleanTeleop extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
+            StartingPosition = new Pose(0,0,Math.toRadians(STARTING_ANGLE_ROBOT));
             //pedro
             turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose);
 
@@ -135,49 +141,25 @@ public class CleanTeleop extends LinearOpMode {
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("Turret Rotation Ticks/Sec ", turretRotation.GetCurrentVel());
         telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose));
+
+        telemetryM.addData("Angle From Goal ", turretRotation.GetAngleThatIsbeingReturnedForAutoAiming(follower.getPose(), GoalLocationPose));
         //telemetryM.addData("Target Angle", turretRotation.GetTargetAngle());
 
         telemetryM.addData("Turret Rotation Deg ", turretRotation.GetCurrentPosDeg());
-        telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
+        //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
         telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
         telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
 
         //telemetry.addData("x", follower.getPose().getX());
         //telemetry.addData("y", follower.getPose().getY());
         //telemetry.update();
+        telemetryM.debug("x:" + follower.getPose().getX());
+        telemetryM.debug("y:" + follower.getPose().getY());
+        telemetryM.debug("heading:" + follower.getPose().getHeading());
+        telemetryM.debug("total heading:" + follower.getTotalHeading());
         telemetryM.update(telemetry);
+
     }
-
-
-    /*
-    private void handleFlywheel(){
-
-        shooterTPS = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
-
-        //flywheel stuff.
-
-        if (gamepad2.xWasPressed()) {//(isXPressed && !wasXButtonPressed) {
-            shooterMotorOn = true;
-        }
-        if (gamepad2.yWasPressed()) {//(isXPressed && !wasXButtonPressed) {
-            shooterMotorOn = false;
-        }
-
-        if (gamepad2.dpadDownWasPressed() && GoalShooterMotorTPS > FunctionsAndValues.MinimumSpeed) {
-            GoalShooterMotorTPS -= 20;
-        }
-        else if (gamepad2.dpadUpWasPressed() && GoalShooterMotorTPS < 2400) {
-            GoalShooterMotorTPS += 20;
-
-        }
-
-        ShooterMotorPower = FAndV.handleShooter(shooterTPS,shooterMotorOn,GoalShooterMotorTPS, ShooterMotorPower);
-        ShooterMotor.setPower(ShooterMotorPower);
-        ShooterMotor2.setPower(ShooterMotorPower);
-
-        telemetry.addData("ShooterMotorSpeed= ", ShooterMotorPower);
-    }*/
-
     private void handleIntake() {
         // handle feeding to shooter
 
@@ -205,7 +187,6 @@ public class CleanTeleop extends LinearOpMode {
 
 
     }
-
     private void handleDriving() {
         double speed = .5; //
         //if (gamepad1.right_trigger ==1){speed = 1;}
@@ -267,7 +248,6 @@ public class CleanTeleop extends LinearOpMode {
 
 
     }
-
     private void handleShooterServos() {
 
         // Initialize shooterAngle with the servo's current position to start.
@@ -297,7 +277,5 @@ public class CleanTeleop extends LinearOpMode {
         }
 
         else{shooter.SpinBallFeeder(0);}
-
     }
-
 }

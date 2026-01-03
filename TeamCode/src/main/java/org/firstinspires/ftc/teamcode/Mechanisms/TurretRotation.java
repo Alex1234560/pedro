@@ -15,14 +15,15 @@ public class TurretRotation {
     public static double MotorPowerWitouthAutoDebugging = 0;
 
 
-    public static boolean AutoRotate = true;
-    public static boolean TrackGOAL = false;
+    public static boolean AutoRotate = false;
+    public static boolean TrackGOAL = true;
     public static boolean MOTOR_ACTIVE = true;
 
-    public static double AUTO_AIMING_TURRET_OFFSET = 270;
+    public static double AUTO_AIMING_TURRET_OFFSET = 90;
+    public static double AUTO_AIMING_DIRECTION = -1;
 
     public static boolean LimitVelocitySwitches = false;
-    public static boolean LimitMaxSpeed = true;
+    private boolean LimitMaxSpeed = true;
 
     public static double DONT_SWITCH_VALUE = 800;
     public static double MAX_MOTOR_POWER = .5;
@@ -74,6 +75,8 @@ public class TurretRotation {
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose){
 
 
+
+
             //i think ti doesnt handle floats well, so im rounding it.
             int IntRobotAngleDeg = (int) Math.round(RobotAngleDeg)  + (int) Math.round(ChangeInAngleAccumulation);//- CleanTeleop.StartingPosition.getHeading());
 
@@ -84,11 +87,13 @@ public class TurretRotation {
             //telemetry.addData("CurrentPos ", CurrentPos);
             ActualTargetAngle = GoalAngle;
 
-            if (AutoRotate) { ActualTargetAngle +=IntRobotAngleDeg;}
+            if (AutoRotate) {
+                ActualTargetAngle += IntRobotAngleDeg;
+            }
 
 
             if (TrackGOAL){
-                ActualTargetAngle -= (getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
+                ActualTargetAngle += (getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()))*AUTO_AIMING_DIRECTION;
             }
 
             while ( ActualTargetAngle > SWITCH_ANGLE_POS || ActualTargetAngle < SWITCH_ANGLE_NEG) { // so if any of  the other functions mess up, this catches it.
@@ -160,7 +165,14 @@ public class TurretRotation {
     public double GetTargetAngle(){return ActualTargetAngle;}
 
     public double GetDistanceFromGoal(Pose robotPose, Pose goalPose){
+
         return distance (robotPose.getX(),robotPose.getY(),goalPose.getX(), goalPose.getY());
+
+
+    }
+    public double GetAngleThatIsbeingReturnedForAutoAiming(Pose robotPose, Pose goalPose){
+
+        return getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY());
     }
 
     public double GetCurrentPosDeg(){return (GetCurrentPos()/FULL_TURN)*360;}
@@ -201,22 +213,38 @@ public class TurretRotation {
         return Math.hypot(dx, dy);   // safer and avoids overflow
     }
 
-    public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy){
+//    public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy){
+//
+//        double x = goalPosx - curPosx;
+//        double y = goalPosy - curPosy;
+//
+//        double angleRad = Math.atan2(y, x);          // angle from +X axis
+//        double angleDeg = Math.toDegrees(angleRad);  // convert to degrees
+//
+//        angleDeg+=AUTO_AIMING_TURRET_OFFSET;
+//        angleDeg = getContinuousAngle(angleDeg);
+//
+//        // normalize to 0–360
+//
+//
+//        return angleDeg;
+//    }
+    public double getAngleFromTwoPoints(double goalPosx, double goalPosy,
+                                    double curPosx, double curPosy) {
 
-        double x = goalPosx - curPosx;
-        double y = goalPosy - curPosy;
+        double dx = goalPosx - curPosx;
+        double dy = goalPosy - curPosy;
 
-        double angleRad = Math.atan2(y, x);          // angle from +X axis
-        double angleDeg = Math.toDegrees(angleRad);  // convert to degrees
+        double angleRad = Math.atan2(dy, dx);          // -180..180
+        double angleDeg = Math.toDegrees(angleRad);
 
-        angleDeg+=AUTO_AIMING_TURRET_OFFSET;
-        angleDeg = getContinuousAngle(angleDeg);
+        angleDeg += AUTO_AIMING_TURRET_OFFSET;         // account for turret mount
 
-        // normalize to 0–360
-
+        // Normalize into your working range [-180, 180] or using your SWITCH limits
+        //angleDeg = normalizeDeg(angleDeg);             // uses your existing normalizeDeg
 
         return angleDeg;
-    }
+}
 
     public static class SimplePIDF {
         public double kP, kI, kD,kF;
