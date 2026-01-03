@@ -18,7 +18,7 @@ public class PedroAuto extends OpMode {
     private Follower follower;
 
     //1 == true, 0 == false
-    private boolean IsRed = false;
+    public static boolean IsRed = false;
 
     private Timer pathTimer, opModeTimer;
 

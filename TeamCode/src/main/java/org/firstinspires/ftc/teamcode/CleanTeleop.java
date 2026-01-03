@@ -44,7 +44,7 @@ public class CleanTeleop extends LinearOpMode {
     private TelemetryManager telemetryM;
 
     public static boolean fieldCentricDrive = false;
-    public static double side = 1; // 1 == blue, -1==red
+    public static boolean IsRed = false;
 
     private final Pose GoalLocationPose = new Pose(0, 10, Math.toRadians(0));
     private final Pose StartingPosition = new Pose(0,0,Math.toRadians(90));
@@ -66,6 +66,7 @@ public class CleanTeleop extends LinearOpMode {
     @Override
     public void runOpMode() {
         //currentAngle=90;//center current angle for shooter
+        IsRed = PedroAuto.IsRed; // defines the side of the field based on what the auto had selected as the side of the field.
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
@@ -243,7 +244,7 @@ public class CleanTeleop extends LinearOpMode {
                     true // Robot Centric
             );
         }
-        else if (side==1){
+        else if (IsRed==false){
             follower.setTeleOpDrive(
 
                     -lateral,
@@ -252,7 +253,7 @@ public class CleanTeleop extends LinearOpMode {
                     false // Robot Centric
             );
         }
-        else if (side==-1){
+        else if (IsRed==true){
             follower.setTeleOpDrive(
 
                     lateral,
