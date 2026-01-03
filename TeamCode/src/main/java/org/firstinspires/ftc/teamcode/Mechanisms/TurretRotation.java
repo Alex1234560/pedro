@@ -1,3 +1,9 @@
+/* code for autoaiming turret
+it features heading compensationa and PIDF as well as trigonometry to aim at the right target.
+the angles the turret goes are from SWITCH_ANGLE_POS to SWITCH_ANGLE_NEG which are variables u can see below
+ */
+
+
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
 
@@ -15,31 +21,32 @@ public class TurretRotation {
     public static double MotorPowerWitouthAutoDebugging = 0;
 
 
-    public static boolean AutoRotate = false;
-    public static boolean TrackGOAL = true;
-    public static boolean MOTOR_ACTIVE = true;
+    public static boolean AutoRotate = true; // this is for counter rotating the turret with the heading variable
+    public static boolean TrackGOAL = true; // this is for activating the trig math that handles aiming at the correct spot
+    public static boolean MOTOR_ACTIVE = true;// this is for activating the motor, inc ase u want to test something witouth the motor active
 
-    public static double AUTO_AIMING_TURRET_OFFSET = 90;
-    public static double AUTO_AIMING_DIRECTION = -1;
+    public static int AUTO_AIMING_TURRET_OFFSET = 180; // this is just a base value, that is there to make the turret face the right way
 
-    public static boolean LimitVelocitySwitches = false;
-    private boolean LimitMaxSpeed = true;
 
-    public static double DONT_SWITCH_VALUE = 800;
-    public static double MAX_MOTOR_POWER = .5;
+    private static boolean LimitVelocitySwitches = false; // this is a prototype function that limits when the motor can switch directions due to speed, it wont be needed in the future
+    private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
+
+    private boolean LimitMaxSpeed = true; // this is a cap on the motor speed so it doesn't skip gears
+    public static double MAX_MOTOR_POWER = .5; // for the var avobe
 
     public static double FULL_TURN = 1666;// ticks that make a full turn
 
-    public static double GoalAngle = 0;
 
+    // ----- this are the limits that makes teh turret rotate in the opposite direction to not cross any cables -----
     public static double SWITCH_ANGLE_POS = 180;
     public static double SWITCH_ANGLE_NEG = -190;
 
-    private double ActualTargetAngle = 0;
-    private double ChangeInAngleAccumulation = 0;
+
+    private double ActualTargetAngle = 0;// these is the variable used to tell the turret what angle we want.
+    private double ChangeInAngleAccumulation = 0; // this is for keeping track of rotations in heading which helps with limits.
 
 
-
+    // ---------- PIDF values for turret ---------------
     public static double kP = 0.004;
     public static double kI = 0.0005;
     public static double kD = 0.005;
@@ -59,33 +66,20 @@ public class TurretRotation {
         TurretRotatorMotor = hardwareMap.get(DcMotorEx.class, "TurretRotator");
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //TurretRotatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
     }
 
-    public double normalizeDeg(double deg){
-        double newDeg = deg;
-        if (newDeg>SWITCH_ANGLE_POS){newDeg-=360;}
-        if (newDeg<SWITCH_ANGLE_NEG){newDeg+=360;}
-
-        return newDeg;
-
-    }
-    //public void start(){}
 
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose){
 
 
-
-
             //i think ti doesnt handle floats well, so im rounding it.
-            int IntRobotAngleDeg = (int) Math.round(RobotAngleDeg)  + (int) Math.round(ChangeInAngleAccumulation);//- CleanTeleop.StartingPosition.getHeading());
+            int IntRobotAngleDeg =  (int) Math.round(RobotAngleDeg)  + (int) Math.round(ChangeInAngleAccumulation);//- CleanTeleop.StartingPosition.getHeading());
 
 
-            double CurrentPos = GetCurrentPos();
-            double CurrentVel = GetCurrentVel();
+            double CurrentPos = GetCurrentPos();// telemetry
+            double CurrentVel = GetCurrentVel();// telemetry
 
-            //telemetry.addData("CurrentPos ", CurrentPos);
-            ActualTargetAngle = GoalAngle;
+            ActualTargetAngle = 0;// start the target angle as zero, add values to make it aim in the right dir
 
             if (AutoRotate) {
                 ActualTargetAngle += IntRobotAngleDeg;
@@ -93,9 +87,10 @@ public class TurretRotation {
 
 
             if (TrackGOAL){
-                ActualTargetAngle += (getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()))*AUTO_AIMING_DIRECTION;
+                ActualTargetAngle -= (getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
             }
 
+            // ------------ limit handler -------------
             while ( ActualTargetAngle > SWITCH_ANGLE_POS || ActualTargetAngle < SWITCH_ANGLE_NEG) { // so if any of  the other functions mess up, this catches it.
                 if (ActualTargetAngle > SWITCH_ANGLE_POS) {
                     ActualTargetAngle -= 360;
@@ -107,11 +102,12 @@ public class TurretRotation {
                 }
             }
 
-            double GoalTickPos = (FULL_TURN / 360) * ActualTargetAngle; // the 180 makes it so that it normalizes the value hopefully so it knows that its being started at the back
+            double GoalTickPos = (FULL_TURN / 360) * ActualTargetAngle; // gives us our target ticks value off of values we have
 
             // -------- line below is for tuning values ----------
             RotationalPIDF.updateCoefficients(kP,kI,kD,kF);
 
+            // ----- getting the power the motor needs----
             double newPower = RotationalPIDF.calculate(GoalTickPos, CurrentPos);
 
             // -------------- LOGIC FOR NO SUDDEN DIRECTION CHANGE -------------------  -----
@@ -142,18 +138,10 @@ public class TurretRotation {
                 if (Math.abs(newPower)>MAX_MOTOR_POWER)
                     newPower = MAX_MOTOR_POWER * Math.signum(newPower);
             }
+
             // ---------- setting power to motor -----------
-            if (MOTOR_ACTIVE) {
-                TurretRotatorMotor.setPower(newPower);
-            }
-            else{
-                TurretRotatorMotor.setPower(0);
-            }
-
-
-
-
-
+            if (MOTOR_ACTIVE) {TurretRotatorMotor.setPower(newPower);}
+            else{TurretRotatorMotor.setPower(0);}
         }
 
     public void TurretCalibrateToCenter(){
@@ -239,10 +227,6 @@ public class TurretRotation {
         double angleDeg = Math.toDegrees(angleRad);
 
         angleDeg += AUTO_AIMING_TURRET_OFFSET;         // account for turret mount
-
-        // Normalize into your working range [-180, 180] or using your SWITCH limits
-        //angleDeg = normalizeDeg(angleDeg);             // uses your existing normalizeDeg
-
         return angleDeg;
 }
 

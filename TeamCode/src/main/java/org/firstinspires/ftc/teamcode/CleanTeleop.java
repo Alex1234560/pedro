@@ -43,9 +43,9 @@ public class CleanTeleop extends LinearOpMode {
     private TelemetryManager telemetryM;
 
     public static boolean fieldCentricDrive = false;
-    public static double GOAL_X = 0;
-    public static double GOAL_Y = 30;
-    public static double STARTING_ANGLE_ROBOT = 90;
+    public static double GOAL_X = 15;
+    public static double GOAL_Y = 130;
+    public static double STARTING_ANGLE_ROBOT = 144;
 
     private boolean IsRed = false;
 
@@ -73,7 +73,7 @@ public class CleanTeleop extends LinearOpMode {
         IsRed = PedroAuto.IsRed; // defines the side of the field based on what the auto had selected as the side of the field.
 
         GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
-        StartingPosition = new Pose(0,0,Math.toRadians(STARTING_ANGLE_ROBOT));
+        StartingPosition = new Pose(23,124,Math.toRadians(STARTING_ANGLE_ROBOT));
 
         //rn will only work for blue sicne i need to fix some stuff for translation to other side,
         //GoalLocationPose = new Pose(16, 132, Math.toRadians(0));
@@ -109,9 +109,9 @@ public class CleanTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
-            StartingPosition = new Pose(0,0,Math.toRadians(STARTING_ANGLE_ROBOT));
+            StartingPosition = new Pose(StartingPosition.getX(),StartingPosition.getY(),Math.toRadians(STARTING_ANGLE_ROBOT));
             //pedro
-            turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose);
+            turretRotation.update(Math.toDegrees(follower.getHeading()),follower.getPose(),GoalLocationPose);
 
             follower.update();
             shooter.update();
