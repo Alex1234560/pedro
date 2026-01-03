@@ -62,10 +62,14 @@ public class PedroAuto extends OpMode {
 
     //Wrap x in xF, this accounts for left to right swapping. Wrap anlges in aF, this accounts for rotational mirroring and also takes care of the toRad
 
-    private final Pose startPose = new Pose(xFlip(18, IsRed), 121.2, angleFlip(144, IsRed));
-    private final Pose shootPos = new Pose(xFlip(59, IsRed), 85, angleFlip(144, IsRed));
-    private final Pose intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, angleFlip(180, IsRed));
-    private final Pose intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, angleFlip(180, IsRed));
+//    private final Pose startPose = new Pose(xFlip(18, IsRed), 121.2, Math.toRadians(angleFlip(144, IsRed)));
+//    private final Pose shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
+//    private final Pose intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, Math.toRadians(angleFlip(180, IsRed)));
+//    private final Pose intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, Math.toRadians(angleFlip(180, IsRed)));
+    private  Pose startPose;
+    private  Pose shootPos;
+    private  Pose intakeStart;
+    private  Pose intakeEnd;
 
 
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;
@@ -149,6 +153,8 @@ public class PedroAuto extends OpMode {
         shotsTriggered=false;
     }
 
+
+
     @Override
     public void init(){
         pathState = PathState.DRIVE_TO_SHOOT_POS;
@@ -163,11 +169,33 @@ public class PedroAuto extends OpMode {
         //intake = new Intake(hardwareMap);
 
 
-        buildPaths();
-        follower.setPose(startPose);
+
     }
 
+    @Override
+    public void init_loop(){
+        telemetry.addData("Alliance Selection", "X for BLUE, B for RED, Y for FRONT, A for BACK");
+        if (IsRed == false) {
+            telemetry.addData("Color: BLUE ", "");
+        }
+        if (IsRed == true) {
+            telemetry.addData("Color: RED ", "");
+        }
+
+        if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
+        if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
+
+        telemetry.update();
+
+
+    }
+
+    @Override
     public void start() {
+        buildPoses();
+        buildPaths();
+        follower.setPose(startPose);
+
         opModeTimer.resetTimer();
         shooter.start(); // to start spinning up flywheel from the start
         setPathState(pathState);
@@ -193,4 +221,10 @@ public class PedroAuto extends OpMode {
 
     }
 
+    private void buildPoses(){
+        startPose = new Pose(xFlip(18, IsRed), 121.2, Math.toRadians(angleFlip(144, IsRed)));
+        shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
+        intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, Math.toRadians(angleFlip(180, IsRed)));
+        intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, Math.toRadians(angleFlip(180, IsRed)));
+    }
 }

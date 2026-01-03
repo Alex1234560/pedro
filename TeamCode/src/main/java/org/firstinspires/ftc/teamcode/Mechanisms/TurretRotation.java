@@ -6,16 +6,11 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.robot.Robot;
 
 @Configurable
 public class TurretRotation {
     private DcMotorEx TurretRotatorMotor = null;
-
-
-
-//    public static double MAX_TICKS_ROTATION = 1000;
-//    public static double MIN_TICKS_ROTATION = -1000;
-
 
     public static double MotorPowerWitouthAutoDebugging = 0;
 
@@ -93,12 +88,8 @@ public class TurretRotation {
 
 
             if (TrackGOAL){
-                ActualTargetAngle -= (getM(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
+                ActualTargetAngle -= (getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
             }
-
-            //ActualTargetAngle = normalizeDeg(ActualTargetAngle);
-
-            //ActualTargetAngle = normalizeDeg(ActualTargetAngle);
 
             while ( ActualTargetAngle > SWITCH_ANGLE_POS || ActualTargetAngle < SWITCH_ANGLE_NEG) { // so if any of  the other functions mess up, this catches it.
                 if (ActualTargetAngle > SWITCH_ANGLE_POS) {
@@ -160,49 +151,23 @@ public class TurretRotation {
 
         }
 
-
-
-
-
     public void TurretCalibrateToCenter(){
         TurretRotatorMotor.setPower(0);
         TurretRotatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
-    public double GetTargetAngle(){
-        return ActualTargetAngle;
+    public double GetTargetAngle(){return ActualTargetAngle;}
+
+    public double GetDistanceFromGoal(Pose robotPose, Pose goalPose){
+        return distance (robotPose.getX(),robotPose.getY(),goalPose.getX(), goalPose.getY());
     }
 
-    public double GetCurrentPosDeg(){
-        return (GetCurrentPos()/FULL_TURN)*360;
-    }
+    public double GetCurrentPosDeg(){return (GetCurrentPos()/FULL_TURN)*360;}
+    public double GetCurrentPos(){return TurretRotatorMotor.getCurrentPosition();}
+    public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
 
-    public double GetCurrentPos(){
-        return TurretRotatorMotor.getCurrentPosition();
-    }
-    public double GetCurrentVel(){
-        return TurretRotatorMotor.getVelocity();
-    }
-
-    public double getM(double goalPosx, double goalPosy, double curPosx, double curPosy){
-
-        double x = goalPosx - curPosx;
-        double y = goalPosy - curPosy;
-
-        double angleRad = Math.atan2(y, x);          // angle from +X axis
-        double angleDeg = Math.toDegrees(angleRad);  // convert to degrees
-
-        angleDeg+=AUTO_AIMING_TURRET_OFFSET;
-        angleDeg = getContinuousAngle(angleDeg);
-
-        // normalize to 0–360
-
-
-        return angleDeg;
-    }
-
-    //logic for unwrapping angle for turret autoaiming
+    //logic for unwrapping angle for turret autoaiming so that it can rotate more than 180 on each side
     double lastAngle;
     double unwrappedAngle;
 
@@ -228,7 +193,30 @@ public class TurretRotation {
         return unwrappedAngle;
     }
 
+    // ^^ ----- ^^
 
+    public double distance(double x1, double y1, double x2, double y2) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        return Math.hypot(dx, dy);   // safer and avoids overflow
+    }
+
+    public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy){
+
+        double x = goalPosx - curPosx;
+        double y = goalPosy - curPosy;
+
+        double angleRad = Math.atan2(y, x);          // angle from +X axis
+        double angleDeg = Math.toDegrees(angleRad);  // convert to degrees
+
+        angleDeg+=AUTO_AIMING_TURRET_OFFSET;
+        angleDeg = getContinuousAngle(angleDeg);
+
+        // normalize to 0–360
+
+
+        return angleDeg;
+    }
 
     public static class SimplePIDF {
         public double kP, kI, kD,kF;
