@@ -1,25 +1,22 @@
 
  -------- High Priority -------
-1 make turret auto aiming work, make sure limits work.
+1 make Auto Aiming aim to the goals. and make sure it works well.
 1 Make new quadratic equations or pass the existing ones to the new system
-1 Make eveyrthing in the autoaiming work again
-
+1 finish an auto that's acceptable ( even if its 3 ball auto )
 
 ----------- Medium Priority ----------
-1 also make everything manually adjustable in case of trouble.
-2 in auto, make the ball feeder stop if flywheel isnt up to speed, and count balls based on speed change witouth changing states each time it happens.
-3 Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
-
-
- ----- Mostly done ----------
-Create simpler TeleOp with shared functions (auto & teleop)
+1 make everything manually adjustable in case of trouble.
+2 Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
 
 -------- needs testing ----
-Make 2 sides for the auto
+test 2 sides of the auto ( i dont think the red side works )
 
 - --- ---- Low Priority ---------
-0 Adjust PIDF for shooter if neccesary, and make the delay between balls smaller
+0 Adjust PIDF for shooter if neccesary.
+1 make the delay between balls smaller.
 5 In Every auto add a timer that when it runs out it triggers a park function out of the launch zone.
 6 Make parking button for teleop.
 3 Make Back auto that shoots and then moves out of the way
-4 Make Back Auto detect balls.
+
+--------- only do if done with everything else -----------
+1 Make Back Auto detect balls.
