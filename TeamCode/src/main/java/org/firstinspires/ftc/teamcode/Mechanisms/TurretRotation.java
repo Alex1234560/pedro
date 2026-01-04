@@ -32,7 +32,7 @@ public class TurretRotation {
     private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
 
     private boolean LimitMaxSpeed = true; // this is a cap on the motor speed so it doesn't skip gears
-    public static double MAX_MOTOR_POWER = .5; // for the var avobe
+    public static double MAX_MOTOR_POWER = .3; // for the var avobe
 
     public static double FULL_TURN = 1666;// ticks that make a full turn
 

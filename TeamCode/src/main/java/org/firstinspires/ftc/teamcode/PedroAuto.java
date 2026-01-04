@@ -38,12 +38,18 @@ public class PedroAuto extends OpMode {
     }
     PathState pathState;
 
+    // make the mirroring a class in the future
+//    public static class MirrorSideFunctions {
+//        public boolean isRed = false;
+//
+//        public MirrorSideFunctions(boolean isRed) {
+//            this.isRed=isRed;
+//        }
 
     public double xFlip(double oPos, boolean Red){
         double switcher;
         if (Red){switcher=144;}
         else{switcher=0;}
-        //return Switcher + oPos * nFin; Levi
         return switcher-oPos; // Alex
     }
 
@@ -51,7 +57,6 @@ public class PedroAuto extends OpMode {
         double flipVal;
         if (Red){flipVal = 180;}
         else{flipVal = 0;}
-        //return Math.toRadians((DtC*negSwitch) - 90); LEVI
         return flipVal-oAng;
     }
 
@@ -207,9 +212,6 @@ public class PedroAuto extends OpMode {
         follower.update();
         shooter.update();
         statePathUpdate();
-
-
-        //Bunch of random telemetry shit he added in, im lazy and it has no function so lets js ignore
 
         telemetry.addData("Path State", pathState.toString());
         telemetry.addData("x", follower.getPose().getX());
