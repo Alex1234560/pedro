@@ -20,17 +20,18 @@ public class TurretRotation {
     public static double MotorPowerWitouthAutoDebugging = 0;
 
 
-    public static boolean AutoRotate = true; // this is for counter rotating the turret with the heading variable
-    public static boolean TrackGOAL = true; // this is for activating the trig math that handles aiming at the correct spot
+    public static boolean AUTO_ROTATE = true; // this is for counter rotating the turret with the heading variable
+    public static boolean TRACK_GOAL = true; // this is for activating the trig math that handles aiming at the correct spot
+    public static boolean USE_CAMERA_BEARING = false;
     public static boolean MOTOR_ACTIVE = true;// this is for activating the motor, inc ase u want to test something witouth the motor active
 
     public static int AUTO_AIMING_TURRET_OFFSET = 180; // this is just a base value, that is there to make the turret face the right way
 
 
-    private static boolean LimitVelocitySwitches = false; // this is a prototype function that limits when the motor can switch directions due to speed, it wont be needed in the future
+    private static boolean LIMIT_VELOCITY_SWITCHES = false; // this is a prototype function that limits when the motor can switch directions due to speed, it wont be needed in the future
     private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
 
-    private boolean LimitMaxSpeed = true; // this is a cap on the motor speed so it doesn't skip gears
+    private boolean LIMIT_MAX_SPEED = true; // this is a cap on the motor speed so it doesn't skip gears
     public static double MAX_MOTOR_POWER = .3; // for the var avobe
 
     public static double FULL_TURN = 1666;// ticks that make a full turn
@@ -40,9 +41,10 @@ public class TurretRotation {
     public static double SWITCH_ANGLE_POS = 180;
     public static double SWITCH_ANGLE_NEG = -190;
 
-    private double DoubleRobotAngleDeg;
-    private double ActualTargetAngle = 0;// these is the variable used to tell the turret what angle we want.
-
+    private double double_robot_angle_deg;
+    private double actual_target_angle = 0;// these is the variable used to tell the turret what angle we want.
+    private double angle_calculated_for_tracking_goal = 0;// this angle comes from the function getAngleFromTwoPoints
+    private double camera_bearing = 0;
 
 
     // ---------- PIDF values for turret ---------------
@@ -73,47 +75,52 @@ public class TurretRotation {
 
             // note that the function below allows the robotAngleDeg to get really high if u turn a lot, which could slow down the loop time
             // beacuse of the while loop below, so u could add an acumullating value that counters it.
-            DoubleRobotAngleDeg =  RobotAngleDeg;
+            double_robot_angle_deg =  RobotAngleDeg;
 
 
-            double CurrentPos = GetCurrentPos();// telemetry
-            double CurrentVel = GetCurrentVel();// telemetry
+            double current_position = GetCurrentPos();// telemetry
+            double current_velocity = GetCurrentVel();// telemetry
 
-            ActualTargetAngle = 0;// start the target angle as zero, add values to make it aim in the right dir
+            actual_target_angle = 0;// start the target angle as zero, add values to make it aim in the right dir
 
-            if (AutoRotate) {
-                ActualTargetAngle -= DoubleRobotAngleDeg + Math.toDegrees(initPose.getHeading());
+            if (AUTO_ROTATE) {
+                actual_target_angle -= double_robot_angle_deg + Math.toDegrees(initPose.getHeading());
+            }
+
+            if (USE_CAMERA_BEARING){
+                actual_target_angle+=camera_bearing;
             }
 
 
-            if (TrackGOAL){
-                ActualTargetAngle += (getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
+            angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY());
+            if (TRACK_GOAL){
+                actual_target_angle += angle_calculated_for_tracking_goal;
             }
 
             // ------------ limit handler -------------
-            while ( ActualTargetAngle > SWITCH_ANGLE_POS || ActualTargetAngle < SWITCH_ANGLE_NEG) { // so if any of  the other functions mess up, this catches it.
-                if (ActualTargetAngle > SWITCH_ANGLE_POS) {
-                    ActualTargetAngle -= 360;
+            while ( actual_target_angle > SWITCH_ANGLE_POS || actual_target_angle < SWITCH_ANGLE_NEG) { // so if any of  the other functions mess up, this catches it.
+                if (actual_target_angle > SWITCH_ANGLE_POS) {
+                    actual_target_angle -= 360;
 
                 }
-                if (ActualTargetAngle < SWITCH_ANGLE_NEG) {
-                    ActualTargetAngle += 360;
+                if (actual_target_angle < SWITCH_ANGLE_NEG) {
+                    actual_target_angle += 360;
 
                 }
             }
 
-            double GoalTickPos = (FULL_TURN / 360) * ActualTargetAngle; // gives us our target ticks value off of values we have
+            double goal_tick_pos = (FULL_TURN / 360) * actual_target_angle; // gives us our target ticks value off of values we have
 
             // -------- line below is for tuning values ----------
             RotationalPIDF.updateCoefficients(kP,kI,kD,kF);
 
             // ----- getting the power the motor needs----
-            double newPower = RotationalPIDF.calculate(GoalTickPos, CurrentPos);
+            double newPower = RotationalPIDF.calculate(goal_tick_pos, current_position);
 
             // -------------- LOGIC FOR NO SUDDEN DIRECTION CHANGE -------------------  -----
 
             double TurretLastPower = TurretRotatorMotor.getPower();
-            if (LimitVelocitySwitches){
+            if (LIMIT_VELOCITY_SWITCHES){
 
                 double sign = 0;
                 if (newPower != 0) {
@@ -126,7 +133,7 @@ public class TurretRotation {
                     lastSign = TurretLastPower / Math.abs(TurretLastPower);
                 }
 
-                if (Math.abs(CurrentVel) > DONT_SWITCH_VALUE) {
+                if (Math.abs(current_velocity) > DONT_SWITCH_VALUE) {
                     if (sign != lastSign && sign != 0) {
                         newPower = 0;
                     }
@@ -134,7 +141,7 @@ public class TurretRotation {
 
             }
 
-            if (LimitMaxSpeed){
+            if (LIMIT_MAX_SPEED){
                 if (Math.abs(newPower)>MAX_MOTOR_POWER)
                     newPower = MAX_MOTOR_POWER * Math.signum(newPower);
             }
@@ -144,56 +151,37 @@ public class TurretRotation {
             else{TurretRotatorMotor.setPower(0);}
         }
 
-    public void TurretCalibrateToCenter(){
-        TurretRotatorMotor.setPower(0);
-        TurretRotatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    // --------------- functions to return simple values ----------
+    public double GetTargetAngle(){return actual_target_angle;}
+    public double DebugGetAngleCompensation(){return double_robot_angle_deg;}
+    public double GetCurrentPosDeg(){return (GetCurrentPos()/FULL_TURN)*360;}
+    public double GetCurrentPos(){return TurretRotatorMotor.getCurrentPosition();}
+    public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
+    public double GetGoalTrackingAngle(){return angle_calculated_for_tracking_goal;}
 
+    // -------------- complicated functions ------------------
+
+    // this function i think won't work beacuse it will wobble the shooter too much, but we can try.
+    public void handleBearing(double bearing){
+        if (bearing != 999){
+            camera_bearing=bearing;
+        }
+        else{camera_bearing=0;}
     }
-    public double GetTargetAngle(){return ActualTargetAngle;}
-    public double DebugGetAngleCompensation(){return DoubleRobotAngleDeg;}
+
     public double GetDistanceFromGoal(Pose robotPose, Pose goalPose){
 
         return distance (robotPose.getX(),robotPose.getY(),goalPose.getX(), goalPose.getY());
 
 
     }
-    public double GetAngleThatIsbeingReturnedForAutoAiming(Pose robotPose, Pose goalPose){
 
-        return getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY());
+    public void CalibrateTurretToCenter(){
+        TurretRotatorMotor.setPower(0);
+        TurretRotatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
     }
-
-    public double GetCurrentPosDeg(){return (GetCurrentPos()/FULL_TURN)*360;}
-    public double GetCurrentPos(){return TurretRotatorMotor.getCurrentPosition();}
-    public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
-
-    //logic for unwrapping angle for turret autoaiming so that it can rotate more than 180 on each side
-    double lastAngle;
-    double unwrappedAngle;
-
-    public double getContinuousAngle(double curAngleDegrees) {
-
-        double delta = curAngleDegrees - lastAngle;
-
-        // unwrap through ±180 boundary
-        if (delta > 180) delta -= 360;
-        if (delta < -180) delta += 360;
-
-        unwrappedAngle += delta;
-
-        lastAngle = curAngleDegrees;
-
-        if (curAngleDegrees<SWITCH_ANGLE_NEG){
-            unwrappedAngle += 360;
-        }
-        if (curAngleDegrees>SWITCH_ANGLE_POS){
-            unwrappedAngle -= 360;
-        }
-
-        return unwrappedAngle;
-    }
-
-    // ^^ ----- ^^
 
     public double distance(double x1, double y1, double x2, double y2) {
         double dx = x2 - x1;
@@ -201,9 +189,7 @@ public class TurretRotation {
         return Math.hypot(dx, dy);   // safer and avoids overflow
     }
 
-
-    public double getAngleFromTwoPoints(double goalPosx, double goalPosy,
-                                    double curPosx, double curPosy) {
+    public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy) {
 
         double dx = goalPosx - curPosx;
         double dy = goalPosy - curPosy;

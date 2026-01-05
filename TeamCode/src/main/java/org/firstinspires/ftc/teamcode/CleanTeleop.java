@@ -105,7 +105,7 @@ public class CleanTeleop extends LinearOpMode {
         runtime.reset();
 
         //test
-        turretRotation.TurretCalibrateToCenter();
+        turretRotation.CalibrateTurretToCenter();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -123,6 +123,8 @@ public class CleanTeleop extends LinearOpMode {
                 double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
                 hood.SetPosition(turretGoals[0]);
                 shooter.setFlywheelRPM(turretGoals[1]);
+
+                turretRotation.handleBearing(camera.getBearing());
             }
 
 
@@ -151,7 +153,7 @@ public class CleanTeleop extends LinearOpMode {
         telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
         telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose));
 
-        telemetryM.addData("Angle From Goal ", Math.round(turretRotation.GetAngleThatIsbeingReturnedForAutoAiming(follower.getPose(), GoalLocationPose)));
+        telemetryM.addData("Angle From Goal ", Math.round(turretRotation.GetGoalTrackingAngle()));
         telemetryM.addData("Hood Angle", hood.getPosition());
 
         telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
