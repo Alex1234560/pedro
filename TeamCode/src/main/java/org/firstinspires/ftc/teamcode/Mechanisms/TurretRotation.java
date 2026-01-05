@@ -12,7 +12,6 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.robot.Robot;
 
 @Configurable
 public class TurretRotation {
@@ -41,9 +40,9 @@ public class TurretRotation {
     public static double SWITCH_ANGLE_POS = 180;
     public static double SWITCH_ANGLE_NEG = -190;
 
-
+    private double DoubleRobotAngleDeg;
     private double ActualTargetAngle = 0;// these is the variable used to tell the turret what angle we want.
-    private double ChangeInAngleAccumulation = 0; // this is for keeping track of rotations in heading which helps with limits.
+
 
 
     // ---------- PIDF values for turret ---------------
@@ -69,11 +68,12 @@ public class TurretRotation {
     }
 
 
-    public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose){
+    public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose, Pose initPose){
 
 
-            //i think ti doesnt handle floats well, so im rounding it.
-            int IntRobotAngleDeg =  (int) Math.round(RobotAngleDeg)  + (int) Math.round(ChangeInAngleAccumulation);//- CleanTeleop.StartingPosition.getHeading());
+            // note that the function below allows the robotAngleDeg to get really high if u turn a lot, which could slow down the loop time
+            // beacuse of the while loop below, so u could add an acumullating value that counters it.
+            DoubleRobotAngleDeg =  RobotAngleDeg;
 
 
             double CurrentPos = GetCurrentPos();// telemetry
@@ -82,7 +82,7 @@ public class TurretRotation {
             ActualTargetAngle = 0;// start the target angle as zero, add values to make it aim in the right dir
 
             if (AutoRotate) {
-                ActualTargetAngle -= IntRobotAngleDeg;
+                ActualTargetAngle -= DoubleRobotAngleDeg + Math.toDegrees(initPose.getHeading());
             }
 
 
@@ -94,11 +94,11 @@ public class TurretRotation {
             while ( ActualTargetAngle > SWITCH_ANGLE_POS || ActualTargetAngle < SWITCH_ANGLE_NEG) { // so if any of  the other functions mess up, this catches it.
                 if (ActualTargetAngle > SWITCH_ANGLE_POS) {
                     ActualTargetAngle -= 360;
-                    ChangeInAngleAccumulation -= 360;
+
                 }
                 if (ActualTargetAngle < SWITCH_ANGLE_NEG) {
                     ActualTargetAngle += 360;
-                    ChangeInAngleAccumulation += 360;
+
                 }
             }
 
@@ -151,7 +151,7 @@ public class TurretRotation {
 
     }
     public double GetTargetAngle(){return ActualTargetAngle;}
-
+    public double DebugGetAngleCompensation(){return DoubleRobotAngleDeg;}
     public double GetDistanceFromGoal(Pose robotPose, Pose goalPose){
 
         return distance (robotPose.getX(),robotPose.getY(),goalPose.getX(), goalPose.getY());

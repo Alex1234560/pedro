@@ -70,6 +70,10 @@ public class FlywheelLogic {
 
     }
 
+    public void setFlywheelRPM(double RPM){
+        TARGET_FLYWHEEL_RPM = RPM;
+    }
+
     public void SetMotorPowerToTarget(){
         double power = FAndV.handleShooter(flywheelVelocity,true,TARGET_FLYWHEEL_RPM,ShooterMotor.getPower());
         if (power<0){power=0;}

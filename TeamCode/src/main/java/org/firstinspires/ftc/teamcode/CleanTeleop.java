@@ -25,15 +25,16 @@ public class CleanTeleop extends LinearOpMode {
     // Hardware Setup Variables
     //private Servo ServoShooter1;
     //private Servo ReadyToShootServo;
+
     private static double ShooterAngle = FunctionsAndValues.startPoint;
     //setting up motors and time
     private ElapsedTime runtime = new ElapsedTime();
 
-
-
+    private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
     private FlywheelLogic shooter = new FlywheelLogic();
     private ShooterAngle hood = new ShooterAngle();
+    private AprilTagVision camera;
 
 
     //pedro stuff
@@ -44,7 +45,7 @@ public class CleanTeleop extends LinearOpMode {
 
     public static boolean fieldCentricDrive = false;
     public static double GOAL_X = 15;
-    public static double GOAL_Y = 130;
+    public static double GOAL_Y = 131;
     public static double STARTING_ANGLE_ROBOT = 144;
 
     private boolean IsRed = false;
@@ -61,7 +62,7 @@ public class CleanTeleop extends LinearOpMode {
 
     //declaring button globally
     //private boolean autoAimButton = false;
-    public static boolean AutoAim = false;
+    public static boolean AutoAim = true;
 
     private TurretRotation turretRotation = new TurretRotation();
 
@@ -73,13 +74,13 @@ public class CleanTeleop extends LinearOpMode {
         IsRed = PedroAuto.IsRed; // defines the side of the field based on what the auto had selected as the side of the field.
 
         GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
-        StartingPosition = new Pose(23,124,Math.toRadians(STARTING_ANGLE_ROBOT));
+        StartingPosition = new Pose(22.5,125.5,Math.toRadians(STARTING_ANGLE_ROBOT));
 
         //rn will only work for blue sicne i need to fix some stuff for translation to other side,
         //GoalLocationPose = new Pose(16, 132, Math.toRadians(0));
         //StartingPosition = new Pose(18, 121.2, Math.toRadians(144));
 
-
+        camera = new AprilTagVision(hardwareMap,"webcam");
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
@@ -111,10 +112,18 @@ public class CleanTeleop extends LinearOpMode {
             GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
             StartingPosition = new Pose(StartingPosition.getX(),StartingPosition.getY(),Math.toRadians(STARTING_ANGLE_ROBOT));
             //pedro
-            turretRotation.update(Math.toDegrees(follower.getHeading()),follower.getPose(),GoalLocationPose);
-
+            turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
+            camera.update();
             follower.update();
             shooter.update();
+
+            double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
+
+            if (AutoAim){
+                double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
+                hood.SetPosition(turretGoals[0]);
+                shooter.setFlywheelRPM(turretGoals[1]);
+            }
 
 
             if (gamepad2.aWasPressed()) {AutoAim = true;}
@@ -139,24 +148,28 @@ public class CleanTeleop extends LinearOpMode {
 
     private void TelemetryStatements(){
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
-        telemetryM.addData("Turret Rotation Ticks/Sec ", turretRotation.GetCurrentVel());
+        telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
         telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose));
 
-        telemetryM.addData("Angle From Goal ", turretRotation.GetAngleThatIsbeingReturnedForAutoAiming(follower.getPose(), GoalLocationPose));
-        //telemetryM.addData("Target Angle", turretRotation.GetTargetAngle());
+        telemetryM.addData("Angle From Goal ", Math.round(turretRotation.GetAngleThatIsbeingReturnedForAutoAiming(follower.getPose(), GoalLocationPose)));
+        telemetryM.addData("Hood Angle", hood.getPosition());
 
-        telemetryM.addData("Turret Rotation Deg ", turretRotation.GetCurrentPosDeg());
+        telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
         telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
-        telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
+        //telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
+        //telemetryM.addData("Debugging angle Compensation" ,Math.round(turretRotation.DebugGetAngleCompensation()));
+
+        telemetryM.addData("Bearing (Camera) " ,camera.getBearing());
+        telemetryM.addData("Distance (Camera) " ,camera.getRange());
 
         //telemetry.addData("x", follower.getPose().getX());
         //telemetry.addData("y", follower.getPose().getY());
         //telemetry.update();
-        telemetryM.debug("x:" + follower.getPose().getX());
-        telemetryM.debug("y:" + follower.getPose().getY());
-        telemetryM.debug("heading:" + Math.toDegrees(follower.getPose().getHeading()));
-        telemetryM.debug("total heading:" + Math.toDegrees(follower.getTotalHeading()));
+        telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
+        telemetryM.debug("y:" + Math.round(follower.getPose().getY()));
+        telemetryM.debug("heading:" + Math.round(Math.toDegrees(follower.getPose().getHeading())));
+        telemetryM.debug("total heading:" + Math.round(Math.toDegrees(follower.getTotalHeading())));
         telemetryM.update(telemetry);
 
     }
@@ -253,9 +266,12 @@ public class CleanTeleop extends LinearOpMode {
         // Initialize shooterAngle with the servo's current position to start.
         // This ensures it always has a value.
 
-        ShooterAngle-=gamepad2.left_stick_y/22;
-        hood.SetPosition(ShooterAngle);
-        telemetry.addData("ServoAngle ", ShooterAngle );
+        if (AutoAim==false) {
+
+            ShooterAngle -= gamepad2.left_stick_y / 22;
+            hood.SetPosition(ShooterAngle);
+            telemetry.addData("ServoAngle ", ShooterAngle);
+        }
 
     }
     private void handleTeleOpShooting(){

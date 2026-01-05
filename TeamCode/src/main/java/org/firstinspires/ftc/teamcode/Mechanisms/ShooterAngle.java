@@ -39,7 +39,7 @@ public class ShooterAngle {
 
     public double getPosition(){
         //give position so that when moving manually it can start from the current place.
-        return 1984;//position
+        return ServoShooter1.getPosition();//position
     }
 
     public void SetPositionBasedOnDistance(double Distance){

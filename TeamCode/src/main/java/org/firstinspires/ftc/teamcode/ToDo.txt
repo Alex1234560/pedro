@@ -1,11 +1,7 @@
 
  -------- High Priority -------
-- make Auto Aiming aim to the goals. and make sure it works well.
-- Make new quadratic equations or pass the existing ones to the new system
 - finish an auto that's acceptable ( even if its 3 ball auto )
-
 - ODOMETRY pods position i believe are measured wrong, it needs to be remasured and make sure when robot is rotating it appears the same on the dashboard.
-- tune turning on the turret so that every angle it goes to is correct and not misaligned or anything.
 
 ----------- Medium Priority ----------
 - make everything manually adjustable in case of trouble.
