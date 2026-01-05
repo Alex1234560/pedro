@@ -82,12 +82,12 @@ public class TurretRotation {
             ActualTargetAngle = 0;// start the target angle as zero, add values to make it aim in the right dir
 
             if (AutoRotate) {
-                ActualTargetAngle += IntRobotAngleDeg;
+                ActualTargetAngle -= IntRobotAngleDeg;
             }
 
 
             if (TrackGOAL){
-                ActualTargetAngle -= (getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
+                ActualTargetAngle += (getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY()));
             }
 
             // ------------ limit handler -------------
@@ -201,22 +201,7 @@ public class TurretRotation {
         return Math.hypot(dx, dy);   // safer and avoids overflow
     }
 
-//    public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy){
-//
-//        double x = goalPosx - curPosx;
-//        double y = goalPosy - curPosy;
-//
-//        double angleRad = Math.atan2(y, x);          // angle from +X axis
-//        double angleDeg = Math.toDegrees(angleRad);  // convert to degrees
-//
-//        angleDeg+=AUTO_AIMING_TURRET_OFFSET;
-//        angleDeg = getContinuousAngle(angleDeg);
-//
-//        // normalize to 0–360
-//
-//
-//        return angleDeg;
-//    }
+
     public double getAngleFromTwoPoints(double goalPosx, double goalPosy,
                                     double curPosx, double curPosy) {
 

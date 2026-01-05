@@ -198,9 +198,9 @@ public class PedroAuto extends OpMode {
     @Override
     public void start() {
         buildPoses();
+
         buildPaths();
         follower.setPose(startPose);
-
         opModeTimer.resetTimer();
         shooter.start(); // to start spinning up flywheel from the start
         setPathState(pathState);

@@ -155,8 +155,8 @@ public class CleanTeleop extends LinearOpMode {
         //telemetry.update();
         telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
-        telemetryM.debug("heading:" + follower.getPose().getHeading());
-        telemetryM.debug("total heading:" + follower.getTotalHeading());
+        telemetryM.debug("heading:" + Math.toDegrees(follower.getPose().getHeading()));
+        telemetryM.debug("total heading:" + Math.toDegrees(follower.getTotalHeading()));
         telemetryM.update(telemetry);
 
     }
