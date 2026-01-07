@@ -21,3 +21,10 @@ test 2 sides of the auto ( i dont think the red side works )
 
 --------- only do if done with everything else -----------
 - Make Back Auto detect balls.
+
+
+------—-------IDEA-------------
+based on the april tag angle rhat its being seen from
+( not the bearing ) , u can add more angle to the bearing 
+so that the turret points to the goal and not to
+the tag
