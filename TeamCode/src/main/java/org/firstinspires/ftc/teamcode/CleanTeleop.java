@@ -63,8 +63,10 @@ public class CleanTeleop extends LinearOpMode {
     //declaring button globally
     //private boolean autoAimButton = false;
     public static boolean AutoAim = true;
+    public static boolean CalibrateTurret = true;
 
     private TurretRotation turretRotation = new TurretRotation();
+    private PedroAuto PedroAutoFunctions = new PedroAuto();
 
 
 
@@ -73,8 +75,10 @@ public class CleanTeleop extends LinearOpMode {
         //currentAngle=90;//center current angle for shooter
         IsRed = PedroAuto.IsRed; // defines the side of the field based on what the auto had selected as the side of the field.
 
-        GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
-        StartingPosition = new Pose(22.5,125.5,Math.toRadians(STARTING_ANGLE_ROBOT));
+        GoalLocationPose = new Pose(PedroAutoFunctions.xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
+        StartingPosition = new Pose(PedroAutoFunctions.xFlip(22.5,IsRed),125.5,Math.toRadians(PedroAutoFunctions.angleFlip(STARTING_ANGLE_ROBOT,IsRed)));
+
+
 
         //rn will only work for blue sicne i need to fix some stuff for translation to other side,
         //GoalLocationPose = new Pose(16, 132, Math.toRadians(0));
@@ -87,13 +91,17 @@ public class CleanTeleop extends LinearOpMode {
         intake.init(hardwareMap);
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        //pedro stuff
+        //------------- FOLLOWER STUFF --------------
         follower = Constants.createFollower(hardwareMap);
         //hard set pose for now
         follower.setStartingPose(StartingPosition); // in front of blue goal pos
+
+        //follower.setStartingPose(PedroAuto.EndLocation); // in front of blue goal pos
         // ---- below is for after, when auto starts and then the position is used ----
         //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
+
+        //---------------------------------
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -105,7 +113,8 @@ public class CleanTeleop extends LinearOpMode {
         runtime.reset();
 
         //test
-        turretRotation.CalibrateTurretToCenter();
+        // ------------ uncommment if just running
+        if (CalibrateTurret){turretRotation.CalibrateTurretToCenter();}
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {

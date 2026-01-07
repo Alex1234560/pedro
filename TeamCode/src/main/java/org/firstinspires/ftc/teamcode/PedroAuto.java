@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
+import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
+import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous
@@ -26,6 +28,11 @@ public class PedroAuto extends OpMode {
 
     private FlywheelLogic shooter = new FlywheelLogic();
     private Intake intake = new Intake();
+    private TurretRotation turretRotation = new TurretRotation();
+    private ShooterAngle hood = new ShooterAngle();
+
+    private FunctionsAndValues FAndV = new FunctionsAndValues();
+
     private boolean shotsTriggered=false;
 
 
@@ -78,10 +85,8 @@ public class PedroAuto extends OpMode {
 //    private final Pose shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
 //    private final Pose intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, Math.toRadians(angleFlip(180, IsRed)));
 //    private final Pose intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, Math.toRadians(angleFlip(180, IsRed)));
-    private  Pose startPose;
-    private  Pose shootPos;
-    private  Pose intakeStart;
-    private  Pose intakeEnd;
+    public static  Pose startPose,shootPos,intakeStart,intakeEnd,GoalLocationPose,EndLocation;
+
 
 
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;
@@ -182,6 +187,8 @@ public class PedroAuto extends OpMode {
 
         shooter.init(hardwareMap);
         intake.init(hardwareMap);
+        turretRotation.init(hardwareMap);
+        hood.init(hardwareMap);
 
         //intake = new Intake(hardwareMap);
 
@@ -210,7 +217,7 @@ public class PedroAuto extends OpMode {
     @Override
     public void start() {
         buildPoses();
-
+        turretRotation.CalibrateTurretToCenter();
         buildPaths();
         follower.setPose(startPose);
         opModeTimer.resetTimer();
@@ -223,7 +230,15 @@ public class PedroAuto extends OpMode {
 
         follower.update();
         shooter.update();
+        turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose);;
         statePathUpdate();
+
+        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
+        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
+        hood.SetPosition(turretGoals[0]);
+        shooter.setFlywheelRPM(turretGoals[1]);
+
+       //turret.handleBearing(camera.getBearing());
 
         telemetry.addData("Path State", pathState.toString());
         telemetry.addData("x", follower.getPose().getX());
@@ -240,5 +255,11 @@ public class PedroAuto extends OpMode {
         shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
         intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, Math.toRadians(angleFlip(180, IsRed)));
         intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, Math.toRadians(angleFlip(180, IsRed)));
+
+        EndLocation=intakeEnd;
+
+        double GOAL_X = xFlip(15,IsRed);
+        double GOAL_Y = 131;
+        GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
     }
 }
