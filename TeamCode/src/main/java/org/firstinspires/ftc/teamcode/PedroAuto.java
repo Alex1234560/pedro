@@ -95,10 +95,10 @@ public class PedroAuto extends OpMode {
                 .addPath(new BezierLine(intakeStart, intakeEnd))
                 .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
                 // Start intake as this path starts
-                //.addTemporalCallback(0.0, () -> intake.IntakeOn())
+                .addTemporalCallback(0.0, () -> intake.intakeOn(1,1))
 
                 // Stop intake 2.0 seconds after this path starts
-                //.addTemporalCallback(2000, () -> intake.IntakeOff())
+                .addTemporalCallback(2000, () -> intake.intakeOff())
 
                 .build();
     }
