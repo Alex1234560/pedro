@@ -48,16 +48,23 @@ public class PedroAuto extends OpMode {
 
     public double xFlip(double oPos, boolean Red){
         double switcher;
-        if (Red){switcher=144;}
-        else{switcher=0;}
-        return switcher-oPos; // Alex
+        if (Red){switcher=144;
+            return switcher-oPos; // Alex
+        }
+        else{switcher=0;
+            return oPos;
+        }
+
     }
 
     public double angleFlip(double oAng, boolean Red) {
         double flipVal;
-        if (Red){flipVal = 180;}
-        else{flipVal = 0;}
-        return flipVal-oAng;
+        if (Red){flipVal = 180;
+            return flipVal-oAng;}
+        else{flipVal = 0;
+        return oAng;
+        }
+
     }
 
     /*private final Pose startPose = new Pose(18, 121.2, Math.toRadians(144));
@@ -95,10 +102,10 @@ public class PedroAuto extends OpMode {
                 .addPath(new BezierLine(intakeStart, intakeEnd))
                 .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
                 // Start intake as this path starts
-                .addTemporalCallback(0.0, () -> intake.intakeOn(1,1))
+                //.addTemporalCallback(0.0, () -> intake.intakeOn(1,1))
 
                 // Stop intake 2.0 seconds after this path starts
-                .addTemporalCallback(2000, () -> intake.intakeOff())
+                //.addTemporalCallback(2000, () -> intake.intakeOff())
 
                 .build();
     }
@@ -118,8 +125,6 @@ public class PedroAuto extends OpMode {
 
             case DRIVE_TO_INTAKE_POS:
 
-
-
                 if (!follower.isBusy()){
                     //requested shots yet?
 
@@ -135,13 +140,20 @@ public class PedroAuto extends OpMode {
 
             case INTAKE_BALLS:
 
+                intake.intakeOn(1,1);
+
                 follower.followPath(driveIntakeForward, true);
-                setPathState(PathState.FINISHED);
+
+                if (!follower.isBusy()){
+                    setPathState(PathState.FINISHED);
+                }
+
 
 
                 break;
 
             case FINISHED:
+                intake.intakeOff();
                 break;
 
 

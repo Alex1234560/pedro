@@ -193,7 +193,7 @@ public class CleanTeleop extends LinearOpMode {
             intake.intakeOn(-IntakePowerValue,0);
         }
         else if(IntakePowerValue!=0){
-            intake.intakeOn(IntakePowerValue,-1);
+            intake.intakeOn(IntakePowerValue,1);
         }
         else{
             intake.intakeOff();
