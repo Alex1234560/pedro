@@ -160,8 +160,7 @@ public class TurretRotation {
     public double GetGoalTrackingAngle(){return angle_calculated_for_tracking_goal;}
 
     // -------------- complicated functions ------------------
-
-    // this function i think won't work beacuse it will wobble the shooter too much, but we can try.
+    // function doensnt work thus its desactivated
     public void handleBearing(double bearing){
         if (bearing != 999){
             camera_bearing=bearing;
