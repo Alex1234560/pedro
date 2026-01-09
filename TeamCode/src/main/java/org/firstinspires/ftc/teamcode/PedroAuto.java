@@ -13,13 +13,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.json.JSONException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.File;
-import java.io.IOException;
 
 
 
@@ -218,31 +212,6 @@ public class PedroAuto extends OpMode {
 
     }
 
-    public void UpdateAutoEnd()
-            throws IOException, JSONException {
-
-
-        ObjectMapper mapper = new ObjectMapper();
-        File AutoJson = new File("src/TeamCode/java/org.firstinspires.ftc.teamcode/AutoEndData.json");
-
-
-        JsonNode root = mapper.readTree(AutoJson);
-        if (root.isObject()) {
-            ObjectNode objectNode = (ObjectNode) root;
-
-            objectNode.put("IsRed", IsRed);
-            objectNode.put("RobotPoseX", follower.getPose().getX());
-            objectNode.put("RobotPoseY", follower.getPose().getY());
-            objectNode.put("RobotPoseHeading", Math.toDegrees(follower.getTotalHeading()));
-
-            objectNode.put("TurretRot", turretRotation.GetCurrentPosDeg());
-
-
-
-            mapper.writerWithDefaultPrettyPrinter().writeValue(AutoJson, objectNode);
-        }
-    }
-
 
     @Override
     public void start() {
@@ -268,12 +237,6 @@ public class PedroAuto extends OpMode {
         double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelRPM(turretGoals[1]);
-
-        try {
-            UpdateAutoEnd();
-        } catch (IOException | JSONException e) {
-            throw new RuntimeException(e);
-        }
 
         //turret.handleBearing(camera.getBearing());
 

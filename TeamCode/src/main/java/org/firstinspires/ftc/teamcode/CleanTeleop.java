@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.os.Environment;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
@@ -21,10 +17,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.json.JSONException;
 
-import java.io.File;
-import java.io.IOException;
 
 @Configurable
 @TeleOp
@@ -61,10 +54,6 @@ public class CleanTeleop extends LinearOpMode {
 
     private Pose GoalLocationPose, StartingPosition;
 
-    // --- Things for loading the saved stuff
-    ObjectMapper mapper = new ObjectMapper();
-    File AutoJson = new File("src/TeamCode/java/org.firstinspires.ftc.teamcode/AutoEndData.json");
-    JsonNode Node;
 
     // --- Button Variables For Shooter ---
     private boolean shooterMotorOn = false;      // Tracks if the motor should be on or off
@@ -78,22 +67,11 @@ public class CleanTeleop extends LinearOpMode {
     public static boolean CalibrateTurret = false;
 
     private TurretRotation turretRotation = new TurretRotation();
-    private PedroAuto PedroAutoFunctions = new PedroAuto();
+    //private PedroAuto PedroAutoFunctions = new PedroAuto();
 
 
     @Override
     public void runOpMode() {
-
-        //Load the JSON
-        try {
-            File FTCBaseEnv = Environment.getExternalStorageDirectory();
-            File AutoJson = new File(FTCBaseEnv, "FIRST/AutoEndData.json");
-            if (AutoJson.exists()) {
-                Node = mapper.readTree(AutoJson);
-            }
-        } catch (IOException e) {
-            Node = null;
-        }
 
 
         //currentAngle=90;//center current angle for shooter
@@ -182,18 +160,6 @@ public class CleanTeleop extends LinearOpMode {
 
 
         }
-    }
-
-    private double GetSavedTurretRot(){
-        return Node.get("TurretRot").asDouble();
-    }
-
-    private Pose GetSavedPose(){
-        return new Pose(Node.get("RobotPoseX").asDouble(), Node.get("RobotPoseX").asDouble(), Node.get("RobotPoseHeading").asDouble());
-    }
-
-    private boolean GetSavedIsRed(){
-        return Node.get("IsRed").asBoolean();
     }
 
     private void TelemetryStatements(){
