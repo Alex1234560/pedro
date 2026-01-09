@@ -2,6 +2,7 @@
  -------- High Priority -------
 - finish an auto that's acceptable ( even if its 3 ball auto )
 - ODOMETRY pods position i believe are measured wrong, it needs to be remasured and make sure when robot is rotating it appears the same on the dashboard.
+- try turret motor with Breaking behaviour at power 0.
 
 ----------- Medium Priority ----------
 - make everything manually adjustable in case of trouble.

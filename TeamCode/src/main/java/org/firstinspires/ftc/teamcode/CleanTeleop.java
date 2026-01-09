@@ -44,8 +44,8 @@ public class CleanTeleop extends LinearOpMode {
     private TelemetryManager telemetryM;
 
     public static boolean fieldCentricDrive = false;
-    public static double GOAL_X = 15;
-    public static double GOAL_Y = 131;
+//    public static double GOAL_X = 15;
+//    public static double GOAL_Y = 131;
     public static double STARTING_ANGLE_ROBOT = 144;
 
     private boolean IsRed = false;
@@ -63,7 +63,7 @@ public class CleanTeleop extends LinearOpMode {
     //declaring button globally
     //private boolean autoAimButton = false;
     public static boolean AutoAim = true;
-    public static boolean CalibrateTurret = true;
+    public static boolean CalibrateTurret = false;
 
     private TurretRotation turretRotation = new TurretRotation();
     private PedroAuto PedroAutoFunctions = new PedroAuto();
@@ -75,14 +75,13 @@ public class CleanTeleop extends LinearOpMode {
         //currentAngle=90;//center current angle for shooter
         IsRed = PedroAuto.IsRed; // defines the side of the field based on what the auto had selected as the side of the field.
 
-        GoalLocationPose = new Pose(PedroAutoFunctions.xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
-        StartingPosition = new Pose(PedroAutoFunctions.xFlip(22.5,IsRed),125.5,Math.toRadians(PedroAutoFunctions.angleFlip(STARTING_ANGLE_ROBOT,IsRed)));
-
-
+        GoalLocationPose = PedroAuto.GoalLocationPose;
+        //new Pose(PedroAutoFunctions.xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
+        //StartingPosition = new Pose(PedroAutoFunctions.xFlip(22.5,IsRed),125.5,Math.toRadians(PedroAutoFunctions.angleFlip(STARTING_ANGLE_ROBOT,IsRed)));
 
         //rn will only work for blue sicne i need to fix some stuff for translation to other side,
         //GoalLocationPose = new Pose(16, 132, Math.toRadians(0));
-        //StartingPosition = new Pose(18, 121.2, Math.toRadians(144));
+        StartingPosition = PedroAuto.LastPoseRecorded;//new Pose(18, 121.2, Math.toRadians(144));
 
         camera = new AprilTagVision(hardwareMap,"webcam");
         hood.init(hardwareMap);
@@ -93,10 +92,10 @@ public class CleanTeleop extends LinearOpMode {
 
         //------------- FOLLOWER STUFF --------------
         follower = Constants.createFollower(hardwareMap);
-        //hard set pose for now
-        follower.setStartingPose(StartingPosition); // in front of blue goal pos
+        //new try start pose
+        follower.setStartingPose(StartingPosition);
 
-        //follower.setStartingPose(PedroAuto.EndLocation); // in front of blue goal pos
+
         // ---- below is for after, when auto starts and then the position is used ----
         //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
@@ -104,6 +103,10 @@ public class CleanTeleop extends LinearOpMode {
         //---------------------------------
 
         telemetry.addData("Status", "Initialized");
+
+        // in case you're starting teleop from fresh just for practice
+        telemetry.addData("Press A&B to toggle the turret calibration at beginning.","");
+        telemetry.addData("Turret Calibration Currently:",CalibrateTurret);
         telemetry.update();
 
         // Wait for the game to start (driver presses START)
@@ -118,8 +121,8 @@ public class CleanTeleop extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
-            StartingPosition = new Pose(StartingPosition.getX(),StartingPosition.getY(),Math.toRadians(STARTING_ANGLE_ROBOT));
+
+            //StartingPosition = new Pose(StartingPosition.getX(),StartingPosition.getY(),Math.toRadians(STARTING_ANGLE_ROBOT));
             //pedro
             turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
             camera.update();
@@ -170,6 +173,8 @@ public class CleanTeleop extends LinearOpMode {
         telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
         //telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
         //telemetryM.addData("Debugging angle Compensation" ,Math.round(turretRotation.DebugGetAngleCompensation()));
+
+        telemetryM.addData("IsRed?" ,IsRed);
 
         telemetryM.addData("Bearing (Camera) " ,camera.getBearing());
         telemetryM.addData("Distance (Camera) " ,camera.getRange());

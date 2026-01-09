@@ -17,10 +17,11 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Autonomous
 public class PedroAuto extends OpMode {
 
-    private Follower follower;
+   private Follower follower;
 
     //1 == true, 0 == false
     public static boolean IsRed = false;
+    public static Pose LastPoseRecorded;
 
     private Timer pathTimer, opModeTimer;
 
@@ -45,13 +46,6 @@ public class PedroAuto extends OpMode {
     }
     PathState pathState;
 
-    // make the mirroring a class in the future
-//    public static class MirrorSideFunctions {
-//        public boolean isRed = false;
-//
-//        public MirrorSideFunctions(boolean isRed) {
-//            this.isRed=isRed;
-//        }
 
     public double xFlip(double oPos, boolean Red){
         double switcher;
@@ -74,21 +68,22 @@ public class PedroAuto extends OpMode {
 
     }
 
-    /*private final Pose startPose = new Pose(18, 121.2, Math.toRadians(144));
-    private final Pose shootPos = new Pose(59, 85, Math.toRadians(144));
-    private final Pose intakeStart = new Pose(44.147, 59.348, Math.toRadians(180));
-    private final Pose intakeEnd = new Pose(20.662,   59.348, Math.toRadians(180));*/
+    // -------- everything Poses ---------
 
-    //Wrap x in xF, this accounts for left to right swapping. Wrap anlges in aF, this accounts for rotational mirroring and also takes care of the toRad
+    // ---- following hard poses are for blue side in case CleanTeleop is started for practice ---
+    private static final double StartingRobotAngleDeg = 144;
+    private static final double GOAL_X = 10.8;
+    private static final double GOAL_Y = 139.2;
+    private static final double START_X = 17.914;
+    private static final double START_Y = 121.168;
+    // ----- NOTE: These poses will get rewritten in this file, their only purpose is to serve
+    // as a default for the TeleOp File.
 
-//    private final Pose startPose = new Pose(xFlip(18, IsRed), 121.2, Math.toRadians(angleFlip(144, IsRed)));
-//    private final Pose shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
-//    private final Pose intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, Math.toRadians(angleFlip(180, IsRed)));
-//    private final Pose intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, Math.toRadians(angleFlip(180, IsRed)));
-    public static  Pose startPose,shootPos,intakeStart,intakeEnd,GoalLocationPose,EndLocation;
+    public static Pose startPose = new Pose(START_X,START_Y,Math.toRadians(StartingRobotAngleDeg));
+    public static Pose GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
 
-
-
+    // ------ these are for use only in this AUTO -------
+    private static  Pose shootPos,intakeStart,intakeEnd;
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;
 
 
@@ -227,6 +222,7 @@ public class PedroAuto extends OpMode {
 
     @Override
     public void loop(){
+        LastPoseRecorded = follower.getPose();
 
         follower.update();
         shooter.update();
@@ -251,15 +247,11 @@ public class PedroAuto extends OpMode {
     }
 
     private void buildPoses(){
-        startPose = new Pose(xFlip(18, IsRed), 121.2, Math.toRadians(angleFlip(144, IsRed)));
+        startPose = new Pose(xFlip(START_X, IsRed), START_Y, Math.toRadians(angleFlip(StartingRobotAngleDeg, IsRed)));
         shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
         intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, Math.toRadians(angleFlip(180, IsRed)));
         intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, Math.toRadians(angleFlip(180, IsRed)));
 
-        EndLocation=intakeEnd;
-
-        double GOAL_X = xFlip(15,IsRed);
-        double GOAL_Y = 131;
-        GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
+        GoalLocationPose = new Pose(xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
     }
 }
