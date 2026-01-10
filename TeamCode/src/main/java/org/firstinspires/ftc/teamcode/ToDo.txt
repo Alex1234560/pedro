@@ -8,6 +8,7 @@
 - Turret switches back around at angle -170 instead of the variable SWITCH_ANGLE_NEG, needs to be fixed.
 
 ----------- Medium Priority ----------
+- adjust PIDF so that correction back to the right place is more aggresive and works better.
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
 - make everything manually adjustable in case of trouble.
 - Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
