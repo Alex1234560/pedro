@@ -57,9 +57,11 @@ public class Constants {
 //            .forwardPodY(-.2)
 //            .strafePodX(1.3)
             //the value commented out was the one i used to make circle reallly small
-            //.forwardPodY(-.1)
-            .forwardPodY(-.1)// im trying this one to make auto work well.
-            .strafePodX(.9)
+//            .forwardPodY(-.1)// im trying this one to make auto work well.
+//            .strafePodX(.9)
+            .forwardPodY(1.4)
+            .strafePodX(0)
+
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)

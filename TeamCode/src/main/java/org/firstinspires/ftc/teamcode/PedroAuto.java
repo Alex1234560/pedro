@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
 
-
+@Configurable
 @Autonomous
 public class PedroAuto extends OpMode {
 
