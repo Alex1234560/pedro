@@ -48,7 +48,7 @@ public class CleanTeleop extends LinearOpMode {
     public static boolean fieldCentricDrive = false;
 //    public static double GOAL_X = 15;
 //    public static double GOAL_Y = 131;
-    public static double STARTING_ANGLE_ROBOT = 144;
+    //public static double STARTING_ANGLE_ROBOT = 144;
 
     private boolean IsRed = false;
 
@@ -290,7 +290,6 @@ public class CleanTeleop extends LinearOpMode {
             hood.SetPosition(ShooterAngle);
             telemetry.addData("ServoAngle ", ShooterAngle);
         }
-
     }
     private void handleTeleOpShooting(){
 

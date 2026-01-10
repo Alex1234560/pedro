@@ -1,9 +1,9 @@
 
  -------- High Priority -------
 - finish an auto that's acceptable ( even if its 3 ball auto )
-- ODOMETRY pods position i believe are measured wrong, it needs to be remasured and make sure when robot is rotating it appears the same on the dashboard.
+- ODOMETRY pods position i believe are measured wrong, it needs to be remeasured and make sure when robot is rotating it appears the same on the dashboard.
 - try turret motor with Breaking behaviour at power 0.
-- HUGE PRIORITY add isTurretRotationBusy() function so u cant shoot if turret isnt pointed correctly
+- HUGE PRIORITY add isTurretRotationBusy() function so u can't shoot if turret isn't pointed correctly
 
 ----------- Medium Priority ----------
 - make everything manually adjustable in case of trouble.
