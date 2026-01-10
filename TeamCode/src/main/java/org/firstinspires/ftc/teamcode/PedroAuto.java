@@ -25,7 +25,7 @@ public class PedroAuto extends OpMode {
 
     //1 == true, 0 == false
     public static boolean IsRed = false;
-    public static Pose LastPoseRecorded;
+
 
     private Timer pathTimer, opModeTimer;
 
@@ -86,6 +86,10 @@ public class PedroAuto extends OpMode {
     public static Pose startPose = new Pose(START_X,START_Y,Math.toRadians(StartingRobotAngleDeg));
     public static Pose GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
 
+    //this is to track last pose recorded for TeleOp
+    // it is start pose cuz if the code never starts then the last position is the start position :)
+    public static Pose LastPoseRecorded = startPose;
+
     // ------ these are for use only in this AUTO -------
     private static  Pose shootPos,intakeStart,intakeEnd;
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;
@@ -128,40 +132,29 @@ public class PedroAuto extends OpMode {
 
             case DRIVE_TO_INTAKE_POS:
 
-                if (!follower.isBusy()){
-                    //requested shots yet?
-
-                    if (!shooter.isBusy()){
-
+                if (!follower.isBusy()&&!shooter.isBusy()){
                         follower.followPath(driveShootPosToIntake, true);
                         setPathState(PathState.INTAKE_BALLS);
-
-                    }
                 }
-
                 break;
 
             case INTAKE_BALLS:
 
                 intake.intakeOn(1,1);
 
-                follower.followPath(driveIntakeForward, true);
-
                 if (!follower.isBusy()){
+                    follower.followPath(driveIntakeForward, true);
                     setPathState(PathState.FINISHED);
                 }
-
-
-
                 break;
 
             case FINISHED:
-                intake.intakeOff();
+                if (!follower.isBusy()) {
+                    intake.intakeOff();
+                }
                 break;
 
-
             default:
-                //intake.intakeOff();
                 break;
         }
     }
@@ -239,8 +232,6 @@ public class PedroAuto extends OpMode {
         shooter.setFlywheelRPM(turretGoals[1]);
 
         //turret.handleBearing(camera.getBearing());
-
-
 
         telemetry.addData("Path State", pathState.toString());
         telemetry.addData("x", follower.getPose().getX());

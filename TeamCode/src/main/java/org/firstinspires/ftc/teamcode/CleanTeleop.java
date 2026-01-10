@@ -107,8 +107,10 @@ public class CleanTeleop extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         // in case you're starting teleop from fresh just for practice
-        telemetry.addData("Press A&B to toggle the turret calibration at beginning.","");
+        telemetry.addData("Press 'Back' to toggle the turret calibration at beginning.","");
         telemetry.addData("Turret Calibration Currently:",CalibrateTurret);
+        if (gamepad1.backWasPressed()||gamepad2.backWasPressed()){CalibrateTurret = !CalibrateTurret;}
+
         telemetry.update();
 
         // Wait for the game to start (driver presses START)
