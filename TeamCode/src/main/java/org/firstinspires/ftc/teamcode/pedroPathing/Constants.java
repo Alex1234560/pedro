@@ -56,7 +56,9 @@ public class Constants {
 
 //            .forwardPodY(-.2)
 //            .strafePodX(1.3)
-            .forwardPodY(-.1)
+            //the value commented out was the one i used to make circle reallly small
+            //.forwardPodY(-.1)
+            .forwardPodY(-.1)// im trying this one to make auto work well.
             .strafePodX(.9)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
