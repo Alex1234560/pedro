@@ -4,6 +4,7 @@
 - ODOMETRY pods position i believe are measured wrong, it needs to be remeasured and make sure when robot is rotating it appears the same on the dashboard.
 - try turret motor with Breaking behaviour at power 0.
 - HUGE PRIORITY add isTurretRotationBusy() function so u can't shoot if turret isn't pointed correctly
+- Turret switches back around at angle -170 instead of the variable SWITCH_ANGLE_NEG, needs to be fixed.
 
 ----------- Medium Priority ----------
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed

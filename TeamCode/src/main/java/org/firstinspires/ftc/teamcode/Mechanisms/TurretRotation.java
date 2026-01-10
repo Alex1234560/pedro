@@ -38,8 +38,8 @@ public class TurretRotation {
 
 
     // ----- this are the limits that makes teh turret rotate in the opposite direction to not cross any cables -----
-    public static double SWITCH_ANGLE_POS = 180;
-    public static double SWITCH_ANGLE_NEG = -190;
+    public static double SWITCH_ANGLE_POS = 190;
+    public static double SWITCH_ANGLE_NEG = -180;
 
     private double double_robot_angle_deg;
     private double actual_target_angle = 0;// these is the variable used to tell the turret what angle we want.
