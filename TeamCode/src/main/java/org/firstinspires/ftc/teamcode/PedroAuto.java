@@ -36,6 +36,7 @@ public class PedroAuto extends OpMode {
     private Intake intake = new Intake();
     private TurretRotation turretRotation = new TurretRotation();
     private ShooterAngle hood = new ShooterAngle();
+    private AprilTagVision camera;
 
     private FunctionsAndValues FAndV = new FunctionsAndValues();
 
@@ -77,8 +78,10 @@ public class PedroAuto extends OpMode {
 
     // ---- following hard poses are for blue side in case CleanTeleop is started for practice ---
     private static final double StartingRobotAngleDeg = 144;
-    private static final double GOAL_X = 10.8;
-    private static final double GOAL_Y = 139.2;
+    private static final double GOAL_X = 7.5;
+    private static final double GOAL_Y = 142.122;
+//    private static final double GOAL_X = 16;
+//    private static final double GOAL_Y = 132;
     private static final double START_X = 17.914;
     private static final double START_Y = 121.168;
     // ----- NOTE: These poses will get rewritten in this file, their only purpose is to serve
@@ -181,6 +184,7 @@ public class PedroAuto extends OpMode {
         intake.init(hardwareMap);
         turretRotation.init(hardwareMap);
         hood.init(hardwareMap);
+        camera = new AprilTagVision(hardwareMap);
 
         //intake = new Intake(hardwareMap);
 
@@ -222,9 +226,11 @@ public class PedroAuto extends OpMode {
     public void loop(){
         LastPoseRecorded = follower.getPose();
 
+        camera.update();
         follower.update();
         shooter.update();
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose);;
+        turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);

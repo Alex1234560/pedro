@@ -80,7 +80,7 @@ public class CleanTeleop extends LinearOpMode {
             StartingPosition = PedroAuto.startPose;
         }
 
-        camera = new AprilTagVision(hardwareMap,"webcam");
+        camera = new AprilTagVision(hardwareMap);
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
@@ -182,9 +182,9 @@ public class CleanTeleop extends LinearOpMode {
         telemetryM.addData("IsRed?" ,IsRed);
 
         telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
-        telemetryM.addData("Bearing (Camera) " ,camera.getBearing());
-        telemetryM.addData("Yaw (Camera) " ,camera.getYaw());
-        telemetryM.addData("Distance (Camera) " ,camera.getRange());
+        telemetryM.addData("Bearing " ,camera.getBearing());
+        telemetryM.addData("Yaw " ,camera.getYaw());
+        telemetryM.addData("Distance  " ,camera.getRange());
 
         //telemetry.addData("x", follower.getPose().getX());
         //telemetry.addData("y", follower.getPose().getY());

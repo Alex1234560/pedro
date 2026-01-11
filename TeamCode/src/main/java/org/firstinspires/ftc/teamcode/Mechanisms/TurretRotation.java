@@ -18,8 +18,9 @@ public class TurretRotation {
     private DcMotorEx TurretRotatorMotor = null;
 
 
-    public static double SMALL_VALUE_TO_CHANGE = .1;
-    public static double LARGE_VALUE_TO_CHANGE = 1;
+    public static double MULTIPLIER_FOR_TURRET_CHANGE = .09;
+    public static double STARTING_CHANGE = .003;
+    //public static double LARGE_VALUE_TO_CHANGE = 1;
 
 
     public static boolean AUTO_ROTATE = true; // this is for counter rotating the turret with the heading variable
@@ -45,7 +46,7 @@ public class TurretRotation {
     private double double_robot_angle_deg;
     private double actual_target_angle = 0;// these is the variable used to tell the turret what angle we want.
     private double angle_calculated_for_tracking_goal = 0;// this angle comes from the function getAngleFromTwoPoints
-    private double camera_bearing = 0;
+    private double camera_bearing_offset = 0;
 
 
     // ---------- PIDF values for turret ---------------
@@ -89,7 +90,7 @@ public class TurretRotation {
             }
 
             if (USE_CAMERA_BEARING){
-                actual_target_angle+=camera_bearing;
+                actual_target_angle+= camera_bearing_offset;
             }
 
 
@@ -156,7 +157,7 @@ public class TurretRotation {
     //public double GetTargetAngle(){return actual_target_angle;}
     //public double DebugGetAngleCompensation(){return double_robot_angle_deg;}
     public double GetCurrentPosDeg(){return (GetCurrentPos()/FULL_TURN)*360;}
-    public double GetCameraBearingUsedInFile(){return camera_bearing;}
+    public double GetCameraBearingUsedInFile(){return camera_bearing_offset;}
     public double GetCurrentPos(){return TurretRotatorMotor.getCurrentPosition();}
     public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
     public double GetGoalTrackingAngle(){return angle_calculated_for_tracking_goal;}
@@ -164,32 +165,33 @@ public class TurretRotation {
     // -------------- complicated functions ------------------
 
     public void handleBearing(double bearing, double yaw){
-        //the plan is to slowly add the value so that it doesnt go crazy
-        double changeValue;
-        if (Math.abs(bearing)>5){
-            changeValue=LARGE_VALUE_TO_CHANGE;
-        }
-        else{
-            changeValue=SMALL_VALUE_TO_CHANGE;
-        }
+        //this modifies bearing so it aims at behind the code and not at the code
+        //double bearing_with_yaw = ((bearing + (-0.154098*yaw))+1.18033);
+        double bearing_with_yaw = bearing; // rn no bearing with yaw is going to be used.
 
-        if (bearing != camera_bearing){
-
+        double changeValue = (MULTIPLIER_FOR_TURRET_CHANGE*Math.abs(bearing_with_yaw))+STARTING_CHANGE;
+        double ERROR_MARGIN = .3;
             if (bearing != 999){
 
 
-                if (camera_bearing < bearing){
-                    camera_bearing+= changeValue;
+                if (bearing_with_yaw > ERROR_MARGIN){
+                    camera_bearing_offset += changeValue;
                 }
-                if (camera_bearing > bearing){
-                    camera_bearing-=changeValue ;
+                if (bearing_with_yaw < ERROR_MARGIN){
+                    camera_bearing_offset -=changeValue ;
                 }
 
             }
             else{
-                camera_bearing-= ( SMALL_VALUE_TO_CHANGE  *Math.signum(camera_bearing) );
+                if (Math.abs(camera_bearing_offset) <= ERROR_MARGIN ){
+                    camera_bearing_offset=0;
+                }
+                else {
+                    //redefining change value to use in getting the offset to normal.
+                    changeValue = (MULTIPLIER_FOR_TURRET_CHANGE*Math.abs(camera_bearing_offset))+STARTING_CHANGE;
+                    camera_bearing_offset -= (changeValue * Math.signum(camera_bearing_offset));
+                }
             }
-        }
     }
 
     public double GetDistanceFromGoal(Pose robotPose, Pose goalPose){

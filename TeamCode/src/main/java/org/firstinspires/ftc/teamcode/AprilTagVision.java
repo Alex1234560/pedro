@@ -36,9 +36,8 @@ public class AprilTagVision {
     /**
      * The constructor for the AprilTagVision class.
      * @param hardwareMap The hardware map from the OpMode, used to find the webcam.
-     * @param webcamName The name of the webcam in your robot's configuration file.
      */
-    public AprilTagVision(HardwareMap hardwareMap, String webcamName) {
+    public AprilTagVision(HardwareMap hardwareMap) {
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
                 // Add any custom settings here, like tag family, units, etc.
@@ -49,7 +48,7 @@ public class AprilTagVision {
         VisionPortal.Builder builder = new VisionPortal.Builder();
 
         // Set the camera from the hardware map.
-        builder.setCamera(hardwareMap.get(WebcamName.class, webcamName));
+        builder.setCamera(hardwareMap.get(WebcamName.class, "webcam"));
 
         // Optional: Set a custom camera resolution.
         // builder.setCameraResolution(new Size(640, 480));
