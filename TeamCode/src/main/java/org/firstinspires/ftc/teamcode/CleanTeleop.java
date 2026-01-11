@@ -64,7 +64,7 @@ public class CleanTeleop extends LinearOpMode {
     //declaring button globally
     //private boolean autoAimButton = false;
     public static boolean AutoAim = true;
-    public static boolean CalibrateTurret = false;
+    public static boolean START_PROGRAM_WITOUTH_AUTO_FIRST = false;
 
     private TurretRotation turretRotation = new TurretRotation();
     //private PedroAuto PedroAutoFunctions = new PedroAuto();
@@ -73,17 +73,12 @@ public class CleanTeleop extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-
-        //currentAngle=90;//center current angle for shooter
-        IsRed = PedroAuto.IsRed; // defines the side of the field based on what the auto had selected as the side of the field.
-
         GoalLocationPose = PedroAuto.GoalLocationPose;
-        //new Pose(PedroAutoFunctions.xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
-        //StartingPosition = new Pose(PedroAutoFunctions.xFlip(22.5,IsRed),125.5,Math.toRadians(PedroAutoFunctions.angleFlip(STARTING_ANGLE_ROBOT,IsRed)));
+        StartingPosition = PedroAuto.LastPoseRecorded;
 
-        //rn will only work for blue sicne i need to fix some stuff for translation to other side,
-        //GoalLocationPose = new Pose(16, 132, Math.toRadians(0));
-        StartingPosition = PedroAuto.LastPoseRecorded;//new Pose(18, 121.2, Math.toRadians(144));
+        if (START_PROGRAM_WITOUTH_AUTO_FIRST){
+            StartingPosition = PedroAuto.startPose;
+        }
 
         camera = new AprilTagVision(hardwareMap,"webcam");
         hood.init(hardwareMap);
@@ -108,8 +103,8 @@ public class CleanTeleop extends LinearOpMode {
 
         // in case you're starting teleop from fresh just for practice
         telemetry.addData("Press 'Back' to toggle the turret calibration at beginning.","");
-        telemetry.addData("Turret Calibration Currently:",CalibrateTurret);
-        if (gamepad1.backWasPressed()||gamepad2.backWasPressed()){CalibrateTurret = !CalibrateTurret;}
+        telemetry.addData("Turret Calibration Currently:",START_PROGRAM_WITOUTH_AUTO_FIRST);
+        if (gamepad1.backWasPressed()||gamepad2.backWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
 
         telemetry.update();
 
@@ -119,9 +114,14 @@ public class CleanTeleop extends LinearOpMode {
         follower.startTeleopDrive();
         runtime.reset();
 
-        //test
-        // ------------ uncommment if just running
-        if (CalibrateTurret){turretRotation.CalibrateTurretToCenter();}
+        //auto aiming and location sor
+        IsRed = PedroAuto.IsRed; // defines the side of the field b ased on what the auto had selected as the side of the field.
+
+
+        if (START_PROGRAM_WITOUTH_AUTO_FIRST){
+            turretRotation.CalibrateTurretToCenter();
+        }
+
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -140,7 +140,8 @@ public class CleanTeleop extends LinearOpMode {
                 hood.SetPosition(turretGoals[0]);
                 shooter.setFlywheelRPM(turretGoals[1]);
 
-                turretRotation.handleBearing(camera.getBearing());
+
+                turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
             }
 
 
@@ -181,6 +182,7 @@ public class CleanTeleop extends LinearOpMode {
         telemetryM.addData("IsRed?" ,IsRed);
 
         telemetryM.addData("Bearing (Camera) " ,camera.getBearing());
+        telemetryM.addData("Yaw (Camera) " ,camera.getYaw());
         telemetryM.addData("Distance (Camera) " ,camera.getRange());
 
         //telemetry.addData("x", follower.getPose().getX());

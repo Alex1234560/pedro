@@ -17,12 +17,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class TurretRotation {
     private DcMotorEx TurretRotatorMotor = null;
 
-    public static double MotorPowerWitouthAutoDebugging = 0;
 
+    public static double SMALL_VALUE_TO_CHANGE = .1;
 
     public static boolean AUTO_ROTATE = true; // this is for counter rotating the turret with the heading variable
     public static boolean TRACK_GOAL = true; // this is for activating the trig math that handles aiming at the correct spot
-    public static boolean USE_CAMERA_BEARING = false;
+    public static boolean USE_CAMERA_BEARING = true;
     public static boolean MOTOR_ACTIVE = true;// this is for activating the motor, inc ase u want to test something witouth the motor active
 
     public static int AUTO_AIMING_TURRET_OFFSET = 180; // this is just a base value, that is there to make the turret face the right way
@@ -152,8 +152,8 @@ public class TurretRotation {
         }
 
     // --------------- functions to return simple values ----------
-    public double GetTargetAngle(){return actual_target_angle;}
-    public double DebugGetAngleCompensation(){return double_robot_angle_deg;}
+    //public double GetTargetAngle(){return actual_target_angle;}
+    //public double DebugGetAngleCompensation(){return double_robot_angle_deg;}
     public double GetCurrentPosDeg(){return (GetCurrentPos()/FULL_TURN)*360;}
     public double GetCurrentPos(){return TurretRotatorMotor.getCurrentPosition();}
     public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
@@ -161,12 +161,22 @@ public class TurretRotation {
 
     // -------------- complicated functions ------------------
 
-    // this function i think won't work beacuse it will wobble the shooter too much, but we can try.
-    public void handleBearing(double bearing){
-        if (bearing != 999){
-            camera_bearing=bearing;
+    public void handleBearing(double bearing, double yaw){
+        //the plan is to slowly add the value so that it doesnt go crazy
+
+        if (bearing != camera_bearing){
+
+            if (bearing != 999){
+                // if camera bearing > bearing = stop increasing
+                if (Math.abs(camera_bearing) < Math.abs(bearing)){
+                    camera_bearing+=( SMALL_VALUE_TO_CHANGE  *Math.signum(bearing) );
+                }
+
+            }
+            else{
+                camera_bearing-= ( SMALL_VALUE_TO_CHANGE  *Math.signum(camera_bearing) );
+            }
         }
-        else{camera_bearing=0;}
     }
 
     public double GetDistanceFromGoal(Pose robotPose, Pose goalPose){
