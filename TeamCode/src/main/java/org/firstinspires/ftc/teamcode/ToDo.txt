@@ -1,5 +1,6 @@
 
  -------- High Priority -------
+- integrating bearing into turret rotation code
  - FIRST ON PRIORITY LISt, Auto is not ending up in right place even though everything is measured right 
 - finish an auto that's acceptable ( even if its 3 ball auto )
 
