@@ -42,12 +42,5 @@ public class ShooterAngle {
         return ServoShooter1.getPosition();//position
     }
 
-    public void SetPositionBasedOnDistance(double Distance){
-
-    }
-
-
-
-
 
 }
