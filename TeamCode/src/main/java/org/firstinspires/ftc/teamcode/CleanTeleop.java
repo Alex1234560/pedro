@@ -64,7 +64,7 @@ public class CleanTeleop extends LinearOpMode {
     //declaring button globally
     //private boolean autoAimButton = false;
     public static boolean AutoAim = true;
-    public static boolean START_PROGRAM_WITOUTH_AUTO_FIRST = false;
+    public static boolean START_PROGRAM_WITOUTH_AUTO_FIRST = true;
 
     private TurretRotation turretRotation = new TurretRotation();
     //private PedroAuto PedroAutoFunctions = new PedroAuto();
@@ -102,8 +102,8 @@ public class CleanTeleop extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         // in case you're starting teleop from fresh just for practice
-        telemetry.addData("Press 'Back' to toggle the turret calibration at beginning.","");
-        telemetry.addData("Turret Calibration Currently:",START_PROGRAM_WITOUTH_AUTO_FIRST);
+        telemetry.addData("Press 'Back' to toggle the start program witouth running auto first.","");
+        telemetry.addData("STATUS:",START_PROGRAM_WITOUTH_AUTO_FIRST);
         if (gamepad1.backWasPressed()||gamepad2.backWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
 
         telemetry.update();
@@ -181,6 +181,7 @@ public class CleanTeleop extends LinearOpMode {
 
         telemetryM.addData("IsRed?" ,IsRed);
 
+        telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
         telemetryM.addData("Bearing (Camera) " ,camera.getBearing());
         telemetryM.addData("Yaw (Camera) " ,camera.getYaw());
         telemetryM.addData("Distance (Camera) " ,camera.getRange());
