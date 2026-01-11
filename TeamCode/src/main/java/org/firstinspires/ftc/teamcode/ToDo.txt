@@ -14,7 +14,7 @@
 - make everything manually adjustable in case of trouble.
 - Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
 - check how to make aiming consistent, rn it works well when rotated to the front but not in the back, I beleive its the odometry pods placement and aslo that turret isnt centered.
-- camera bearing is integrated into the code but it makes it spasm, beacuse its constantly updating the bearing value into it
+
 
 -------- needs testing ----
 test 2 sides of the auto ( i dont think the red side works )
