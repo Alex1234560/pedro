@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Vector;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -53,6 +54,12 @@ public class PedroAuto extends OpMode {
     PathState pathState;
 
 
+    //for intaking balls where positiion needs to be precise
+    private static double ALLOWED_ERROR_POSITION = 3;
+    private static double ALLOWED_ERROR_VELOCITY = 15;
+
+    // -------- everything Poses ---------
+
     public double xFlip(double oPos, boolean Red){
         double switcher;
         if (Red){switcher=144;
@@ -74,7 +81,6 @@ public class PedroAuto extends OpMode {
 
     }
 
-    // -------- everything Poses ---------
 
     // ---- following hard poses are for blue side in case CleanTeleop is started for practice ---
     private static final double StartingRobotAngleDeg = 144;
@@ -145,8 +151,11 @@ public class PedroAuto extends OpMode {
             case INTAKE_BALLS:
 
                 intake.intakeOn(1,1);
+                //if (!follower.isBusy()){ previous code, replace in case don't work
 
-                if (!follower.isBusy()){
+                //set a timer in case isRobotInPosition never happens
+                if (!follower.isBusy()&& isRobotInPosition(intakeStart)){
+
                     follower.followPath(driveIntakeForward, true);
                     setPathState(PathState.FINISHED);
                 }
@@ -252,9 +261,31 @@ public class PedroAuto extends OpMode {
     private void buildPoses(){
         startPose = new Pose(xFlip(START_X, IsRed), START_Y, Math.toRadians(angleFlip(StartingRobotAngleDeg, IsRed)));
         shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
-        intakeStart = new Pose(xFlip(44.147, IsRed), 59.348, Math.toRadians(angleFlip(180, IsRed)));
-        intakeEnd = new Pose(xFlip(20.662, IsRed),  59.348, Math.toRadians(angleFlip(180, IsRed)));
+        intakeStart = new Pose(xFlip(44.147, IsRed), 60.5, Math.toRadians(angleFlip(180, IsRed)));
+        intakeEnd = new Pose(xFlip(20.662, IsRed),  60.5, Math.toRadians(angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
+    }
+
+    private boolean isRobotInPosition(Pose GoalPose) {
+        Vector VelocityVector = follower.getVelocity();
+        double vX = VelocityVector.getXComponent();
+        double vY = VelocityVector.getYComponent();
+        double Velocity = Math.hypot(vX, vY);
+
+        boolean isVelocityAcceptable = Velocity <= ALLOWED_ERROR_VELOCITY;
+
+        double dx = GoalPose.getX() - follower.getPose().getX();
+        double dy = GoalPose.getY() - follower.getPose().getY();
+        double difference = Math.hypot(dx, dy);
+
+        boolean isPositionAcceptable = difference <= ALLOWED_ERROR_POSITION;
+
+        if (isPositionAcceptable && isVelocityAcceptable) {
+            return true;
+        } else {
+            return false;
+
+        }
     }
 }

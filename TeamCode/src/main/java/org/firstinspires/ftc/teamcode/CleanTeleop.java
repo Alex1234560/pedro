@@ -8,6 +8,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
 
+import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -181,6 +182,8 @@ public class CleanTeleop extends LinearOpMode {
 
         telemetryM.addData("IsRed?" ,IsRed);
 
+        telemetryM.addData("ROBOT velocity: " ,GetRobotVelocity());
+
         telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
         telemetryM.addData("Bearing " ,camera.getBearing());
         telemetryM.addData("Yaw " ,camera.getYaw());
@@ -315,5 +318,14 @@ public class CleanTeleop extends LinearOpMode {
         }
 
         else{shooter.SpinBallFeeder(0);}
+    }
+
+    private double GetRobotVelocity(){
+        Vector VelocityVector = follower.getVelocity();
+        double vX = VelocityVector.getXComponent();
+        double vY = VelocityVector.getYComponent();
+        double Velocity = Math.hypot(vX,vY);
+
+        return Velocity;
     }
 }

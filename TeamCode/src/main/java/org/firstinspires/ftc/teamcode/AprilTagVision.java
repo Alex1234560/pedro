@@ -132,11 +132,21 @@ public class AprilTagVision {
      * Gets the yaw (rotational error) of the last detected tag.
      * @return The yaw in degrees, or 0 if no tag is visible.
      */
+//    public double getYaw() {
+//        if (isTagVisible()) {
+//            return latestDetection.ftcPose.yaw;
+//        }
+//        return 0;
+//    }
+
     public double getYaw() {
-        if (isTagVisible()) {
+        // Check if the detection exists AND if the pose calculation is complete.
+        if (latestDetection != null && latestDetection.ftcPose != null) {
             return latestDetection.ftcPose.yaw;
         }
-        return 0;
+        else{return 0;}
+        // Return a safe, invalid value if no tag or no pose data is available.
+
     }
 
     // In AprilTagVision.java

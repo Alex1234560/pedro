@@ -14,16 +14,16 @@ public class FunctionsAndValues {
  //
     private static double BackRangeStart = 90;
 
-    public static double After90ChangeInAngle = 0; // was -3
+    //public static double After90ChangeInAngle = 0; // was -3
 
     // swiched it from 60 to 300 cuz i believe the time it takes for the ball to reach flywheeel it goes up to speed enough to be accurate
     public static double SpeedToleranceToStartShooting = 300;
 
-    public static double AngleToleranceToStartShooting = 2;
+    //public static double AngleToleranceToStartShooting = 2;
 
     public static double MinimumSpeed = 600;
 
-    public static double tuningMultiplier = 3.5;
+    //public static double tuningMultiplier = 3.5;
 
     //public static boolean disableBearingPrediction = false;
 
@@ -34,7 +34,7 @@ public class FunctionsAndValues {
     //public static double rotationTolerance = .5;
 
 
-    public static double GearRatio = 3;
+    //public static double GearRatio = 3;
 
     public static double kF = 0.000415873;
     public static double kP = 0.005;
@@ -50,6 +50,12 @@ public class FunctionsAndValues {
 
     public FunctionsAndValues() {
 
+    }
+
+    public double distance(double x1, double y1, double x2, double y2) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        return Math.hypot(dx, dy);   // safer and avoids overflow
     }
 
     public double[] handleShootingRanges(double range) {

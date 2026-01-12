@@ -13,8 +13,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.FunctionsAndValues;
+
 @Configurable
 public class TurretRotation {
+    private FunctionsAndValues FAndV = new FunctionsAndValues();
+
     private DcMotorEx TurretRotatorMotor = null;
 
 
@@ -195,10 +199,7 @@ public class TurretRotation {
     }
 
     public double GetDistanceFromGoal(Pose robotPose, Pose goalPose){
-
-        return distance (robotPose.getX(),robotPose.getY(),goalPose.getX(), goalPose.getY());
-
-
+        return FAndV.distance(robotPose.getX(), robotPose.getY(), goalPose.getX(), goalPose.getY());
     }
 
     public void CalibrateTurretToCenter(){
@@ -208,11 +209,6 @@ public class TurretRotation {
 
     }
 
-    public double distance(double x1, double y1, double x2, double y2) {
-        double dx = x2 - x1;
-        double dy = y2 - y1;
-        return Math.hypot(dx, dy);   // safer and avoids overflow
-    }
 
     public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy) {
 
