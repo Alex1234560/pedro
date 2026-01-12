@@ -49,6 +49,8 @@ public class PedroAuto extends OpMode {
         DRIVE_TO_SHOOT_POS,
         DRIVE_TO_INTAKE_POS,
         INTAKE_BALLS,
+        DRIVE_BACK_TO_SHOOT,
+        SHOOT,
         FINISHED
     }
     PathState pathState;
@@ -101,8 +103,8 @@ public class PedroAuto extends OpMode {
     public static Pose LastPoseRecorded = startPose;
 
     // ------ these are for use only in this AUTO -------
-    private static  Pose shootPos,intakeStart,intakeEnd;
-    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward;
+    private static  Pose shootPos,shootPos180,intakeStart,intakeEnd;
+    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
 
     public void buildPaths(){
         // put in coordinates for starting pos > ending pos
@@ -118,19 +120,22 @@ public class PedroAuto extends OpMode {
         driveIntakeForward = follower.pathBuilder()
                 .addPath(new BezierLine(intakeStart, intakeEnd))
                 .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
-                // Start intake as this path starts
-                //.addTemporalCallback(0.0, () -> intake.intakeOn(1,1))
-
-                // Stop intake 2.0 seconds after this path starts
-                //.addTemporalCallback(2000, () -> intake.intakeOff())
-
                 .build();
+
+        driveFromIntake1ToShootPos = follower.pathBuilder()
+                .addPath(new BezierLine(intakeEnd, shootPos180))
+                .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos180.getHeading())
+                .build();
+
     }
+
+    private boolean isStateBusy = false;
 
     public void statePathUpdate() {
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS:
                 if (!shotsTriggered){
+                    intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     shotsTriggered=true;
                 }
@@ -143,6 +148,7 @@ public class PedroAuto extends OpMode {
             case DRIVE_TO_INTAKE_POS:
 
                 if (!follower.isBusy()&&!shooter.isBusy()){
+                        intake.intakeOff();// to stop cycling balls to shooter.
                         follower.followPath(driveShootPosToIntake, true);
                         setPathState(PathState.INTAKE_BALLS);
                 }
@@ -151,20 +157,52 @@ public class PedroAuto extends OpMode {
             case INTAKE_BALLS:
 
                 intake.intakeOn(1,1);
-                //if (!follower.isBusy()){ previous code, replace in case don't work
 
-                //set a timer in case isRobotInPosition never happens
-                if (!follower.isBusy()&& isRobotInPosition(intakeStart)){
 
-                    follower.followPath(driveIntakeForward, true);
-                    setPathState(PathState.FINISHED);
+                if (isStateBusy == false &&!follower.isBusy()&&isRobotInPosition(intakeStart)){
+                    follower.followPath(driveIntakeForward, .5,true);
+                    isStateBusy = true;
+                }
+
+
+                if (!follower.isBusy() && isStateBusy ==true){
+                    isStateBusy = false;
+                    //intake.intakeOff();
+                    setPathState(PathState.DRIVE_BACK_TO_SHOOT);
                 }
                 break;
 
-            case FINISHED:
-                if (!follower.isBusy()) {
-                    intake.intakeOff();
+            case DRIVE_BACK_TO_SHOOT:
+                if(isStateBusy == false && !follower.isBusy()){
+                    follower.followPath(driveFromIntake1ToShootPos, true);
+                    isStateBusy = true;
                 }
+
+                if (isStateBusy ==true&&!follower.isBusy()){
+                    isStateBusy =false;
+                    //setPathState(PathState.SHOOT);
+                    setPathState(PathState.FINISHED);
+                }
+
+                break;
+
+//            case SHOOT:
+//                if(isStateBusy == false){
+//                    intake.intakeOn(1,1); // to cycle balls to shooter
+//                    shooter.fireShots(4);// for some reason 3 shoots 2 :( gotta figure it out.
+//                    isStateBusy=true;
+//                }
+
+//                if (isStateBusy ==true&&!shooter.isBusy()){
+//                    isStateBusy =false;
+//                    setPathState(PathState.FINISHED);
+//                    intake.intakeOff();
+//                }
+
+
+                //break;
+
+            case FINISHED:
                 break;
 
             default:
@@ -237,7 +275,7 @@ public class PedroAuto extends OpMode {
 
         camera.update();
         follower.update();
-        shooter.update();
+        shooter.update(turretRotation.isTurretFinishedRotating());
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose);;
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
@@ -248,7 +286,7 @@ public class PedroAuto extends OpMode {
         shooter.setFlywheelRPM(turretGoals[1]);
 
         //turret.handleBearing(camera.getBearing());
-
+        telemetry.addData("Shots Remaining", shooter.GetShotsRemaining());
         telemetry.addData("Path State", pathState.toString());
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -261,8 +299,9 @@ public class PedroAuto extends OpMode {
     private void buildPoses(){
         startPose = new Pose(xFlip(START_X, IsRed), START_Y, Math.toRadians(angleFlip(StartingRobotAngleDeg, IsRed)));
         shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
-        intakeStart = new Pose(xFlip(44.147, IsRed), 60.5, Math.toRadians(angleFlip(180, IsRed)));
-        intakeEnd = new Pose(xFlip(20.662, IsRed),  60.5, Math.toRadians(angleFlip(180, IsRed)));
+        shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(angleFlip(180, IsRed)));
+        intakeStart = new Pose(xFlip(51, IsRed), 60.5, Math.toRadians(angleFlip(180, IsRed)));
+        intakeEnd = new Pose(xFlip(16.4, IsRed),  60.5, Math.toRadians(angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
     }

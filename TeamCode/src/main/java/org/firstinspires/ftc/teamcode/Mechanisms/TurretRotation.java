@@ -22,8 +22,10 @@ public class TurretRotation {
     private DcMotorEx TurretRotatorMotor = null;
 
 
-    public static double MULTIPLIER_FOR_TURRET_CHANGE = .09;
-    public static double STARTING_CHANGE = .003;
+    public static double CAMERA_MULTIPLIER_FOR_TURRET_CHANGE = .09;
+    public static double CAMERA_STARTING_CHANGE = .003;
+
+    public static double TURRET_AIMING_ALLOWED_ERROR = 4.5;
     //public static double LARGE_VALUE_TO_CHANGE = 1;
 
 
@@ -67,14 +69,11 @@ public class TurretRotation {
     );
 
 
-
-
     public void init(HardwareMap hardwareMap){
         TurretRotatorMotor = hardwareMap.get(DcMotorEx.class, "TurretRotator");
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //TurretRotatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
-
 
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose, Pose initPose){
 
@@ -84,7 +83,7 @@ public class TurretRotation {
             double_robot_angle_deg =  RobotAngleDeg;
 
 
-            double current_position = GetCurrentPos();// telemetry
+            double current_position = GetCurrentPosTicks();// telemetry
             double current_velocity = GetCurrentVel();// telemetry
 
             actual_target_angle = 0;// start the target angle as zero, add values to make it aim in the right dir
@@ -99,6 +98,7 @@ public class TurretRotation {
 
 
             angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY());
+
             if (TRACK_GOAL){
                 actual_target_angle += angle_calculated_for_tracking_goal;
             }
@@ -158,22 +158,27 @@ public class TurretRotation {
         }
 
     // --------------- functions to return simple values ----------
-    //public double GetTargetAngle(){return actual_target_angle;}
+    public double GetTargetAngle(){return actual_target_angle;}
     //public double DebugGetAngleCompensation(){return double_robot_angle_deg;}
-    public double GetCurrentPosDeg(){return (GetCurrentPos()/FULL_TURN)*360;}
+    public double GetCurrentPosDeg(){return (GetCurrentPosTicks()/FULL_TURN)*360;}
     public double GetCameraBearingUsedInFile(){return camera_bearing_offset;}
-    public double GetCurrentPos(){return TurretRotatorMotor.getCurrentPosition();}
+    public double GetCurrentPosTicks(){return TurretRotatorMotor.getCurrentPosition();}
     public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
     public double GetGoalTrackingAngle(){return angle_calculated_for_tracking_goal;}
 
     // -------------- complicated functions ------------------
+
+    public boolean isTurretFinishedRotating(){
+        double difference = Math.abs(GetCurrentPosDeg()-actual_target_angle);
+        return difference < TURRET_AIMING_ALLOWED_ERROR;
+    }
 
     public void handleBearing(double bearing, double yaw){
         //this modifies bearing so it aims at behind the code and not at the code
         //double bearing_with_yaw = ((bearing + (-0.154098*yaw))+1.18033);
         double bearing_with_yaw = bearing; // rn no bearing with yaw is going to be used.
 
-        double changeValue = (MULTIPLIER_FOR_TURRET_CHANGE*Math.abs(bearing_with_yaw))+STARTING_CHANGE;
+        double changeValue = (CAMERA_MULTIPLIER_FOR_TURRET_CHANGE *Math.abs(bearing_with_yaw))+ CAMERA_STARTING_CHANGE;
         double ERROR_MARGIN = .3;
             if (bearing != 999){
 
@@ -192,7 +197,7 @@ public class TurretRotation {
                 }
                 else {
                     //redefining change value to use in getting the offset to normal.
-                    changeValue = (MULTIPLIER_FOR_TURRET_CHANGE*Math.abs(camera_bearing_offset))+STARTING_CHANGE;
+                    changeValue = (CAMERA_MULTIPLIER_FOR_TURRET_CHANGE *Math.abs(camera_bearing_offset))+ CAMERA_STARTING_CHANGE;
                     camera_bearing_offset -= (changeValue * Math.signum(camera_bearing_offset));
                 }
             }
@@ -208,7 +213,6 @@ public class TurretRotation {
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
-
 
     public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy) {
 

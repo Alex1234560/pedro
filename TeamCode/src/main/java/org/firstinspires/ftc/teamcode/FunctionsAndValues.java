@@ -17,7 +17,7 @@ public class FunctionsAndValues {
     //public static double After90ChangeInAngle = 0; // was -3
 
     // swiched it from 60 to 300 cuz i believe the time it takes for the ball to reach flywheeel it goes up to speed enough to be accurate
-    public static double SpeedToleranceToStartShooting = 300;
+    public static double SpeedToleranceToStartShooting = 150;
 
     //public static double AngleToleranceToStartShooting = 2;
 

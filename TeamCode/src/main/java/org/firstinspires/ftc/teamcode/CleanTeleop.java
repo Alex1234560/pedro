@@ -132,7 +132,7 @@ public class CleanTeleop extends LinearOpMode {
             turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
             camera.update();
             follower.update();
-            shooter.update();
+            shooter.update(turretRotation.isTurretFinishedRotating());//argument might be unecesary in teleop but oh well
 
             double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
 
@@ -171,7 +171,7 @@ public class CleanTeleop extends LinearOpMode {
         telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
         telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose));
 
-        telemetryM.addData("Angle From Goal ", Math.round(turretRotation.GetGoalTrackingAngle()));
+        //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
         telemetryM.addData("Hood Angle", hood.getPosition());
 
         telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
@@ -181,8 +181,8 @@ public class CleanTeleop extends LinearOpMode {
         //telemetryM.addData("Debugging angle Compensation" ,Math.round(turretRotation.DebugGetAngleCompensation()));
 
         telemetryM.addData("IsRed?" ,IsRed);
-
-        telemetryM.addData("ROBOT velocity: " ,GetRobotVelocity());
+        //for tuning purposes for auto
+        telemetryM.addData("Is Turret Finished Rotating " ,turretRotation.isTurretFinishedRotating());
 
         telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
         telemetryM.addData("Bearing " ,camera.getBearing());
@@ -204,17 +204,17 @@ public class CleanTeleop extends LinearOpMode {
 
 
 
-        double IntakePowerValue = -Math.abs(gamepad2.left_trigger);
+        double IntakePowerValue = Math.abs(gamepad2.left_trigger);
         if (Math.abs(gamepad1.left_trigger) > Math.abs(gamepad2.left_trigger)){
-            IntakePowerValue = -Math.abs(gamepad1.left_trigger);
+            IntakePowerValue = Math.abs(gamepad1.left_trigger);
         }
         if (Math.abs(gamepad2.right_trigger) > Math.abs(gamepad2.left_trigger) && !Reversing){
-            IntakePowerValue = -Math.abs(gamepad2.right_trigger);
+            IntakePowerValue = Math.abs(gamepad2.right_trigger);
         }
 
 
         if (Reversing){
-            intake.intakeOn(-IntakePowerValue,0);
+            intake.intakeOn(IntakePowerValue,0);
         }
         else if(IntakePowerValue!=0){
             intake.intakeOn(IntakePowerValue,1);
@@ -310,7 +310,7 @@ public class CleanTeleop extends LinearOpMode {
 
         if (Reversing && gamepad2.right_trigger>0){shooter.SpinBallFeeder(-1);}
 
-        else if (gamepad2.right_trigger > 0 && shooter.IsFlywheelUpToSpeed()){
+        else if (gamepad2.right_trigger > 0 && shooter.IsFlywheelUpToSpeed() && turretRotation.isTurretFinishedRotating()){
             shooter.SpinBallFeeder(1);
         }
         else if (gamepad2.right_trigger > 0 && gamepad2.right_bumper){
@@ -321,6 +321,7 @@ public class CleanTeleop extends LinearOpMode {
     }
 
     private double GetRobotVelocity(){
+        //for tuning purposes for auto
         Vector VelocityVector = follower.getVelocity();
         double vX = VelocityVector.getXComponent();
         double vY = VelocityVector.getYComponent();

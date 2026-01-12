@@ -1,20 +1,16 @@
 
  -------- High Priority -------
 
- - FIRST ON PRIORITY LISt, Auto is not ending up in right place even though everything is measured right 
-- finish an auto that's acceptable ( even if its 3 ball auto )
-- try turret motor with Breaking behaviour at power 0.
-- HUGE PRIORITY add isTurretRotationBusy() function so u can't shoot if turret isn't pointed correctly
+ - Measuere odometry pod position so that turns are right.
+- make flywheel logic much more reliable for shooting the exact number of balls.
 - Turret switches back around at angle -170 instead of the variable SWITCH_ANGLE_NEG, needs to be fixed.
 
 ----------- Medium Priority ----------
+- try turret motor with Breaking behaviour at power 0.
 - Get the locations of everything onto another file, so that it can be globally changed, also put the flip code there.
 - make everything manually adjustable in case of trouble.
 - check how to make aiming consistent, rn it works well when rotated to the front of the robot but not in the back.
 
-
--------- needs testing ----
-test 2 sides of the auto ( i dont think the red side works )
 
 - --- ---- Low Priority ---------
 - Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.

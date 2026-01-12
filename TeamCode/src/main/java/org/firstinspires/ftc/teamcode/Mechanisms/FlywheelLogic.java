@@ -24,28 +24,26 @@ public class FlywheelLogic {
 
     private enum FlywheelState {
         IDLE,
-        SPIN_UP,
-        LAUNCH,
+        LAUNCH_BALL,
+        DETECT_IF_BALL_LAUNCHED,
         RESET
     }
 
     private FlywheelState flywheelState;
 
     // ----------- FEEDER CONSTANTS -------------
-    public static double FEEDER_ON_TIME = 3;
+    public static double MAX_SHOOT_BALL_TIME = 7;
 
     //------------- FLYWHEEL CONSTANTS ------------
 
     // ------------- adjust depending on flywheel accuracy, it will change how much the flywheel slows down, which u can detect.
-    public static double FLYWHEEL_AFTER_SHOT_SLOWDOWN = 100;
+    public static double FLYWHEEL_AFTER_SHOT_SLOWDOWN = 120;
 
 
     private int shotsRemaining = 0;
     private double flywheelVelocity = 0;
     public static double TARGET_FLYWHEEL_RPM = 1300;
-    public static double FLYWHEEL_MAX_SPINUP_TIME = 2.5;
-    //so flywheel is stable when starting to spin up, cuz it overshoots, and it allows it to launch but then it exceeds it cuz it overshoots.
-    public static double FLYWHEEL_MIN_SPINUP_TIME = .5;
+    public static double FLYWHEEL_MAX_SPINUP_TIME = 6;
 
     public void init(HardwareMap hardwareMap){
         FAndV = new FunctionsAndValues();
@@ -112,7 +110,7 @@ public class FlywheelLogic {
         return flywheelVelocity;
     }
 
-    public void update(){
+    public void update(boolean isRobotReadyToShoot){
         flywheelVelocity = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(),ShooterMotor2.getVelocity());
 
         switch (flywheelState) {
@@ -120,21 +118,21 @@ public class FlywheelLogic {
                 if (shotsRemaining > 0) {
                     SetMotorPowerToTarget();
                     stateTimer.reset();
-                    flywheelState = FlywheelState.SPIN_UP;
+                    flywheelState = FlywheelState.LAUNCH_BALL;
                 }
                 break;
 
-            case SPIN_UP:
+            case LAUNCH_BALL:
                 SetMotorPowerToTarget();
-                if (IsFlywheelUpToSpeed() && stateTimer.seconds() > FLYWHEEL_MIN_SPINUP_TIME|| stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
+                if (IsFlywheelUpToSpeed() && isRobotReadyToShoot || stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
                     SpinBallFeeder(1);
                     stateTimer.reset();
-                    flywheelState = FlywheelState.LAUNCH;
+                    flywheelState = FlywheelState.DETECT_IF_BALL_LAUNCHED;
                 }
                 break;
-            case LAUNCH:
-                if (stateTimer.seconds() > FEEDER_ON_TIME || IsFlywheelSlowedFromShot() ){
-                    shotsRemaining--;
+            case DETECT_IF_BALL_LAUNCHED:
+                if (stateTimer.seconds() > MAX_SHOOT_BALL_TIME || IsFlywheelSlowedFromShot() ){
+                    shotsRemaining-=1;
                     SpinBallFeeder(0);
                     stateTimer.reset();
 
@@ -144,7 +142,7 @@ public class FlywheelLogic {
             case RESET:
                 if (shotsRemaining>0){
                     stateTimer.reset();
-                    flywheelState= FlywheelState.SPIN_UP;
+                    flywheelState= FlywheelState.LAUNCH_BALL;
                 }
                 else{
                     TurnFlywheelOff();
@@ -153,19 +151,31 @@ public class FlywheelLogic {
                 break;
 
         }
+
     }
+
+    public double GetShotsRemaining(){
+        return shotsRemaining;
+    }
+
+
 
     public void fireShots(int numberOfShots){
         if (flywheelState == FlywheelState.IDLE){
-            shotsRemaining=numberOfShots;
+            shotsRemaining=numberOfShots+1;
         }
     }
 
     public boolean isBusy(){
-        return flywheelState != FlywheelState.IDLE;
+        boolean isStateBusy = flywheelState != FlywheelState.IDLE;
+        boolean isShootingDone = shotsRemaining <=0;
+        if (isStateBusy&&isShootingDone){
+            return false;
+        }
+        else{
+            return true;
+        }
     }
 
-    public double GetBallFeederPowerForDebugging(){
-        return BallFeederServo.getPower();
-    }
+    public double GetBallFeederPowerForDebugging(){return BallFeederServo.getPower();}
 }
