@@ -2,7 +2,6 @@
  -------- High Priority -------
 
  - Measuere odometry pod position so that turns are right.
-- make flywheel logic much more reliable for shooting the exact number of balls.
 - Turret switches back around at angle -170 instead of the variable SWITCH_ANGLE_NEG, needs to be fixed.
 
 -------- tips for making auto faster --------
