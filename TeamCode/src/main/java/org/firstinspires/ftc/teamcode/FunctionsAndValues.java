@@ -60,6 +60,8 @@ public class FunctionsAndValues {
 
     public double[] handleShootingRanges(double range) {
 
+        range = range-3; // offset for new point of measurement.
+
         double[] turretGoals = new double[2];
         double targAngle = 0;
         double targSpeed = 0;

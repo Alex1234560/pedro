@@ -9,7 +9,6 @@ import com.pedropathing.geometry.Pose;
 
 
 import com.pedropathing.math.Vector;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -92,8 +91,6 @@ public class CleanTeleop extends OpMode {
         follower.setStartingPose(StartingPosition);
 
 
-        // ---- below is for after, when auto starts and then the position is used ----
-        //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
     }
 
@@ -115,8 +112,8 @@ public class CleanTeleop extends OpMode {
         telemetry.addData("Status", "Initialized");
 
         // in case you're starting teleop from fresh just for practice
-        telemetry.addData("press 'b' to toggle the start program witouth running auto first.",START_PROGRAM_WITOUTH_AUTO_FIRST);
-        if (gamepad1.bWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
+        telemetry.addData("press 'back' to toggle the start program witouth running auto first.",START_PROGRAM_WITOUTH_AUTO_FIRST);
+        if (gamepad1.backWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
 
         telemetry.update();
     }
@@ -133,7 +130,7 @@ public class CleanTeleop extends OpMode {
         if (AutoAim){
             double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
             hood.SetPosition(turretGoals[0]);
-            shooter.setFlywheelRPM(turretGoals[1]);
+            shooter.setFlywheelTPS(turretGoals[1]);
 
 
             turretRotation.handleBearing(camera.getBearing(),camera.getYaw());

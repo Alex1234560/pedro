@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
-import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -21,9 +20,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 @Autonomous
-public class PedroAuto extends OpMode {
+public class ShootingTestAuto extends OpMode {
 
-   private Follower follower;
+    private Follower follower;
 
     //1 == true, 0 == false
     public static boolean IsRed = false;
@@ -35,7 +34,7 @@ public class PedroAuto extends OpMode {
 
     private FlywheelLogic shooter = new FlywheelLogic();
     private Intake intake = new Intake();
-    private TurretRotation turretRotation = new TurretRotation();
+    //private TurretRotation turretRotation = new TurretRotation();
     private ShooterAngle hood = new ShooterAngle();
     private AprilTagVision camera;
 
@@ -45,11 +44,6 @@ public class PedroAuto extends OpMode {
 
 
     public enum PathState{
-        // StartPos - EndPos
-        DRIVE_TO_SHOOT_POS,
-        DRIVE_TO_INTAKE_POS,
-        INTAKE_BALLS,
-        DRIVE_BACK_TO_SHOOT,
         SHOOT,
         FINISHED
     }
@@ -59,12 +53,6 @@ public class PedroAuto extends OpMode {
     //for intaking balls where positiion needs to be precise
     private static double ALLOWED_ERROR_POSITION = 3;
     private static double ALLOWED_ERROR_VELOCITY = 15;
-
-    //BallLines
-
-    private final double BALL_LINE_DIFFERENCE = -24;
-    private double ball_line_offset = 0;
-    private double loop_times = 0;
 
     // -------- everything Poses ---------
 
@@ -84,7 +72,7 @@ public class PedroAuto extends OpMode {
         if (Red){flipVal = 180;
             return flipVal-oAng;}
         else{flipVal = 0;
-        return oAng;
+            return oAng;
         }
 
     }
@@ -94,7 +82,7 @@ public class PedroAuto extends OpMode {
     private static final double StartingRobotAngleDeg = 144;
     private static final double GOAL_X = 7.5;
     private static final double GOAL_Y = 142.122;
-//    private static final double GOAL_X = 16;
+    //    private static final double GOAL_X = 16;
 //    private static final double GOAL_Y = 132;
     private static final double START_X = 17.914;
     private static final double START_Y = 121.168;
@@ -111,185 +99,6 @@ public class PedroAuto extends OpMode {
     // ------ these are for use only in this AUTO -------
     private static  Pose shootPos,shootPos180,intakeStart,intakeEnd;
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
-
-    private boolean isStateBusy = false;
-
-    public void statePathUpdate() {
-        switch(pathState) {
-            case DRIVE_TO_SHOOT_POS:
-                if(!isStateBusy){
-                    intake.intakeOn(1,1); // to cycle balls to shooter
-                    shooter.fireShots(3); //change to three
-                    isStateBusy=true;
-                }
-                if (isStateBusy &&!shooter.isBusy()) {
-                    isStateBusy = false;
-                    follower.followPath(driveStartToShootPos, false);
-                    setPathState(PathState.DRIVE_TO_INTAKE_POS);
-                }
-
-                break;
-
-            case DRIVE_TO_INTAKE_POS:
-
-                if (!follower.isBusy()){
-                        intake.intakeOff();// to stop cycling balls to shooter.
-                        follower.followPath(driveShootPosToIntake, true);
-                        setPathState(PathState.INTAKE_BALLS);
-                }
-                break;
-
-            case INTAKE_BALLS:
-
-                intake.intakeOn(1,1);
-
-
-                if (isStateBusy == false &&!follower.isBusy()&&isRobotInPosition(intakeStart)){
-                    loop_times +=1;
-                    follower.followPath(driveIntakeForward, .5,true);
-                    isStateBusy = true;
-                }
-
-
-                if (!follower.isBusy() && isStateBusy ==true){
-                    isStateBusy = false;
-                    //intake.intakeOff();
-                    setPathState(PathState.DRIVE_BACK_TO_SHOOT);
-                }
-                break;
-
-            case DRIVE_BACK_TO_SHOOT:
-                if(isStateBusy == false && !follower.isBusy()){
-                    follower.followPath(driveFromIntake1ToShootPos, true);
-                    isStateBusy = true;
-                }
-
-                if (isStateBusy ==true&&!follower.isBusy()){
-                    isStateBusy =false;
-                    setPathState(PathState.SHOOT);
-                    //setPathState(PathState.FINISHED);
-                }
-
-                break;
-
-            case SHOOT:
-                if(isStateBusy == false){
-                    intake.intakeOn(1,1); // to cycle balls to shooter
-                    shooter.fireShots(3);// change to 3
-                    isStateBusy=true;
-                }
-
-                if (isStateBusy ==true&&!shooter.isBusy()){
-                    isStateBusy =false;
-
-                    if (loop_times >= 3) {
-                        setPathState(PathState.FINISHED);
-                    }
-                    else{
-                        ball_line_offset+=BALL_LINE_DIFFERENCE;
-                        buildPoses();
-                        buildPaths();
-                        setPathState(PathState.DRIVE_TO_INTAKE_POS);
-                    }
-                    intake.intakeOff();
-                }
-
-
-                //break;
-
-            case FINISHED:
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    public void setPathState(PathState newState){
-        pathState = newState;
-        pathTimer.resetTimer();
-
-        shotsTriggered=false;
-    }
-
-
-
-    @Override
-    public void init(){
-        pathState = PathState.DRIVE_TO_SHOOT_POS;
-        pathTimer = new Timer();
-        opModeTimer = new Timer();
-        follower = Constants.createFollower(hardwareMap);
-        //We might want follower = new Follower(hardwareMap);, just check this if it doesnt work
-
-        shooter.init(hardwareMap);
-        intake.init(hardwareMap);
-        turretRotation.init(hardwareMap);
-        hood.init(hardwareMap);
-        camera = new AprilTagVision(hardwareMap);
-
-        //intake = new Intake(hardwareMap);
-
-
-
-    }
-
-    @Override
-    public void init_loop(){
-        telemetry.addData("Alliance Selection", "X for BLUE, B for RED, Y for FRONT, A for BACK");
-        if (IsRed == false) {
-            telemetry.addData("Color: BLUE ", "");
-        }
-        if (IsRed == true) {
-            telemetry.addData("Color: RED ", "");
-        }
-
-        if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
-        if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
-
-        telemetry.update();
-
-
-    }
-
-
-    @Override
-    public void start() {
-        buildPoses();
-        turretRotation.CalibrateTurretToCenter();
-        buildPaths();
-        follower.setPose(startPose);
-        opModeTimer.resetTimer();
-        shooter.start(); // to start spinning up flywheel from the start
-        setPathState(pathState);
-    }
-
-    @Override
-    public void loop(){
-        LastPoseRecorded = follower.getPose();
-
-        camera.update();
-        follower.update();
-        shooter.update(turretRotation.isTurretFinishedRotating());
-        turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose);;
-        turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
-        statePathUpdate();
-
-        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
-        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
-        hood.SetPosition(turretGoals[0]);
-        shooter.setFlywheelTPS(turretGoals[1]);
-
-        //turret.handleBearing(camera.getBearing());
-        telemetry.addData("Shots Remaining", shooter.GetShotsRemaining());
-        telemetry.addData("Path State", pathState.toString());
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.addData("Path time", pathTimer.getElapsedTimeSeconds());
-
-        telemetry.update();
-    }
 
     public void buildPaths(){
         // put in coordinates for starting pos > ending pos
@@ -314,12 +123,118 @@ public class PedroAuto extends OpMode {
 
     }
 
+    private boolean isStateBusy = false;
+
+    public void statePathUpdate() {
+        switch(pathState) {
+            case SHOOT:
+                if(isStateBusy == false){
+                    intake.intakeOn(1,1); // to cycle balls to shooter
+                    shooter.fireShots(2);// for some reason 3 shoots 2 :( gotta figure it out.
+                    isStateBusy=true;
+                }
+
+                if (isStateBusy ==true&&!shooter.isBusy()){
+                    isStateBusy =false;
+                    setPathState(PathState.FINISHED);
+                    intake.intakeOff();
+                }
+
+
+            //break;
+
+            case FINISHED:
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
+
+    public void setPathState(PathState newState){
+        pathState = newState;
+        pathTimer.resetTimer();
+
+        shotsTriggered=false;
+    }
+
+
+
+    @Override
+    public void init(){
+        pathState = PathState.SHOOT;
+        pathTimer = new Timer();
+        opModeTimer = new Timer();
+        follower = Constants.createFollower(hardwareMap);
+        //We might want follower = new Follower(hardwareMap);, just check this if it doesnt work
+
+        shooter.init(hardwareMap);
+        intake.init(hardwareMap);
+        //turretRotation.init(hardwareMap);
+        hood.init(hardwareMap);
+        camera = new AprilTagVision(hardwareMap);
+
+    }
+
+    @Override
+    public void init_loop(){
+        telemetry.addData("Alliance Selection", "X for BLUE, B for RED, Y for FRONT, A for BACK");
+        if (IsRed == false) {
+            telemetry.addData("Color: BLUE ", "");
+        }
+        if (IsRed == true) {
+            telemetry.addData("Color: RED ", "");
+        }
+
+        if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
+        if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
+
+        telemetry.update();
+
+
+    }
+
+    @Override
+    public void start() {
+        buildPoses();
+        //turretRotation.CalibrateTurretToCenter();
+        buildPaths();
+        follower.setPose(startPose);
+        opModeTimer.resetTimer();
+        shooter.start(); // to start spinning up flywheel from the start
+        setPathState(pathState);
+    }
+
+    @Override
+    public void loop(){
+        LastPoseRecorded = follower.getPose();
+
+        camera.update();
+        follower.update();
+        shooter.update(true);
+        statePathUpdate();
+
+        hood.SetPosition(0);
+        shooter.setFlywheelTPS(900);
+
+        //turret.handleBearing(camera.getBearing());
+        telemetry.addData("Shots Remaining", shooter.GetShotsRemaining());
+        telemetry.addData("FlywheelTPS", shooter.GetFlywheelSpeed());
+        telemetry.addData("Path State", pathState.toString());
+        telemetry.addData("flywheel State", shooter.GetState());
+        telemetry.addData("IsFlywheelUpToSpeed", shooter.IsFlywheelUpToSpeed());
+
+        telemetry.update();
+    }
+
     private void buildPoses(){
         startPose = new Pose(xFlip(START_X, IsRed), START_Y, Math.toRadians(angleFlip(StartingRobotAngleDeg, IsRed)));
         shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
         shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(angleFlip(180, IsRed)));
-        intakeStart = new Pose(xFlip(51, IsRed), 84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));
-        intakeEnd = new Pose(xFlip(16.4, IsRed),  84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));
+        intakeStart = new Pose(xFlip(51, IsRed), 60.5, Math.toRadians(angleFlip(180, IsRed)));
+        intakeEnd = new Pose(xFlip(16.4, IsRed),  60.5, Math.toRadians(angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
     }
