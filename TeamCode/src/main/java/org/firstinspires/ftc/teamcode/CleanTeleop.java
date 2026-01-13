@@ -10,6 +10,7 @@ import com.pedropathing.geometry.Pose;
 
 import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -22,9 +23,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 @TeleOp
-
-//
-public class CleanTeleop extends LinearOpMode {
+public class CleanTeleop extends OpMode {
     // Hardware Setup Variables
     //private Servo ServoShooter1;
     //private Servo ReadyToShootServo;
@@ -70,10 +69,8 @@ public class CleanTeleop extends LinearOpMode {
     private TurretRotation turretRotation = new TurretRotation();
     //private PedroAuto PedroAutoFunctions = new PedroAuto();
 
-
-
     @Override
-    public void runOpMode() {
+    public void init(){
 
         GoalLocationPose = PedroAuto.GoalLocationPose;
         StartingPosition = PedroAuto.LastPoseRecorded;
@@ -98,20 +95,10 @@ public class CleanTeleop extends LinearOpMode {
         // ---- below is for after, when auto starts and then the position is used ----
         //follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
+    }
 
-        //---------------------------------
-
-        telemetry.addData("Status", "Initialized");
-
-        // in case you're starting teleop from fresh just for practice
-        telemetry.addData("press 'b' to toggle the start program witouth running auto first.",START_PROGRAM_WITOUTH_AUTO_FIRST);
-        if (gamepad1.bWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
-
-        telemetry.update();
-
-        // Wait for the game to start (driver presses START)
-        waitForStart();
-        //pedro
+    @Override
+    public void start(){
         follower.startTeleopDrive();
         runtime.reset();
 
@@ -122,50 +109,54 @@ public class CleanTeleop extends LinearOpMode {
         if (START_PROGRAM_WITOUTH_AUTO_FIRST){
             turretRotation.CalibrateTurretToCenter();
         }
+    }
+@Override
+    public void init_loop(){
+        telemetry.addData("Status", "Initialized");
+
+        // in case you're starting teleop from fresh just for practice
+        telemetry.addData("press 'b' to toggle the start program witouth running auto first.",START_PROGRAM_WITOUTH_AUTO_FIRST);
+        if (gamepad1.bWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
+
+        telemetry.update();
+    }
+    @Override
+    public void loop(){
+
+        turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
+        camera.update();
+        follower.update();
+        shooter.update(turretRotation.isTurretFinishedRotating());//argument might be unecesary in teleop but oh well
+
+        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
+
+        if (AutoAim){
+            double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
+            hood.SetPosition(turretGoals[0]);
+            shooter.setFlywheelRPM(turretGoals[1]);
 
 
-
-
-        // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-
-            //StartingPosition = new Pose(StartingPosition.getX(),StartingPosition.getY(),Math.toRadians(STARTING_ANGLE_ROBOT));
-            //pedro
-            turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
-            camera.update();
-            follower.update();
-            shooter.update(turretRotation.isTurretFinishedRotating());//argument might be unecesary in teleop but oh well
-
-            double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
-
-            if (AutoAim){
-                double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
-                hood.SetPosition(turretGoals[0]);
-                shooter.setFlywheelRPM(turretGoals[1]);
-
-
-                turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
-            }
-
-
-            if (gamepad2.aWasPressed()) {AutoAim = true;}
-            if (gamepad2.bWasPressed()) {AutoAim = false;}
-
-
-            handleDriving();
-            handleIntake();
-            handleShooterServos();
-            TelemetryStatements();
-
-            handleTeleOpShooting();
-
-            if (gamepad2.back){
-                Reversing=true;
-            }
-            else{Reversing=false;}
-
-
+            turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         }
+
+
+        if (gamepad2.aWasPressed()) {AutoAim = true;}
+        if (gamepad2.bWasPressed()) {AutoAim = false;}
+
+
+        handleDriving();
+        handleIntake();
+        handleShooterServos();
+        TelemetryStatements();
+
+        handleTeleOpShooting();
+
+        if (gamepad2.back){
+            Reversing=true;
+        }
+        else{Reversing=false;}
+
+
     }
 
     private void TelemetryStatements(){
