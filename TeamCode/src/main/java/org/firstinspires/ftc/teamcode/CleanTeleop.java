@@ -65,10 +65,11 @@ public class CleanTeleop extends LinearOpMode {
     //declaring button globally
     //private boolean autoAimButton = false;
     public static boolean AutoAim = true;
-    public static boolean START_PROGRAM_WITOUTH_AUTO_FIRST = true;
+    private boolean START_PROGRAM_WITOUTH_AUTO_FIRST = true;
 
     private TurretRotation turretRotation = new TurretRotation();
     //private PedroAuto PedroAutoFunctions = new PedroAuto();
+
 
 
     @Override
@@ -103,9 +104,8 @@ public class CleanTeleop extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         // in case you're starting teleop from fresh just for practice
-        telemetry.addData("Press 'Back' to toggle the start program witouth running auto first.","");
-        telemetry.addData("STATUS:",START_PROGRAM_WITOUTH_AUTO_FIRST);
-        if (gamepad1.backWasPressed()||gamepad2.backWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
+        telemetry.addData("press 'b' to toggle the start program witouth running auto first.",START_PROGRAM_WITOUTH_AUTO_FIRST);
+        if (gamepad1.bWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
 
         telemetry.update();
 
@@ -122,6 +122,8 @@ public class CleanTeleop extends LinearOpMode {
         if (START_PROGRAM_WITOUTH_AUTO_FIRST){
             turretRotation.CalibrateTurretToCenter();
         }
+
+
 
 
         // run until the end of the match (driver presses STOP)
