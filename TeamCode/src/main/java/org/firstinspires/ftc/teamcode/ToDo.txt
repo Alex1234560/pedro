@@ -22,7 +22,6 @@
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
 - adjust PIDF so that correction back to the right place is more aggresive and works better ( Driving ).
 - Adjust PIDF for shooter if neccesary.
-- make the delay between balls smaller.
 - In Every auto add a timer that when it runs out it triggers a park function out of the launch zone.
 - Make parking button for teleop.
 - Make Back auto that shoots and then moves out of the way
