@@ -271,7 +271,7 @@ public class CleanTeleop extends OpMode {
         else if (IsRed==false){
             follower.setTeleOpDrive(
 
-                    -lateral,
+                    lateral,
                     axial,
                     yaw,
                     false // Robot Centric
@@ -280,12 +280,30 @@ public class CleanTeleop extends OpMode {
         else if (IsRed==true){
             follower.setTeleOpDrive(
 
+                    axial,
                     lateral,
-                    -axial,
                     yaw,
                     false // Robot Centric
             );
         }
+//        else if (IsRed==false){
+//            follower.setTeleOpDrive(
+//
+//                    -lateral,
+//                    axial,
+//                    yaw,
+//                    false // Robot Centric
+//            );
+//        }
+//        else if (IsRed==true){
+//            follower.setTeleOpDrive(
+//
+//                    lateral,
+//                    -axial,
+//                    yaw,
+//                    false // Robot Centric
+//            );
+//        }
 
 
 

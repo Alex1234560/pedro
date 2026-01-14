@@ -107,15 +107,17 @@ public class TurretRotation {
                 actual_target_angle += angle_calculated_for_tracking_goal;
             }
 
-            //limit handler that is working horribly
+            //limit handler that is working horrible
 
-            if (actual_target_angle>SWITCH_ANGLE_POS){
-                actual_target_angle-=360;
+            while (actual_target_angle>SWITCH_ANGLE_POS){
+
+//                double offshoot = Math.abs(actual_target_angle)-360;
+                actual_target_angle-=(360);
             }
 
-            if ( actual_target_angle<SWITCH_ANGLE_NEG){
-                actual_target_angle+=360;
-            }
+//            if ( actual_target_angle<SWITCH_ANGLE_NEG){
+//                actual_target_angle+=360;
+//            }
 
 
 
