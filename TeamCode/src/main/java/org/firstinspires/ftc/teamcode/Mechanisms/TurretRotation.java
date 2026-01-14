@@ -34,7 +34,7 @@ public class TurretRotation {
     public static boolean USE_CAMERA_BEARING = true;
     public static boolean MOTOR_ACTIVE = true;// this is for activating the motor, inc ase u want to test something witouth the motor active
 
-    private static int AUTO_AIMING_TURRET_OFFSET = 180; // this is just a base value, that is there to make the turret face the right way
+    public static int AUTO_AIMING_TURRET_OFFSET = 0;//180; // this is just a base value, that is there to make the turret face the right way
 
     private static boolean LIMIT_VELOCITY_SWITCHES = false; // this is a prototype function that limits when the motor can switch directions due to speed, it wont be needed in the future
     private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
@@ -46,13 +46,16 @@ public class TurretRotation {
 
 
     // ----- this are the limits that makes teh turret rotate in the opposite direction to not cross any cables -----
-    public static double SWITCH_ANGLE_POS = 190;
-    public static double SWITCH_ANGLE_NEG = -180;
+//    public static double SWITCH_ANGLE_POS = 190;
+//    public static double SWITCH_ANGLE_NEG = -180;
+    public static double SWITCH_ANGLE_POS = 10;
+    public static double SWITCH_ANGLE_NEG = -360;
 
     private double double_robot_angle_deg;
     private double actual_target_angle = 0;// these is the variable used to tell the turret what angle we want.
     private double angle_calculated_for_tracking_goal = 0;// this angle comes from the function getAngleFromTwoPoints
     private double camera_bearing_offset = 0;
+    private double turret_offset = 0;
 
 
     // ---------- PIDF values for turret ---------------
@@ -86,7 +89,7 @@ public class TurretRotation {
             double current_position = GetCurrentPosTicks();// telemetry
             double current_velocity = GetCurrentVel();// telemetry
 
-            actual_target_angle = 0;// start the target angle as zero, add values to make it aim in the right dir
+            actual_target_angle = 0;
 
             if (AUTO_ROTATE) {
                 actual_target_angle -= double_robot_angle_deg + Math.toDegrees(initPose.getHeading());
@@ -103,17 +106,18 @@ public class TurretRotation {
                 actual_target_angle += angle_calculated_for_tracking_goal;
             }
 
-            // ------------ limit handler -------------
-            while ( actual_target_angle > SWITCH_ANGLE_POS || actual_target_angle < SWITCH_ANGLE_NEG) { // so if any of  the other functions mess up, this catches it.
-                if (actual_target_angle > SWITCH_ANGLE_POS) {
-                    actual_target_angle -= 360;
-
-                }
-                if (actual_target_angle < SWITCH_ANGLE_NEG) {
-                    actual_target_angle += 360;
-
-                }
+//            if (actual_target_angle>10){
+//                actual_target_angle-=360;
+//            }
+            while ( actual_target_angle>SWITCH_ANGLE_POS){
+                actual_target_angle-=360;
             }
+//            if ( actual_target_angle<SWITCH_ANGLE_NEG){
+//                actual_target_angle+=360;
+//            }
+//
+
+
 
             double goal_tick_pos = (FULL_TURN / 360) * actual_target_angle; // gives us our target ticks value off of values we have
 

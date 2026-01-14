@@ -213,7 +213,7 @@ public class ShootingTestAuto extends OpMode {
 
         camera.update();
         follower.update();
-        shooter.update(true);
+        shooter.updateWithStateMachine(true);
         statePathUpdate();
 
         hood.SetPosition(0);

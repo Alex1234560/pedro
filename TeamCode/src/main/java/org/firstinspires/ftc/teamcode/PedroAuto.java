@@ -270,7 +270,7 @@ public class PedroAuto extends OpMode {
 
         camera.update();
         follower.update();
-        shooter.update(turretRotation.isTurretFinishedRotating());
+        shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose);;
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();

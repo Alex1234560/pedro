@@ -123,7 +123,7 @@ public class CleanTeleop extends OpMode {
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
         camera.update();
         follower.update();
-        shooter.update(turretRotation.isTurretFinishedRotating());//argument might be unecesary in teleop but oh well
+        shooter.update();
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
 
@@ -164,6 +164,7 @@ public class CleanTeleop extends OpMode {
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
         telemetryM.addData("Hood Angle", hood.getPosition());
 
+        telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
         telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
         telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());

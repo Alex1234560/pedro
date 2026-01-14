@@ -39,6 +39,7 @@ public class FlywheelLogic {
 
     // ------------- adjust depending on flywheel accuracy, it will change how much the flywheel slows down, which u can detect.
     public static double FLYWHEEL_AFTER_SHOT_SLOWDOWN = 100;
+    private boolean flywheel_on = true;
 
 
     private int shotsRemaining = 0;
@@ -111,20 +112,20 @@ public class FlywheelLogic {
 
     public double GetFlywheelSpeed() {return flywheelVelocity;}
 
-    public void update(boolean isRobotReadyToShoot) {
-        flywheelVelocity = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(), ShooterMotor2.getVelocity());
+    public void updateWithStateMachine(boolean isRobotReadyToShoot){
+        update();
+        if(flywheel_on){SetMotorPowerToTarget();}
+        else{TurnFlywheelOff();}
 
         switch (flywheelState) {
             case IDLE:
                 if (shotsRemaining > 0) {
-                    SetMotorPowerToTarget();
                     stateTimer.reset();
                     flywheelState = FlywheelState.LAUNCH_BALL;
                 }
                 break;
 
             case LAUNCH_BALL:
-                SetMotorPowerToTarget();
                 if (IsFlywheelUpToSpeed() && isRobotReadyToShoot || stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
                     SpinBallFeeder(1);
                     stateTimer.reset();
@@ -132,7 +133,6 @@ public class FlywheelLogic {
                 }
                 break;
             case DETECT_IF_BALL_LAUNCHED:
-                SetMotorPowerToTarget();
                 if (stateTimer.seconds() > MAX_SHOOT_BALL_TIME || IsFlywheelSlowedFromShot()) {
                     shotsRemaining -= 1;
                     SpinBallFeeder(0);
@@ -146,12 +146,17 @@ public class FlywheelLogic {
                     stateTimer.reset();
                     flywheelState = FlywheelState.LAUNCH_BALL;
                 } else {
-                    TurnFlywheelOff();
                     stateTimer.reset();
                 }
                 break;
 
         }
+    }
+
+    public void update() {
+        flywheelVelocity = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(), ShooterMotor2.getVelocity());
+
+
 
     }
 
