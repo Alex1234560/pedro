@@ -115,6 +115,19 @@ public class CleanTeleop extends OpMode {
         telemetry.addData("press 'back' to toggle the start program witouth running auto first.",START_PROGRAM_WITOUTH_AUTO_FIRST);
         if (gamepad1.backWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
 
+        if (START_PROGRAM_WITOUTH_AUTO_FIRST) {
+            telemetry.addData("Alliance Selection", "X for BLUE, B for RED");
+            if (IsRed == false) {
+                telemetry.addData("Color: BLUE ", "");
+            }
+            if (IsRed == true) {
+                telemetry.addData("Color: RED ", "");
+            }
+
+            if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
+            if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
+        }
+
         telemetry.update();
     }
     @Override

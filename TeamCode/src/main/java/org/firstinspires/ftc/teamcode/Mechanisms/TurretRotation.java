@@ -43,6 +43,7 @@ public class TurretRotation {
     public static double MAX_MOTOR_POWER = .6; // for the var avobe
 
     public static double FULL_TURN = 1666;// ticks that make a full turn
+    private static double SINGLE_DEG_IN_TICKS = FULL_TURN/360;// ticks that make a full turn
 
 
     // ----- this are the limits that makes teh turret rotate in the opposite direction to not cross any cables -----
@@ -106,16 +107,16 @@ public class TurretRotation {
                 actual_target_angle += angle_calculated_for_tracking_goal;
             }
 
-//            if (actual_target_angle>10){
-//                actual_target_angle-=360;
-//            }
-            while ( actual_target_angle>SWITCH_ANGLE_POS){
+            //limit handler that is working horribly
+
+            if (actual_target_angle>SWITCH_ANGLE_POS){
                 actual_target_angle-=360;
             }
-//            if ( actual_target_angle<SWITCH_ANGLE_NEG){
-//                actual_target_angle+=360;
-//            }
-//
+
+            if ( actual_target_angle<SWITCH_ANGLE_NEG){
+                actual_target_angle+=360;
+            }
+
 
 
 
