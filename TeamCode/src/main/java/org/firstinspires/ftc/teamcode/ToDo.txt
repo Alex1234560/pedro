@@ -2,6 +2,7 @@
  -------- High Priority -------
 - Measure odometry pod position so that turns are right.
 - Turret switches back around at angle -170 instead of the variable SWITCH_ANGLE_NEG, needs to be fixed.
+- AUTO NOT SHOOTING AFTER FIRST 3 BALLS :(
 
 -------- tips for making auto faster --------
 - Make the flywheel always be spinning

@@ -28,7 +28,6 @@ public class PedroAuto extends OpMode {
     //1 == true, 0 == false
     public static boolean IsRed = false;
 
-
     private Timer pathTimer, opModeTimer;
 
     // -------- FLYWHEEL SETUP -------
@@ -166,7 +165,6 @@ public class PedroAuto extends OpMode {
                 if (isStateBusy ==true&&!follower.isBusy()){
                     isStateBusy =false;
                     setPathState(PathState.SHOOT);
-                    //setPathState(PathState.FINISHED);
                 }
 
                 break;
@@ -174,7 +172,7 @@ public class PedroAuto extends OpMode {
             case SHOOT:
                 if(isStateBusy == false){
                     intake.intakeOn(1,1); // to cycle balls to shooter
-                    shooter.fireShots(3);// change to 3
+                    shooter.fireShots(3);
                     isStateBusy=true;
                 }
 

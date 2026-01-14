@@ -51,7 +51,7 @@ public class CleanTeleop extends OpMode {
 
     private boolean IsRed = false;
 
-    public static double OffsetForShootingAlgorithmRemoveLater;
+    public static double OffsetForShootingAlgorithmRemoveLater=8;
 
     private Pose GoalLocationPose, StartingPosition;
 
@@ -183,6 +183,7 @@ public class CleanTeleop extends OpMode {
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
         telemetryM.addData("Hood Angle", hood.getPosition());
 
+        telemetryM.addData("-360 turret angle?", turretRotation.IsTurretPastAnglePos());
         telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
         telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
@@ -224,7 +225,7 @@ public class CleanTeleop extends OpMode {
 
 
         if (Reversing){
-            intake.intakeOn(IntakePowerValue,0);
+            intake.intakeOn(-IntakePowerValue,0);
         }
         else if(IntakePowerValue!=0){
             intake.intakeOn(IntakePowerValue,1);

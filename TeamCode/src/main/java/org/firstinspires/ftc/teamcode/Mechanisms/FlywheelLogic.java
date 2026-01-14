@@ -147,6 +147,7 @@ public class FlywheelLogic {
                     flywheelState = FlywheelState.LAUNCH_BALL;
                 } else {
                     stateTimer.reset();
+                    flywheelState = FlywheelState.IDLE;
                 }
                 break;
 
@@ -171,8 +172,6 @@ public class FlywheelLogic {
     }
 
     public String GetState(){return flywheelState.name();}
-
-
 
     public boolean isBusy() {
         boolean isStateBusy = flywheelState != FlywheelState.IDLE;

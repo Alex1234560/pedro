@@ -81,9 +81,10 @@ public class TurretRotation {
 
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose, Pose initPose){
 
+        //remove while loops before competition.
 
-            // note that the function below allows the robotAngleDeg to get really high if u turn a lot, which could slow down the loop time
-            // beacuse of the while loop below, so u could add an acumullating value that counters it.
+            boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
+            boolean is_turret_past_angle_neg = IsTurretPastAngleNeg();
             double_robot_angle_deg =  RobotAngleDeg;
 
 
@@ -91,6 +92,7 @@ public class TurretRotation {
             double current_velocity = GetCurrentVel();// telemetry
 
             actual_target_angle = 0;
+            actual_target_angle+=turret_offset;
 
             if (AUTO_ROTATE) {
                 actual_target_angle -= double_robot_angle_deg + Math.toDegrees(initPose.getHeading());
@@ -108,16 +110,14 @@ public class TurretRotation {
             }
 
             //limit handler that is working horrible
-
-            while (actual_target_angle>SWITCH_ANGLE_POS){
-
-//                double offshoot = Math.abs(actual_target_angle)-360;
-                actual_target_angle-=(360);
+              if (is_turret_past_angle_pos){
+                  turret_offset-=(180);
+            }
+            if (is_turret_past_angle_neg){
+                turret_offset+=(180);
             }
 
-//            if ( actual_target_angle<SWITCH_ANGLE_NEG){
-//                actual_target_angle+=360;
-//            }
+
 
 
 
@@ -178,6 +178,23 @@ public class TurretRotation {
     public boolean isTurretFinishedRotating(){
         double difference = Math.abs(GetCurrentPosDeg()-actual_target_angle);
         return difference < TURRET_AIMING_ALLOWED_ERROR;
+    }
+
+    public boolean IsTurretPastAnglePos(){
+        if (actual_target_angle>SWITCH_ANGLE_POS){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    public boolean IsTurretPastAngleNeg(){
+        if (actual_target_angle<SWITCH_ANGLE_NEG){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     public void handleBearing(double bearing, double yaw){
