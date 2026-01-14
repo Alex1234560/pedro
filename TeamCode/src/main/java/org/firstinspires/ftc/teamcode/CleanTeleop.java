@@ -44,12 +44,14 @@ public class CleanTeleop extends OpMode {
 
     private TelemetryManager telemetryM;
 
-    public static boolean fieldCentricDrive = false;
+    public static boolean fieldCentricDrive = true;
 //    public static double GOAL_X = 15;
 //    public static double GOAL_Y = 131;
     //public static double STARTING_ANGLE_ROBOT = 144;
 
     private boolean IsRed = false;
+
+    public static double OffsetForShootingAlgorithmRemoveLater;
 
     private Pose GoalLocationPose, StartingPosition;
 
@@ -100,7 +102,7 @@ public class CleanTeleop extends OpMode {
         runtime.reset();
 
         //auto aiming and location sor
-        IsRed = PedroAuto.IsRed; // defines the side of the field b ased on what the auto had selected as the side of the field.
+         // defines the side of the field b ased on what the auto had selected as the side of the field.
 
 
         if (START_PROGRAM_WITOUTH_AUTO_FIRST){
@@ -128,6 +130,10 @@ public class CleanTeleop extends OpMode {
             if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
         }
 
+        else{
+            IsRed = PedroAuto.IsRed;
+        }
+
         telemetry.update();
     }
     @Override
@@ -141,7 +147,7 @@ public class CleanTeleop extends OpMode {
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
 
         if (AutoAim){
-            double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
+            double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
             hood.SetPosition(turretGoals[0]);
             shooter.setFlywheelTPS(turretGoals[1]);
 
@@ -262,8 +268,8 @@ public class CleanTeleop extends OpMode {
         if (!fieldCentricDrive){
 
             follower.setTeleOpDrive(
-                    axial,
-                    lateral,
+                    -axial,
+                    -lateral,
                     yaw,
                     true // Robot Centric
             );
@@ -271,8 +277,10 @@ public class CleanTeleop extends OpMode {
         else if (IsRed==false){
             follower.setTeleOpDrive(
 
-                    lateral,
-                    axial,
+                    //works i think
+
+                    -axial,
+                    -lateral,
                     yaw,
                     false // Robot Centric
             );

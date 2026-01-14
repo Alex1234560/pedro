@@ -86,7 +86,6 @@ public class PedroAuto extends OpMode {
         else{flipVal = 0;
         return oAng;
         }
-
     }
 
 
@@ -179,7 +178,7 @@ public class PedroAuto extends OpMode {
                     isStateBusy=true;
                 }
 
-                if (isStateBusy ==true&&!shooter.isBusy()){
+                if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>1.5){
                     isStateBusy =false;
 
                     if (loop_times >= 3) {
