@@ -13,6 +13,7 @@
 - make the turret start pointing to the front not the back.
 - Intake balls at speed 1 not 0.5
 - Shoot while moving ( need to implement just time or smh like that, since when moving shoot detection doesnt work.
+- to shoot while moving we could also just make the path slower
 
 ----------- Medium Priority ----------
 - make a shoot button instead of a shoot trigger.
