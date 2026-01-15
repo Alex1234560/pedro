@@ -1,8 +1,10 @@
 
  -------- High Priority -------
 - Measure odometry pod position so that turns are right.
-- Turret switches back around at angle -170 instead of the variable SWITCH_ANGLE_NEG, needs to be fixed.
-- AUTO NOT SHOOTING AFTER FIRST 3 BALLS :(
+- TEST auto to see if it shoots after the first 3 balls
+- test driving modes on both sides and non field centric
+- test Auto on both sides
+- make auto park and last less than 30s.
 
 -------- tips for making auto faster --------
 - Make the flywheel always be spinning
@@ -17,6 +19,7 @@
 - check how to make aiming consistent, rn it works well when rotated to the front of the robot but not in the back.
 
 - --- ---- Low Priority ---------
+- understand why the problem of turret restting angle to not conflict with cable was solved so weirdly.
 - Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
 - adjust PIDF so that correction back to the right place is more aggresive and works better ( Driving ).
