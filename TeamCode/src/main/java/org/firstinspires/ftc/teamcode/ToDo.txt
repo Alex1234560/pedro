@@ -4,7 +4,9 @@
 - test driving modes on both sides and non field centric
 - can still skip gears if you rlly try, needs to be fixed.
 - test autos ( blue and red ) with transition between auto and teleop
-
+- Tune turretRotation PIDF to be faster
+- make shooting really consistent
+- make waiting time in case of no ball smaller in auto.
 
 -------- tips for making auto faster --------
 - Make the flywheel always be spinning
