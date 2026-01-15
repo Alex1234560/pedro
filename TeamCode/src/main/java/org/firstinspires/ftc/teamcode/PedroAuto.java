@@ -25,8 +25,13 @@ public class PedroAuto extends OpMode {
 
    private Follower follower;
 
+    //Overarching auto timer
+    Timer autoTimer = new Timer();
+
     //1 == true, 0 == false
     public static boolean IsRed = false;
+
+    public static double PARK_TIME_TRIGGER = 28;
 
     private Timer pathTimer, opModeTimer;
 
@@ -50,7 +55,9 @@ public class PedroAuto extends OpMode {
         INTAKE_BALLS,
         DRIVE_BACK_TO_SHOOT,
         SHOOT,
-        FINISHED
+        FINISHED,
+
+        AUTOPARK
     }
     PathState pathState;
 
@@ -90,8 +97,8 @@ public class PedroAuto extends OpMode {
 
     // ---- following hard poses are for blue side in case CleanTeleop is started for practice ---
     private static final double StartingRobotAngleDeg = 144;
-    private static final double GOAL_X = 7.5;
-    private static final double GOAL_Y = 142.122;
+    private static final double GOAL_X = 12.5;
+    private static final double GOAL_Y = 136.5;
 //    private static final double GOAL_X = 16;
 //    private static final double GOAL_Y = 132;
     private static final double START_X = 17.914;
@@ -112,7 +119,14 @@ public class PedroAuto extends OpMode {
 
     private boolean isStateBusy = false;
 
+
+
     public void statePathUpdate() {
+        if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER){
+            setPathState(PathState.AUTOPARK);
+            isStateBusy = false;
+        }
+
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS:
                 if(!isStateBusy){
@@ -192,9 +206,36 @@ public class PedroAuto extends OpMode {
                 }
 
 
-                //break;
+                break; // was commented out for some reason
 
             case FINISHED:
+                break;
+
+            case AUTOPARK:
+                if (isStateBusy==false) {
+                    turretRotation.TurretTo0Deg(true);
+                    intake.intakeOff();
+                    shooter.Stop();
+                    follower.breakFollowing();
+                    Pose driveToPark = new Pose(xFlip(40, IsRed), 60, Math.toRadians(angleFlip(180, IsRed)));
+                    Pose currentPose = follower.getPose();
+
+                    PathChain driveToParkPath;
+
+                    driveToParkPath = follower.pathBuilder()
+                            .addPath(new BezierLine(currentPose, driveToPark))
+                            .setLinearHeadingInterpolation(currentPose.getHeading(), currentPose.getHeading())
+                            .build();
+
+                    follower.followPath(driveToParkPath, true);
+
+                    isStateBusy = true;
+                }
+                else{
+                    isStateBusy = false;
+                    setPathState(PathState.FINISHED);
+                }
+
                 break;
 
             default:
@@ -252,6 +293,7 @@ public class PedroAuto extends OpMode {
 
     @Override
     public void start() {
+        autoTimer.resetTimer();
         buildPoses();
         turretRotation.CalibrateTurretToCenter();
         buildPaths();
@@ -282,8 +324,9 @@ public class PedroAuto extends OpMode {
         telemetry.addData("Path State", pathState.toString());
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
+        telemetry.addData("total heading", Math.toDegrees(follower.getTotalHeading()));
         telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.addData("Path time", pathTimer.getElapsedTimeSeconds());
+        telemetry.addData("Total time", autoTimer.getElapsedTimeSeconds());
 
         telemetry.update();
     }
@@ -313,7 +356,7 @@ public class PedroAuto extends OpMode {
 
     private void buildPoses(){
         startPose = new Pose(xFlip(START_X, IsRed), START_Y, Math.toRadians(angleFlip(StartingRobotAngleDeg, IsRed)));
-        shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
+        shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(180, IsRed)));
         shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(angleFlip(180, IsRed)));
         intakeStart = new Pose(xFlip(51, IsRed), 84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));
         intakeEnd = new Pose(xFlip(16.4, IsRed),  84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));

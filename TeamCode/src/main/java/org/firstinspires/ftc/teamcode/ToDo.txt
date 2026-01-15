@@ -1,10 +1,10 @@
 
  -------- High Priority -------
 - Measure odometry pod position so that turns are right.
-- TEST auto to see if it shoots after the first 3 balls
 - test driving modes on both sides and non field centric
-- test Auto on both sides
-- make auto park and last less than 30s.
+- can still skip gears if you rlly try, needs to be fixed.
+- test autos ( blue and red ) with transition between auto and teleop
+
 
 -------- tips for making auto faster --------
 - Make the flywheel always be spinning
@@ -13,6 +13,7 @@
 - Shoot while moving ( need to implement just time or smh like that, since when moving shoot detection doesnt work.
 
 ----------- Medium Priority ----------
+- make a shoot button instead of a shoot trigger.
 - try turret motor with Breaking behaviour at power 0.
 - Get the locations of everything onto another file, so that it can be globally changed, also put the flip code there.
 - make everything manually adjustable in case of trouble.
@@ -36,3 +37,7 @@ based on the april tag angle rhat its being seen from
 ( not the bearing ) , u can add more angle to the bearing 
 so that the turret points to the goal and not to
 the tag
+
+ ------ BEFORE COMP -------
+ - BUG CHECK
+ - Take photos of configuration in case it gets deleted

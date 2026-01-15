@@ -117,6 +117,8 @@ public class FlywheelLogic {
         if(flywheel_on){SetMotorPowerToTarget();}
         else{TurnFlywheelOff();}
 
+        if (shotsRemaining>0){flywheel_on=true;}
+
         switch (flywheelState) {
             case IDLE:
                 if (shotsRemaining > 0) {
@@ -163,6 +165,12 @@ public class FlywheelLogic {
 
     public double GetShotsRemaining() {
         return shotsRemaining;
+    }
+
+    public void Stop(){
+        shotsRemaining = 0;
+        flywheel_on=false;
+        flywheelState = FlywheelState.IDLE;
     }
 
     public void fireShots(int numberOfShots) {

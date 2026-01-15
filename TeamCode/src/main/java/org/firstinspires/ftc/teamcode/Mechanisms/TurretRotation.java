@@ -58,6 +58,8 @@ public class TurretRotation {
     private double camera_bearing_offset = 0;
     private double turret_offset = 0;
 
+    private boolean is_turret_being_centered = false;
+
 
     // ---------- PIDF values for turret ---------------
     public static double kP = 0.004;
@@ -74,6 +76,7 @@ public class TurretRotation {
 
 
     public void init(HardwareMap hardwareMap){
+        is_turret_being_centered=false;
         TurretRotatorMotor = hardwareMap.get(DcMotorEx.class, "TurretRotator");
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //TurretRotatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -110,6 +113,7 @@ public class TurretRotation {
             }
 
             //limit handler that is working horrible
+
               if (is_turret_past_angle_pos){
                   turret_offset-=(180);
             }
@@ -117,8 +121,10 @@ public class TurretRotation {
                 turret_offset+=(180);
             }
 
-
-
+            // this is for cenetring at the end of auto, and passing onto teleop
+            if (is_turret_being_centered){
+                actual_target_angle=0;
+            }
 
 
 
@@ -195,6 +201,10 @@ public class TurretRotation {
         else{
             return false;
         }
+    }
+
+    public void TurretTo0Deg(boolean bool){
+        is_turret_being_centered = bool;
     }
 
     public void handleBearing(double bearing, double yaw){

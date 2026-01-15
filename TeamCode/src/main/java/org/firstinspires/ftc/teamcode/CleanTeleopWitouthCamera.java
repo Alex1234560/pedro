@@ -3,12 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-
-
-import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,7 +18,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 @TeleOp
-public class CleanTeleop extends OpMode {
+public class CleanTeleopWitouthCamera extends OpMode {
     // Hardware Setup Variables
     //private Servo ServoShooter1;
     //private Servo ReadyToShootServo;
@@ -35,7 +31,7 @@ public class CleanTeleop extends OpMode {
     private Intake intake = new Intake();
     private FlywheelLogic shooter = new FlywheelLogic();
     private ShooterAngle hood = new ShooterAngle();
-    private AprilTagVision camera;
+
 
 
     //pedro stuff
@@ -78,7 +74,7 @@ public class CleanTeleop extends OpMode {
 
 
 
-        camera = new AprilTagVision(hardwareMap);
+
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
@@ -143,7 +139,7 @@ public class CleanTeleop extends OpMode {
     public void loop(){
 
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
-        camera.update();
+
         follower.update();
         shooter.update();
 
@@ -155,7 +151,7 @@ public class CleanTeleop extends OpMode {
             shooter.setFlywheelTPS(turretGoals[1]);
 
 
-            turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
+            turretRotation.handleBearing(0,0);
         }
 
 
@@ -199,9 +195,6 @@ public class CleanTeleop extends OpMode {
         telemetryM.addData("Is Turret Finished Rotating " ,turretRotation.isTurretFinishedRotating());
 
         telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
-        telemetryM.addData("Bearing " ,camera.getBearing());
-        telemetryM.addData("Yaw " ,camera.getYaw());
-        telemetryM.addData("Distance  " ,camera.getRange());
 
         //telemetry.addData("x", follower.getPose().getX());
         //telemetry.addData("y", follower.getPose().getY());
@@ -251,8 +244,8 @@ public class CleanTeleop extends OpMode {
 
         //parking precisly
 
-        if (gamepad1.dpad_right){lateral= +.1;}
-        if (gamepad1.dpad_left){lateral= -.1;}
+        if (gamepad1.dpad_right){lateral= +.2;}
+        if (gamepad1.dpad_left){lateral= -.2;}
         if (gamepad1.dpad_up){axial= +.1;}
         if (gamepad1.dpad_down){axial= -.1;}
         if (gamepad1.x){yaw = -.1;}
@@ -280,7 +273,9 @@ public class CleanTeleop extends OpMode {
         }
         else if (IsRed==false){
             follower.setTeleOpDrive(
+
                     //works i think
+
                     -axial,
                     -lateral,
                     yaw,
@@ -289,8 +284,10 @@ public class CleanTeleop extends OpMode {
         }
         else if (IsRed==true){
             follower.setTeleOpDrive(
-                    -lateral,
+
+
                     axial,
+                    lateral,
                     yaw,
                     false // Robot Centric
             );
