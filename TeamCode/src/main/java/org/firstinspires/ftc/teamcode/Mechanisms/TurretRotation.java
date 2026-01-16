@@ -86,7 +86,7 @@ public class TurretRotation {
 
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose, Pose initPose){
 
-        //remove while loops before competition.
+
 
             boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
             boolean is_turret_past_angle_neg = IsTurretPastAngleNeg();
