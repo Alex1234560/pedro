@@ -4,11 +4,14 @@
 - test driving modes on both sides and non field centric
 - can still skip gears if you rlly try, needs to be fixed.
 - test autos ( blue and red ) with transition between auto and teleop
-
+- Tune turretRotation PIDF to be faster
+- make shooting really consistent
+- make waiting time in case of no ball smaller in auto.
 
 -------- tips for making auto faster --------
 - Intake balls at speed 1 not 0.5
 - Shoot while moving ( need to implement just time or smh like that, since when moving shoot detection doesnt work.
+- to shoot while moving we could also just make the path slower
 
 ----------- Medium Priority ----------
 - make a shoot button instead of a shoot trigger.
