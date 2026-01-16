@@ -133,6 +133,7 @@ public class PedroAuto extends OpMode {
                     follower.followPath(driveStartToShootPos, 1,false);
                     isStateBusy=true;
                 }
+
                 if (isStateBusy &&!follower.isBusy()) {
                     intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3); //change to three
