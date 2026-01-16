@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.Range;
 public class FunctionsAndValues {
  //
     private static double BackRangeStart = 90;
+    public static double OffsetForShootingAlgorithmRemoveLater=4;
 
     //public static double After90ChangeInAngle = 0; // was -3
 

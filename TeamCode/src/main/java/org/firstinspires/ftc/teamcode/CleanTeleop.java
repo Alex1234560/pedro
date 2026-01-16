@@ -51,7 +51,7 @@ public class CleanTeleop extends OpMode {
 
     private boolean IsRed = false;
 
-    public static double OffsetForShootingAlgorithmRemoveLater=8;
+
 
     private Pose GoalLocationPose, StartingPosition;
 
@@ -150,7 +150,7 @@ public class CleanTeleop extends OpMode {
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
 
         if (AutoAim){
-            double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
+            double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
             hood.SetPosition(turretGoals[0]);
             shooter.setFlywheelTPS(turretGoals[1]);
 
@@ -159,8 +159,8 @@ public class CleanTeleop extends OpMode {
         }
 
 
-        if (gamepad2.aWasPressed()) {AutoAim = true;}
-        if (gamepad2.bWasPressed()) {AutoAim = false;}
+        if (gamepad2.bWasPressed()) {AutoAim = true;}
+        if (gamepad2.aWasPressed()) {AutoAim = false;}
 
 
         handleDriving();

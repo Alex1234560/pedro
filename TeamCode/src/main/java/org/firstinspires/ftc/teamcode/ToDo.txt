@@ -1,24 +1,24 @@
 
  -------- High Priority -------
 - Measure odometry pod position so that turns are right.
-- test driving modes on both sides and non field centric
-- can still skip gears if you rlly try, needs to be fixed.
-- test autos ( blue and red ) with transition between auto and teleop
-- Tune turretRotation PIDF to be faster
+- red teleop doesnt work since its using blue cordinates, it needs to be fixed, maybe by adding global cordinates in another file.
 - make shooting really consistent
-- make waiting time in case of no ball smaller in auto.
+- rn if you pause auto halfway and then u start teleop, the turret will get messed up cuz it isnt centered, gotta fix it.
+
+----------- Medium Priority ----------
+- make a shoot button instead of a shoot trigger.
+- Get the locations of everything onto another file, so that it can be globally changed, also put the flip code there.
+- make everything manually adjustable in case of trouble.
+- check how to make aiming consistent, rn it works well when rotated to the front of the robot but not in the back.
 
 -------- tips for making auto faster --------
 - Intake balls at speed 1 not 0.5
 - Shoot while moving ( need to implement just time or smh like that, since when moving shoot detection doesnt work.
 - to shoot while moving we could also just make the path slower
 
------------ Medium Priority ----------
-- make a shoot button instead of a shoot trigger.
+------- Things to test ----------
+- test autos ( blue and red ) with transition between auto and teleop.
 - try turret motor with Breaking behaviour at power 0.
-- Get the locations of everything onto another file, so that it can be globally changed, also put the flip code there.
-- make everything manually adjustable in case of trouble.
-- check how to make aiming consistent, rn it works well when rotated to the front of the robot but not in the back.
 
 - --- ---- Low Priority ---------
 - understand why the problem of turret restting angle to not conflict with cable was solved so weirdly.

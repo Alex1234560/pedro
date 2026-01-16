@@ -40,11 +40,9 @@ public class TurretRotation {
     private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
 
     private boolean LIMIT_MAX_SPEED = true; // this is a cap on the motor speed so it doesn't skip gears
-    public static double MAX_MOTOR_POWER = .6; // for the var avobe
+    public static double MAX_MOTOR_POWER = 1; // for the var avobe
 
     public static double FULL_TURN = 1666;// ticks that make a full turn
-    private static double SINGLE_DEG_IN_TICKS = FULL_TURN/360;// ticks that make a full turn
-
 
     // ----- this are the limits that makes teh turret rotate in the opposite direction to not cross any cables -----
 //    public static double SWITCH_ANGLE_POS = 190;
@@ -62,10 +60,14 @@ public class TurretRotation {
 
 
     // ---------- PIDF values for turret ---------------
-    public static double kP = 0.004;
-    public static double kI = 0.0005;
-    public static double kD = 0.005;
-    public static double kF = 0.025;
+    public static double kP = 0.008;
+    public static double kI = 0.001;
+    public static double kD = 0.002;
+    public static double kF = 0.04;
+    //    public static double kP = 0.004;
+//    public static double kI = 0.001;//.0005
+//    public static double kD = 0.005;
+//    public static double kF = 0.05;//.025
 
     SimplePIDF RotationalPIDF = new SimplePIDF(
             kP,  // kP  (start small)
@@ -213,7 +215,7 @@ public class TurretRotation {
         double bearing_with_yaw = bearing; // rn no bearing with yaw is going to be used.
 
         double changeValue = (CAMERA_MULTIPLIER_FOR_TURRET_CHANGE *Math.abs(bearing_with_yaw))+ CAMERA_STARTING_CHANGE;
-        double ERROR_MARGIN = .3;
+        double ERROR_MARGIN = 1;
             if (bearing != 999){
 
 

@@ -33,7 +33,7 @@ public class FlywheelLogic {
 
     // ----------- FEEDER CONSTANTS -------------
     //public static double MAX_SHOOT_BALL_TIME = 7;
-    public static double MAX_SHOOT_BALL_TIME = 5;
+    public static double MAX_SHOOT_BALL_TIME = 2;
 
     //------------- FLYWHEEL CONSTANTS ------------
 

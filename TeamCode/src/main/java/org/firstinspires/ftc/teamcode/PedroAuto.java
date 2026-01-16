@@ -130,13 +130,13 @@ public class PedroAuto extends OpMode {
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS:
                 if(!isStateBusy){
-                    intake.intakeOn(1,1); // to cycle balls to shooter
-                    shooter.fireShots(3); //change to three
+                    follower.followPath(driveStartToShootPos, 1,false);
                     isStateBusy=true;
                 }
-                if (isStateBusy &&!shooter.isBusy()) {
+                if (isStateBusy &&!follower.isBusy()) {
+                    intake.intakeOn(1,1); // to cycle balls to shooter
+                    shooter.fireShots(3); //change to three
                     isStateBusy = false;
-                    follower.followPath(driveStartToShootPos, false);
                     setPathState(PathState.DRIVE_TO_INTAKE_POS);
                 }
 
@@ -144,7 +144,7 @@ public class PedroAuto extends OpMode {
 
             case DRIVE_TO_INTAKE_POS:
 
-                if (!follower.isBusy()){
+                if (!shooter.isBusy()){
                         intake.intakeOff();// to stop cycling balls to shooter.
                         follower.followPath(driveShootPosToIntake, true);
                         setPathState(PathState.INTAKE_BALLS);
@@ -315,7 +315,7 @@ public class PedroAuto extends OpMode {
         statePathUpdate();
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
-        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
+        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
 
@@ -359,7 +359,7 @@ public class PedroAuto extends OpMode {
         shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(180, IsRed)));
         shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(angleFlip(180, IsRed)));
         intakeStart = new Pose(xFlip(51, IsRed), 84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));
-        intakeEnd = new Pose(xFlip(16.4, IsRed),  84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));
+        intakeEnd = new Pose(xFlip(17, IsRed),  84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
     }
