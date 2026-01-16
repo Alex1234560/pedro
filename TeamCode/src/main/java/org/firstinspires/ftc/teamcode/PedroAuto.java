@@ -103,7 +103,7 @@ public class PedroAuto extends OpMode {
 //    private static final double GOAL_Y = 132;
     private static final double START_X = 17.914;
     private static final double START_Y = 121.168;
-    // ----- NOTE: These poses will get rewritten in this file, their only purpose is to serve
+    // ----- NOTE: These poses below will get rewritten in this file, their only purpose is to serve
     // as a default for the TeleOp File.
 
     public static Pose startPose = new Pose(START_X,START_Y,Math.toRadians(StartingRobotAngleDeg));
