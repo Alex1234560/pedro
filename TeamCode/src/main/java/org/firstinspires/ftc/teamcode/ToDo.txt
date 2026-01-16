@@ -7,8 +7,6 @@
 
 
 -------- tips for making auto faster --------
-- Make the flywheel always be spinning
-- make the turret start pointing to the front not the back.
 - Intake balls at speed 1 not 0.5
 - Shoot while moving ( need to implement just time or smh like that, since when moving shoot detection doesnt work.
 
