@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.Mechanisms.DistanceSensorClass;
 
 
 @Configurable
@@ -30,6 +31,9 @@ public class CleanTeleop extends OpMode {
     //setting up motors and time
     private ElapsedTime runtime = new ElapsedTime();
 
+
+
+    private DistanceSensorClass distanceSensor = new DistanceSensorClass();
     private Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
@@ -72,6 +76,7 @@ public class CleanTeleop extends OpMode {
 
     @Override
     public void init(){
+        distanceSensor.init(hardwareMap);
         camera = new AprilTagVision(hardwareMap);
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
@@ -145,6 +150,7 @@ public class CleanTeleop extends OpMode {
         camera.update();
         follower.update();
         shooter.update();
+        distanceSensor.update();
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
 
@@ -163,11 +169,11 @@ public class CleanTeleop extends OpMode {
 
 
         handleDriving();
-        handleIntake();
+        handleIntakeAndShootingButtons();
         handleShooterServos();
         TelemetryStatements();
 
-        handleTeleOpShooting();
+        handleFlywheel();
 
         if (gamepad2.back){
             Reversing=true;
@@ -188,6 +194,8 @@ public class CleanTeleop extends OpMode {
 
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
         telemetryM.addData("Hood Angle", hood.getPosition());
+
+        telemetryM.addData("Distance Sensor value: ", distanceSensor.GetDistance());
 
         telemetryM.addData("-360 turret angle?", turretRotation.IsTurretPastAnglePos());
         telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
@@ -216,10 +224,10 @@ public class CleanTeleop extends OpMode {
         telemetryM.update(telemetry);
 
     }
-    private void handleIntake() {
-        // handle feeding to shooter
+    private void handleIntakeAndShootingButtons() {
 
 
+        //intaking
 
         double IntakePowerValue = Math.abs(gamepad2.left_trigger);
         if (Math.abs(gamepad1.left_trigger) > Math.abs(gamepad2.left_trigger)){
@@ -229,16 +237,38 @@ public class CleanTeleop extends OpMode {
             IntakePowerValue = Math.abs(gamepad2.right_trigger);
         }
 
-
         if (Reversing){
-            intake.intakeOn(-IntakePowerValue,0);
+            intake.intakeOn(-IntakePowerValue,1);
         }
         else if(IntakePowerValue!=0){
             intake.intakeOn(IntakePowerValue,1);
+
+
         }
         else{
             intake.intakeOff();
         }
+
+        //shooting
+
+        boolean Trigger = gamepad2.right_trigger>0;
+
+        if (Reversing && Trigger){shooter.SpinBallFeeder(-1);}
+
+        else if (Trigger && shooter.IsFlywheelUpToSpeed() && turretRotation.isTurretFinishedRotating()){
+            shooter.SpinBallFeeder(1);
+        }
+
+        else if (Trigger && gamepad2.right_bumper){
+            shooter.SpinBallFeeder(1);
+        }
+
+        //so that any button that intakes can spin ball feeder
+        else if (IntakePowerValue>0 && !distanceSensor.IsBallDetected()){
+            shooter.SpinBallFeeder(1); // power less so that it doesnt pass the point it needs to go to and get shot
+        }
+
+        else{shooter.SpinBallFeeder(0);}
 
 
 
@@ -314,7 +344,7 @@ public class CleanTeleop extends OpMode {
             telemetry.addData("ServoAngle ", ShooterAngle);
         }
     }
-    private void handleTeleOpShooting(){
+    private void handleFlywheel(){
 
         if (gamepad2.xWasPressed()) {shooterMotorOn = true;}
         if (gamepad2.yWasPressed()) {shooterMotorOn = false;}
@@ -323,18 +353,6 @@ public class CleanTeleop extends OpMode {
         if (shooterMotorOn){shooter.SetMotorPowerToTarget();}
         else{shooter.TurnFlywheelOff();}
 
-        //switching gamepad2.right_trigger fonr a butto
-
-        if (Reversing && gamepad2.right_trigger>0){shooter.SpinBallFeeder(-1);}
-
-        else if (gamepad2.right_trigger > 0 && shooter.IsFlywheelUpToSpeed() && turretRotation.isTurretFinishedRotating()){
-            shooter.SpinBallFeeder(1);
-        }
-        else if (gamepad2.right_trigger > 0 && gamepad2.right_bumper){
-            shooter.SpinBallFeeder(1);
-        }
-
-        else{shooter.SpinBallFeeder(0);}
     }
 
 

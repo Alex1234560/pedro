@@ -5,12 +5,13 @@
 - camera compensation make better
 
 
+
 ----------- Medium Priority ----------
+- fix the distance sensor mechanism not working super well. ( tune the CHANGE_POINT Variable in distanceSensorClass )
+- test AUTO
 - FIX auto parking, its rlly slow, and vibrates a lot.
 - make a shoot button instead of a shoot trigger.
-- Get the locations of everything onto another file, so that it can be globally changed, also put the flip code there.
 - make everything manually adjustable in case of trouble.
-- check how to make aiming consistent, rn it works well when rotated to the front of the robot but not in the back.
 
 -------- tips for making auto faster --------
 - Intake balls at speed 1 not 0.5

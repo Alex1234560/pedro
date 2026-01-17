@@ -1,27 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
-
-import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
-
-
-import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
-import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
-import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
 
@@ -29,14 +11,11 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @TeleOp
 public class TestingBench extends OpMode
 {
-    private OpticalDistanceSensor distanceSensor;
+
 
     @Override
     public void init() {
 
-
-        distanceSensor = hardwareMap.get(OpticalDistanceSensor.class, "distanceSensor");
-        telemetry.addData("Status", "Initialized");
     }
 
     /*
@@ -59,7 +38,7 @@ public class TestingBench extends OpMode
      */
     @Override
     public void loop() {
-        telemetry.addData("Distance", distanceSensor.getLightDetected());
+
     }
 
     /*
