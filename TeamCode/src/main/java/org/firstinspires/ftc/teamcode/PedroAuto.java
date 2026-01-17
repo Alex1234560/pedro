@@ -31,6 +31,8 @@ public class PedroAuto extends OpMode {
     //1 == true, 0 == false
     public static boolean IsRed = false;
 
+    public static boolean DidAutoGoToEnd;
+
     public static double PARK_TIME_TRIGGER = 28;
 
     private Timer pathTimer, opModeTimer;
@@ -69,8 +71,8 @@ public class PedroAuto extends OpMode {
     //BallLines
 
     private final double BALL_LINE_DIFFERENCE = -24;
-    private double ball_line_offset = 0;
-    private double loop_times = 0;
+    private double ball_line_offset;
+    private double loop_times;
 
     // -------- everything Poses ---------
 
@@ -86,12 +88,13 @@ public class PedroAuto extends OpMode {
     //this is to track last pose recorded for TeleOp
     // it is start pose cuz if the code never starts then the last position is the start position :)
     public static Pose LastPoseRecorded;
+    private static Pose driveToPark;
 
     // ------ these are for use only in this AUTO -------
     private static  Pose shootPos,shootPos180,intakeStart,intakeEnd;
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
 
-    private boolean isStateBusy = false;
+    private boolean isStateBusy;
 
 
 
@@ -184,6 +187,7 @@ public class PedroAuto extends OpMode {
                 break; // was commented out for some reason
 
             case FINISHED:
+                DidAutoGoToEnd = true;
                 break;
 
             case AUTOPARK:
@@ -196,7 +200,7 @@ public class PedroAuto extends OpMode {
                     //follower.setPose(follower.getPose());
 
 
-                    Pose driveToPark = new Pose(Cords.xFlip(40, IsRed), 60, Math.toRadians(Cords.angleFlip(180, IsRed)));
+                    driveToPark = new Pose(Cords.xFlip(40, IsRed), 60, Math.toRadians(Cords.angleFlip(180, IsRed)));
                     Pose currentPose = follower.getPose();
 
                     PathChain driveToParkPath;
@@ -211,8 +215,10 @@ public class PedroAuto extends OpMode {
                     isStateBusy = true;
                 }
                 else{
-                    isStateBusy = false;
-                    setPathState(PathState.FINISHED);
+                    if (turretRotation.isTurretFinishedRotating()) {
+                        isStateBusy = false;
+                        setPathState(PathState.FINISHED);
+                    }
                 }
 
                 break;
@@ -233,6 +239,13 @@ public class PedroAuto extends OpMode {
 
     @Override
     public void init(){
+        //resseting variables
+        isStateBusy=false;
+        ball_line_offset=0;
+        loop_times = 0;
+        DidAutoGoToEnd = false;
+
+
         pathState = PathState.DRIVE_TO_SHOOT_POS;
         pathTimer = new Timer();
         opModeTimer = new Timer();

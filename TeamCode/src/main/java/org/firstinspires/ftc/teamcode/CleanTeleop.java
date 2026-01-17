@@ -8,7 +8,6 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
 
-import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -66,18 +65,13 @@ public class CleanTeleop extends OpMode {
     //declaring button globally
     //private boolean autoAimButton = false;
     public static boolean AutoAim = true;
-    private boolean START_PROGRAM_WITOUTH_AUTO_FIRST = true;
+    public static boolean start_program_witouth_auto_first = true;
 
     private TurretRotation turretRotation = new TurretRotation();
     //private PedroAuto PedroAutoFunctions = new PedroAuto();
 
     @Override
     public void init(){
-
-
-
-
-
         camera = new AprilTagVision(hardwareMap);
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
@@ -89,8 +83,6 @@ public class CleanTeleop extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         //new try start pose
 
-
-
         follower.update();
     }
 
@@ -99,13 +91,15 @@ public class CleanTeleop extends OpMode {
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
 
-
-
-        if (START_PROGRAM_WITOUTH_AUTO_FIRST){
+        if (start_program_witouth_auto_first){
             StartingPosition = new Pose(Cords.xFlip(Coordinates.START_X, IsRed), Coordinates.START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
         }
         else{
             StartingPosition = PedroAuto.LastPoseRecorded;
+        }
+
+        if (PedroAuto.DidAutoGoToEnd || start_program_witouth_auto_first){
+            turretRotation.CalibrateTurretToCenter();
         }
 
 
@@ -114,12 +108,6 @@ public class CleanTeleop extends OpMode {
         follower.startTeleopDrive();
         runtime.reset();
 
-        //auto aiming and location sor
-         // defines the side of the field b ased on what the auto had selected as the side of the field.
-
-
-        //should be in center when passed on from auto so that it can calibrate.
-        turretRotation.CalibrateTurretToCenter();
 
     }
 @Override
@@ -127,10 +115,11 @@ public class CleanTeleop extends OpMode {
         telemetry.addData("Status", "Initialized");
 
         // in case you're starting teleop from fresh just for practice
-        telemetry.addData("press 'back' to toggle the start program witouth running auto first.",START_PROGRAM_WITOUTH_AUTO_FIRST);
-        if (gamepad1.backWasPressed()){START_PROGRAM_WITOUTH_AUTO_FIRST = !START_PROGRAM_WITOUTH_AUTO_FIRST;}
+        telemetry.addData("press 'back' to toggle the start program witouth running auto first.", start_program_witouth_auto_first);
+        if (gamepad1.backWasPressed()){
+            start_program_witouth_auto_first = !start_program_witouth_auto_first;}
 
-        if (START_PROGRAM_WITOUTH_AUTO_FIRST) {
+        if (start_program_witouth_auto_first) {
             telemetry.addData("Alliance Selection", "X for BLUE, B for RED");
             if (IsRed == false) {
                 telemetry.addData("Color: BLUE ", "");
@@ -186,6 +175,10 @@ public class CleanTeleop extends OpMode {
         else{Reversing=false;}
 
 
+    }
+
+    @Override
+    public void stop(){
     }
 
     private void TelemetryStatements(){

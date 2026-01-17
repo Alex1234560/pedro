@@ -13,7 +13,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.onbotjava.handlers.admin.Clean;
+import org.firstinspires.ftc.teamcode.CleanTeleop;
 import org.firstinspires.ftc.teamcode.FunctionsAndValues;
+import org.firstinspires.ftc.teamcode.PedroAuto;
 
 @Configurable
 public class TurretRotation {
@@ -33,8 +36,6 @@ public class TurretRotation {
     public static boolean TRACK_GOAL = true; // this is for activating the trig math that handles aiming at the correct spot
     public static boolean USE_CAMERA_BEARING = true;
     public static boolean MOTOR_ACTIVE = true;// this is for activating the motor, inc ase u want to test something witouth the motor active
-
-    public static int AUTO_AIMING_TURRET_OFFSET = 0;//180; // this is just a base value, that is there to make the turret face the right way
 
     private static boolean LIMIT_VELOCITY_SWITCHES = false; // this is a prototype function that limits when the motor can switch directions due to speed, it wont be needed in the future
     private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
@@ -56,7 +57,7 @@ public class TurretRotation {
     private double camera_bearing_offset = 0;
     private double turret_offset = 0;
 
-    private boolean is_turret_being_centered = false;
+    private boolean is_turret_being_centered;
 
 
     // ---------- PIDF values for turret ---------------
@@ -86,10 +87,9 @@ public class TurretRotation {
 
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose, Pose initPose){
 
-
-
             boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
             boolean is_turret_past_angle_neg = IsTurretPastAngleNeg();
+
             double_robot_angle_deg =  RobotAngleDeg;
 
 
@@ -97,6 +97,11 @@ public class TurretRotation {
             double current_velocity = GetCurrentVel();// telemetry
 
             actual_target_angle = 0;
+
+//            if (!PedroAuto.DidAutoGoToEnd && !CleanTeleop.start_program_witouth_auto_first){
+//                actual_target_angle+=180;
+//            }
+
             actual_target_angle+=turret_offset;
 
             if (AUTO_ROTATE) {
@@ -187,7 +192,6 @@ public class TurretRotation {
         double difference = Math.abs(GetCurrentPosDeg()-actual_target_angle);
         return difference < TURRET_AIMING_ALLOWED_ERROR;
     }
-
     public boolean IsTurretPastAnglePos(){
         if (actual_target_angle>SWITCH_ANGLE_POS){
             return true;
@@ -258,7 +262,7 @@ public class TurretRotation {
         double angleRad = Math.atan2(dy, dx);          // -180..180
         double angleDeg = Math.toDegrees(angleRad);
 
-        angleDeg += AUTO_AIMING_TURRET_OFFSET;         // account for turret mount
+        //angleDeg += AUTO_AIMING_TURRET_OFFSET_FOR_TELEOP_REMOVE_IN_FUTURE;         // account for turret mount
         return angleDeg;
 }
 

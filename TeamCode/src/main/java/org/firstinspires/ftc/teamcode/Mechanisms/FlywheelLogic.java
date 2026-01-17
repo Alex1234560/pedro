@@ -50,7 +50,6 @@ public class FlywheelLogic {
     public void init(HardwareMap hardwareMap) {
         FAndV = new FunctionsAndValues();
 
-
         BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
         BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");
         ShooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");

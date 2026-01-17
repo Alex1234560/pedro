@@ -3,9 +3,10 @@
 - make shooting really consistent
 - rn if you pause auto halfway and then u start teleop, the turret will get messed up cuz it isnt centered, gotta fix it.
 - camera compensation make better
-- FIX auto parking, its rlly slow, and vibrates a lot.
+
 
 ----------- Medium Priority ----------
+- FIX auto parking, its rlly slow, and vibrates a lot.
 - make a shoot button instead of a shoot trigger.
 - Get the locations of everything onto another file, so that it can be globally changed, also put the flip code there.
 - make everything manually adjustable in case of trouble.
