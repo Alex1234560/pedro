@@ -11,6 +11,10 @@ import com.qualcomm.robotcore.util.Range;
  */
 @Configurable
 public class FunctionsAndValues {
+
+
+
+
  //
     private static double BackRangeStart = 90;
     public static double OffsetForShootingAlgorithmRemoveLater=4;

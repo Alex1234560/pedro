@@ -1,10 +1,9 @@
 
  -------- High Priority -------
-- Measure odometry pod position so that turns are right.
-- red teleop doesnt work since its using blue cordinates, it needs to be fixed, maybe by adding global cordinates in another file.
 - make shooting really consistent
 - rn if you pause auto halfway and then u start teleop, the turret will get messed up cuz it isnt centered, gotta fix it.
 - camera compensation make better
+- FIX auto parking, its rlly slow, and vibrates a lot.
 
 ----------- Medium Priority ----------
 - make a shoot button instead of a shoot trigger.

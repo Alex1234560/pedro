@@ -31,6 +31,7 @@ public class CleanTeleop extends OpMode {
     //setting up motors and time
     private ElapsedTime runtime = new ElapsedTime();
 
+    private Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
     private FlywheelLogic shooter = new FlywheelLogic();
@@ -73,8 +74,7 @@ public class CleanTeleop extends OpMode {
     @Override
     public void init(){
 
-        GoalLocationPose = PedroAuto.GoalLocationPose;
-        StartingPosition = PedroAuto.LastPoseRecorded;
+
 
 
 
@@ -96,9 +96,19 @@ public class CleanTeleop extends OpMode {
 
     @Override
     public void start(){
+
+        GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
+
+
+
         if (START_PROGRAM_WITOUTH_AUTO_FIRST){
-            StartingPosition = PedroAuto.startPose;
+            StartingPosition = new Pose(Cords.xFlip(Coordinates.START_X, IsRed), Coordinates.START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
         }
+        else{
+            StartingPosition = PedroAuto.LastPoseRecorded;
+        }
+
+
         follower.setStartingPose(StartingPosition);
 
         follower.startTeleopDrive();

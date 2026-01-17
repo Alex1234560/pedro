@@ -19,8 +19,8 @@ public class Constants {
             .mass(15)
             .forwardZeroPowerAcceleration(-54.38182942200218)
             .lateralZeroPowerAcceleration(-70.86148762045916)
-            //.translationalPIDFCoefficients(new PIDFCoefficients(.06, 0,.002, .025))
-            .translationalPIDFCoefficients(new PIDFCoefficients(.1, 0.0001,.0025, .025))
+            //.translationalPIDFCoefficients(new PIDFCoefficients(.1, 0.0001,.0025, .025))
+            .translationalPIDFCoefficients(new PIDFCoefficients(.15, 0.00005,.005, .01))
             .headingPIDFCoefficients(new PIDFCoefficients(1,0,.0045, .0275))
             //.drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0,0.0001, .06,0.01))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0,0.001, .06,0.01))
@@ -50,18 +50,16 @@ public class Constants {
             ;
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-//            .forwardPodY(-1.8)
-//            .strafePodX(3.5)
-//            .forwardPodY(1.6)
-//            .strafePodX(-0.5)
-
-//            .forwardPodY(-.2)
-//            .strafePodX(1.3)
             //the value commented out was the one i used to make circle reallly small
 //            .forwardPodY(-.1)// im trying this one to make auto work well.
 //            .strafePodX(.9)
-            .forwardPodY(1.4)
-            .strafePodX(0)
+            //actual measurements
+//            .forwardPodY(1.4)
+//            .strafePodX(0)
+
+            //smallest ive gotten so far.
+            .forwardPodY(-1)
+            .strafePodX(.5)
 
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")

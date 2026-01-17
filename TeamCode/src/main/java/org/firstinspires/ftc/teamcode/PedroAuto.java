@@ -36,7 +36,7 @@ public class PedroAuto extends OpMode {
     private Timer pathTimer, opModeTimer;
 
     // -------- FLYWHEEL SETUP -------
-
+    private Coordinates Cords = new Coordinates();
     private FlywheelLogic shooter = new FlywheelLogic();
     private Intake intake = new Intake();
     private TurretRotation turretRotation = new TurretRotation();
@@ -74,44 +74,18 @@ public class PedroAuto extends OpMode {
 
     // -------- everything Poses ---------
 
-    public double xFlip(double oPos, boolean Red){
-        double switcher;
-        if (Red){switcher=144;
-            return switcher-oPos; // Alex
-        }
-        else{switcher=0;
-            return oPos;
-        }
-
-    }
-
-    public double angleFlip(double oAng, boolean Red) {
-        double flipVal;
-        if (Red){flipVal = 180;
-            return flipVal-oAng;}
-        else{flipVal = 0;
-        return oAng;
-        }
-    }
 
 
-    // ---- following hard poses are for blue side in case CleanTeleop is started for practice ---
-    private static final double StartingRobotAngleDeg = 144;
-    private static final double GOAL_X = 12.5;
-    private static final double GOAL_Y = 136.5;
-//    private static final double GOAL_X = 16;
-//    private static final double GOAL_Y = 132;
-    private static final double START_X = 17.914;
-    private static final double START_Y = 121.168;
-    // ----- NOTE: These poses below will get rewritten in this file, their only purpose is to serve
-    // as a default for the TeleOp File.
 
-    public static Pose startPose = new Pose(START_X,START_Y,Math.toRadians(StartingRobotAngleDeg));
-    public static Pose GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
+
+    //public static Pose startPose = new Pose(Coordinates.START_X,Coordinates.START_Y,Math.toRadians(Coordinates.StartingRobotAngleDeg));
+    public static Pose startPose;
+    private static Pose GoalLocationPose;
+    //public static Pose GoalLocationPose = new Pose(Coordinates.GOAL_X, Coordinates.GOAL_Y, Math.toRadians(0));
 
     //this is to track last pose recorded for TeleOp
     // it is start pose cuz if the code never starts then the last position is the start position :)
-    public static Pose LastPoseRecorded = startPose;
+    public static Pose LastPoseRecorded;
 
     // ------ these are for use only in this AUTO -------
     private static  Pose shootPos,shootPos180,intakeStart,intakeEnd;
@@ -217,15 +191,19 @@ public class PedroAuto extends OpMode {
                     turretRotation.TurretTo0Deg(true);
                     intake.intakeOff();
                     shooter.Stop();
+
                     follower.breakFollowing();
-                    Pose driveToPark = new Pose(xFlip(40, IsRed), 60, Math.toRadians(angleFlip(180, IsRed)));
+                    //follower.setPose(follower.getPose());
+
+
+                    Pose driveToPark = new Pose(Cords.xFlip(40, IsRed), 60, Math.toRadians(Cords.angleFlip(180, IsRed)));
                     Pose currentPose = follower.getPose();
 
                     PathChain driveToParkPath;
 
                     driveToParkPath = follower.pathBuilder()
                             .addPath(new BezierLine(currentPose, driveToPark))
-                            .setLinearHeadingInterpolation(currentPose.getHeading(), currentPose.getHeading())
+                            .setLinearHeadingInterpolation(currentPose.getHeading(), driveToPark.getHeading())
                             .build();
 
                     follower.followPath(driveToParkPath, true);
@@ -356,13 +334,13 @@ public class PedroAuto extends OpMode {
     }
 
     private void buildPoses(){
-        startPose = new Pose(xFlip(START_X, IsRed), START_Y, Math.toRadians(angleFlip(StartingRobotAngleDeg, IsRed)));
-        shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(180, IsRed)));
-        shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(angleFlip(180, IsRed)));
-        intakeStart = new Pose(xFlip(51, IsRed), 84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));
-        intakeEnd = new Pose(xFlip(17, IsRed),  84.5+ball_line_offset, Math.toRadians(angleFlip(180, IsRed)));
+        startPose = new Pose(Cords.xFlip(Coordinates.START_X, IsRed), Coordinates.START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
+        shootPos = new Pose(Cords.xFlip(59, IsRed), 85, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeStart = new Pose(Cords.xFlip(51, IsRed), 84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(17, IsRed),  84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
-        GoalLocationPose = new Pose(xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
+        GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
     }
 
     private boolean isRobotInPosition(Pose GoalPose) {
