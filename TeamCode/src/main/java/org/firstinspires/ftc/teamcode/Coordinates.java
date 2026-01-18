@@ -8,8 +8,8 @@ public class Coordinates {
 //    public static final double GOAL_X = 12.5;
 //    public static final double GOAL_Y = 136.5;
 
-    public static final double GOAL_X = 5;
-    public static final double GOAL_Y = 139;
+    public static final double GOAL_X = 8;
+    public static final double GOAL_Y = 136;
 
 
     public static final double GOAL_X_FOR_DISTANCE = 16;

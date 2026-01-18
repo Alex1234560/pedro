@@ -224,8 +224,8 @@ public class TurretRotation {
 
     public void handleBearing(double bearing, double yaw){
         //this modifies bearing so it aims at behind the code and not at the code
-        //double bearing_with_yaw = ((bearing + (-0.154098*yaw))+1.18033);
-        double bearing_with_yaw = bearing; // rn no bearing with yaw is going to be used.
+        double bearing_with_yaw = ((bearing - ((-0.0893957*yaw)+0.0540481)) );
+        //double bearing_with_yaw = bearing; // rn no bearing with yaw is going to be used.
 
         double changeValue = (CAMERA_MULTIPLIER_FOR_TURRET_CHANGE *Math.abs(bearing_with_yaw))+ CAMERA_STARTING_CHANGE;
         double ERROR_MARGIN = 1;

@@ -13,14 +13,14 @@ import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 @Configurable
 public class FunctionsAndValues {
 
-    private static double BackRangeStart = 90;
-    private static double FrontRangeStart = 35;
+    private static double BackRangeStart = 100;
+    private static double FrontRangeStart = 13;
     public static double OffsetForShootingAlgorithmRemoveLater=0;
 
     //public static double After90ChangeInAngle = 0; // was -3
 
     // swiched it from 60 to 300 cuz i believe the time it takes for the ball to reach flywheeel it goes up to speed enough to be accurate
-    public static double SpeedToleranceToStartShooting = 100;
+    public static double SpeedToleranceToStartShooting = 50;
 
 
     //public static double AngleToleranceToStartShooting = 2;

@@ -119,7 +119,7 @@ public class CleanTeleop extends OpMode {
 
 
     }
-@Override
+    @Override
     public void init_loop(){
         telemetry.addData("Status", "Initialized");
 
@@ -350,8 +350,9 @@ public class CleanTeleop extends OpMode {
         }
         else if (IsRed==true){
             follower.setTeleOpDrive(
-                    -lateral,
+
                     axial,
+                    lateral,
                     yaw,
                     false // Robot Centric
             );

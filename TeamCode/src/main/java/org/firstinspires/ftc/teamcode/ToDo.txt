@@ -1,18 +1,13 @@
 
  -------- High Priority -------
-- make shooting really consistent
-- test driving on both sides field centric.
-- camera compensation make better
-- make a thing where all values are manually adjustable for tuning
+
 
 ----------- Medium Priority ----------
-- try using integrated PIDF instead of costum, makes code cleaner
-- make the button to activate intake, the one on top called bumper dispense extra balls that are grabbed during intaking.
-- fix the distance sensor mechanism not working super well. ( tune the CHANGE_POINT Variable in distanceSensorClass )
 - test AUTO
 - FIX auto parking, its rlly slow, and vibrates a lot.
 - make a shoot button instead of a shoot trigger.
-base distance off of camera when possible.
+- when shooting besides other goal, theres a point where trig gets confused adn starts vibrating turret.
+- base distance off of camera when possible.
 
 -------- tips for making auto faster --------
 - Intake balls at speed 1 not 0.5
@@ -24,6 +19,7 @@ base distance off of camera when possible.
 - try turret motor with Breaking behaviour at power 0.
 
 - --- ---- Low Priority ---------
+- try using integrated PIDF instead of costum, makes code cleaner
 - Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
 - adjust PIDF so that correction back to the right place is more aggresive and works better ( Driving ).
