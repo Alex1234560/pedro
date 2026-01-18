@@ -2,7 +2,8 @@ package org.firstinspires.ftc.teamcode; // Make sure this matches your team's pa
 
 //import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 
 /**
  * This class encapsulates all the logic for initializing and using the AprilTag processor.
@@ -12,17 +13,15 @@ import com.qualcomm.robotcore.util.Range;
 @Configurable
 public class FunctionsAndValues {
 
-
-
-
- //
     private static double BackRangeStart = 90;
-    public static double OffsetForShootingAlgorithmRemoveLater=4;
+    private static double FrontRangeStart = 35;
+    public static double OffsetForShootingAlgorithmRemoveLater=0;
 
     //public static double After90ChangeInAngle = 0; // was -3
 
     // swiched it from 60 to 300 cuz i believe the time it takes for the ball to reach flywheeel it goes up to speed enough to be accurate
-    public static double SpeedToleranceToStartShooting = 150;
+    public static double SpeedToleranceToStartShooting = 100;
+
 
     //public static double AngleToleranceToStartShooting = 2;
 
@@ -31,9 +30,6 @@ public class FunctionsAndValues {
     //public static double tuningMultiplier = 3.5;
 
     //public static boolean disableBearingPrediction = false;
-
-    public static double startPoint = .15;
-    public static double endPoint = .9;//.7
 
 
     //public static double rotationTolerance = .5;
@@ -63,10 +59,7 @@ public class FunctionsAndValues {
         return Math.hypot(dx, dy);   // safer and avoids overflow
     }
 
-    public double[] handleShootingRanges(double range) {
-
-
-
+    public double[] handleShootingRangesForWebcam(double range) {
         double[] turretGoals = new double[2];
         double targAngle = 0;
         double targSpeed = 0;
@@ -77,13 +70,38 @@ public class FunctionsAndValues {
              targSpeed = (6.94554 * range) + 850.3396;
         }else{
             targAngle=.9;
-            //targSpeed =(-.071246 * (range*range)) + 22.62838*(range) - 137.62456; Joannas House measurements
             targSpeed = 4.78571*range+1009.28571; // Alexs house measurement
         }
 
         //normalize
-        if (targAngle>endPoint){targAngle=endPoint;}
-        if (targAngle<startPoint){targAngle=startPoint;}
+        if (targSpeed>2500){targSpeed=2500;}
+        if (targSpeed<0){targSpeed=0;}
+
+
+        turretGoals[0] = targAngle;
+        turretGoals[1] = targSpeed;
+        return turretGoals;
+    }
+
+    public double[] handleShootingRangesForOdometry(double range) {
+        double[] turretGoals = new double[2];
+        double targAngle = 0;
+        double targSpeed = 0;
+
+        //double targAngle = (0.00493055 * range) + 0.243814;
+        if (range <FrontRangeStart){
+            targAngle = ShooterAngle.START_POINT;
+            targSpeed = 1090;
+        }
+        else if (range<BackRangeStart) {
+            targAngle = (0.00729122 * range) + 0.0887001;
+            targSpeed = (6.94554 * range) + 850.3396;
+        }else{
+            targAngle=.9;
+            targSpeed = (6.15554*range)+839.5422;
+        }
+
+        //normalize
         if (targSpeed>2500){targSpeed=2500;}
         if (targSpeed<0){targSpeed=0;}
 

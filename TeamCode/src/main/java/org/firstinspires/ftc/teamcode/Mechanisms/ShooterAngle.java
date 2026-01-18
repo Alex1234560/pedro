@@ -14,8 +14,8 @@ public class ShooterAngle {
     private Servo ServoShooter1;
     //private static double ShooterAngle = FunctionsAndValues.startPoint;
 
-    private static double START_POINT = .15;
-    private static double END_POINT = .9;//.7
+    public static double START_POINT = .15;
+    public static double END_POINT = .9;//.7
 
     private double normalize(double value){
         double newValue = value;

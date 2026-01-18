@@ -1,6 +1,7 @@
 
  -------- High Priority -------
 - make shooting really consistent
+- test driving on both sides field centric.
 - camera compensation make better
 - make a thing where all values are manually adjustable for tuning
 

@@ -29,7 +29,7 @@ public class CleanTeleop extends OpMode {
 
     public static double PowerValueForPreloading = 0.12;
 
-    private static double ShooterAngle = FunctionsAndValues.startPoint;
+    private static double HoodAngle = ShooterAngle.START_POINT;
     //setting up motors and time
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -57,7 +57,7 @@ public class CleanTeleop extends OpMode {
 
     private boolean IsRed = false;
 
-    private Pose GoalLocationPose, StartingPosition;
+    private Pose GoalLocationPose, StartingPosition, GoalLocationPoseForDistance;
 
 
     // --- Button Variables For Shooter ---
@@ -73,6 +73,10 @@ public class CleanTeleop extends OpMode {
 
     private TurretRotation turretRotation = new TurretRotation();
     //private PedroAuto PedroAutoFunctions = new PedroAuto();
+
+    private double FlywheelSpeedForTuning = 1000;
+
+    private boolean ManuallyAdjustableValues = false;
 
     @Override
     public void init(){
@@ -93,7 +97,7 @@ public class CleanTeleop extends OpMode {
 
     @Override
     public void start(){
-
+        GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
 
         if (start_program_witouth_auto_first){
@@ -152,29 +156,54 @@ public class CleanTeleop extends OpMode {
         shooter.update();
         distanceSensor.update();
 
-        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
+        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPoseForDistance);
 
-        if (UseOdosForSpeedAndDistance){
-            double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
+        // ----- everything below for manually adjustable values -----
+        if (gamepad2.start && gamepad2.dpadUpWasPressed() || gamepad2.start && gamepad2.dpadDownWasPressed()){
+            ManuallyAdjustableValues=!ManuallyAdjustableValues;
+            HoodAngle = hood.getPosition();
+            FlywheelSpeedForTuning = FlywheelLogic.TARGET_FLYWHEEL_TPS;
+        }
+
+        if (ManuallyAdjustableValues){
+            HoodAngle -= gamepad2.left_stick_y / 22;
+            hood.SetPosition(HoodAngle);
+
+            if (gamepad2.dpadUpWasPressed()){
+                FlywheelSpeedForTuning+=50;
+            }
+            if (gamepad2.dpadDownWasPressed()){
+                FlywheelSpeedForTuning-=50;
+            }
+
+            shooter.setFlywheelTPS(FlywheelSpeedForTuning);
+
+        }
+        // --------------------------------------------------- /
+
+        else if (UseOdosForSpeedAndDistance){
+            double[] turretGoals = FAndV.handleShootingRangesForOdometry(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
             hood.SetPosition(turretGoals[0]);
             shooter.setFlywheelTPS(turretGoals[1]);
         }
         else if (camera.getRange()!=-1){
-            double[] turretGoals = FAndV.handleShootingRanges(camera.getRange());// remove -4 in the future
+            double[] turretGoals = FAndV.handleShootingRangesForWebcam(camera.getRange());// remove -4 in the future
             hood.SetPosition(turretGoals[0]);
             shooter.setFlywheelTPS(turretGoals[1]);
         }
+
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
 
 
         if (gamepad2.bWasPressed()) {
-            UseOdosForSpeedAndDistance = true;}
+            UseOdosForSpeedAndDistance = true;
+        }
         if (gamepad2.aWasPressed()) {
             UseOdosForSpeedAndDistance = false;}
 
         handleDriving();
         handleIntakeAndShootingButtons();
-        handleShooterServos();
+        //handleShooterServos();
         TelemetryStatements();
         handleFlywheel();
 
@@ -184,18 +213,20 @@ public class CleanTeleop extends OpMode {
     }
 
     private void TelemetryStatements(){
+        telemetryM.addData("TuningMode?:  ", ManuallyAdjustableValues);
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
-        //telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
-        telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose));
+        telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
+        telemetryM.addData("Turret Goal Speed ", FlywheelLogic.TARGET_FLYWHEEL_TPS);
+        telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPoseForDistance));
 
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
-        //telemetryM.addData("Hood Angle", hood.getPosition());
+        telemetryM.addData("Hood Angle", hood.getPosition());
 
         //telemetryM.addData("Distance Sensor value: ", distanceSensor.GetDistance());
 
-        telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
-        telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
-        telemetryM.addData("Turret Offset: ", Math.round(TurretRotation.turret_offset));
+        //telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
+        //telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
+        //telemetryM.addData("Turret Offset: ", Math.round(TurretRotation.turret_offset));
 
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
         //telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
@@ -204,12 +235,12 @@ public class CleanTeleop extends OpMode {
 
         //telemetryM.addData("IsRed?" ,IsRed);
         //for tuning purposes for auto
-        telemetryM.addData("Is Turret Finished Rotating " ,turretRotation.isTurretFinishedRotating());
+        //telemetryM.addData("Is Turret Finished Rotating " ,turretRotation.isTurretFinishedRotating());
 
         //telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
         telemetryM.addData("Bearing " ,camera.getBearing());
         telemetryM.addData("Yaw " ,camera.getYaw());
-        telemetryM.addData("Distance  " ,camera.getRange());
+        telemetryM.addData("Distance (camera) " ,camera.getRange());
 
 
         telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
@@ -221,13 +252,12 @@ public class CleanTeleop extends OpMode {
     }
     private void handleIntakeAndShootingButtons() {
         //BACK button reversing.
-        boolean IntakeReversing = gamepad2.left_bumper;
-        if (gamepad2.back){
-            Reversing=true;
-        }
-        else{Reversing=false;}
+
+        boolean IntakeReversing = gamepad2.left_bumper || gamepad1.left_bumper;
 
         //intaking
+
+
 
         double IntakePowerValue = Math.abs(gamepad2.left_trigger);
         if (Math.abs(gamepad1.left_trigger) > Math.abs(gamepad2.left_trigger)){
@@ -253,7 +283,7 @@ public class CleanTeleop extends OpMode {
 
         boolean Trigger = gamepad2.right_trigger>0;
 
-        if (Reversing){shooter.SpinBallFeeder(-1);}
+        if (gamepad2.back){shooter.SpinBallFeeder(-1);}
 
         else if (Trigger && shooter.IsFlywheelUpToSpeed() && turretRotation.isTurretFinishedRotating()){
             shooter.SpinBallFeeder(1);
@@ -329,18 +359,6 @@ public class CleanTeleop extends OpMode {
 
 
 
-    }
-    private void handleShooterServos() {
-
-        // Initialize shooterAngle with the servo's current position to start.
-        // This ensures it always has a value.
-
-//        if (AutoAim ==false) {
-//
-//            ShooterAngle -= gamepad2.left_stick_y / 22;
-//            hood.SetPosition(ShooterAngle);
-//            telemetry.addData("ServoAngle ", ShooterAngle);
-//        }
     }
     private void handleFlywheel(){
 

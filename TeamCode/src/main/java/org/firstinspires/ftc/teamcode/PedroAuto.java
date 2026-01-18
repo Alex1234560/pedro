@@ -82,8 +82,7 @@ public class PedroAuto extends OpMode {
 
     //public static Pose startPose = new Pose(Coordinates.START_X,Coordinates.START_Y,Math.toRadians(Coordinates.StartingRobotAngleDeg));
     public static Pose startPose;
-    private static Pose GoalLocationPose;
-    //public static Pose GoalLocationPose = new Pose(Coordinates.GOAL_X, Coordinates.GOAL_Y, Math.toRadians(0));
+    private static Pose GoalLocationPose,GoalLocationPoseForDistance;
 
     //this is to track last pose recorded for TeleOp
     // it is start pose cuz if the code never starts then the last position is the start position :)
@@ -95,6 +94,8 @@ public class PedroAuto extends OpMode {
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
 
     private boolean isStateBusy;
+
+
 
 
 
@@ -299,6 +300,8 @@ public class PedroAuto extends OpMode {
     public void loop(){
         LastPoseRecorded = follower.getPose();
 
+        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPoseForDistance);
+
         camera.update();
         follower.update();
         shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
@@ -306,8 +309,7 @@ public class PedroAuto extends OpMode {
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
-        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
-        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
+        double[] turretGoals = FAndV.handleShootingRangesForWebcam(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
 
@@ -357,6 +359,7 @@ public class PedroAuto extends OpMode {
         intakeEnd = new Pose(Cords.xFlip(17, IsRed),  84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
+        GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
     }
 
     private boolean isRobotInPosition(Pose GoalPose) {
