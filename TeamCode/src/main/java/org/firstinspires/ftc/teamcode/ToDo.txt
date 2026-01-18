@@ -1,7 +1,6 @@
 
  -------- High Priority -------
 - make shooting really consistent
-- rn if you pause auto halfway and then u start teleop, the turret will get messed up cuz it isnt centered, gotta fix it.
 - camera compensation make better
 
 
@@ -24,7 +23,6 @@
 - try turret motor with Breaking behaviour at power 0.
 
 - --- ---- Low Priority ---------
-- understand why the problem of turret restting angle to not conflict with cable was solved so weirdly.
 - Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
 - adjust PIDF so that correction back to the right place is more aggresive and works better ( Driving ).

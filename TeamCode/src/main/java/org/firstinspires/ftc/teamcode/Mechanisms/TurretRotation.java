@@ -59,9 +59,6 @@ public class TurretRotation {
 
     private boolean is_turret_being_centered;
 
-    public static double actualTargetAngleBeforeLoopStarts;
-    public static double actualTargetAngleInTheMiddle;
-    public static double actualTargetAngleAtTheEnd;
 
 
 
@@ -98,8 +95,6 @@ public class TurretRotation {
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose, Pose initPose){
 
 
-            actualTargetAngleBeforeLoopStarts = actual_target_angle;
-
             double_robot_angle_deg =  RobotAngleDeg;
 
             double current_position = GetCurrentPosTicks();// telemetry
@@ -128,7 +123,7 @@ public class TurretRotation {
                 actual_target_angle += angle_calculated_for_tracking_goal;
             }
 
-            actualTargetAngleInTheMiddle = actual_target_angle;
+
 
 
             boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
@@ -188,8 +183,6 @@ public class TurretRotation {
             if (MOTOR_ACTIVE) {TurretRotatorMotor.setPower(newPower);}
             else{TurretRotatorMotor.setPower(0);}
 
-
-            actualTargetAngleAtTheEnd = actual_target_angle;
 
         }
 
