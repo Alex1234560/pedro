@@ -86,7 +86,7 @@ public class TurretRotation {
     public void init(HardwareMap hardwareMap){
 
         //added line to see if i thelps
-        turret_offset=0;
+        //turret_offset=0;
 
 
         is_turret_being_centered=false;
@@ -264,6 +264,7 @@ public class TurretRotation {
     }
 
     public void CalibrateTurretToCenter(){
+        turret_offset=0;
         TurretRotatorMotor.setPower(0);
         TurretRotatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
