@@ -87,7 +87,9 @@ public class FlywheelLogic {
         ShooterMotor.setPower(0);
         ShooterMotor2.setPower(0);
         flywheelState = FlywheelState.IDLE;
-        SpinBallFeeder(0);
+
+        //NOTE REMOVED: //SpinBallFeeder(0) from this
+
     }
 
     public void SpinBallFeeder(double power) {
@@ -158,8 +160,6 @@ public class FlywheelLogic {
     public void update() {
         flywheelVelocity = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(), ShooterMotor2.getVelocity());
 
-
-
     }
 
     public double GetShotsRemaining() {
@@ -182,11 +182,6 @@ public class FlywheelLogic {
 
     public boolean isBusy() {
         boolean isStateBusy = flywheelState != FlywheelState.IDLE;
-        boolean isShootingDone = shotsRemaining <= 0;
-        if (isStateBusy && isShootingDone) {
-            return false;
-        } else {
-            return true;
-        }
+        return isStateBusy;
     }
 }

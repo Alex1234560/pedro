@@ -2,16 +2,16 @@
  -------- High Priority -------
 - make shooting really consistent
 - camera compensation make better
-
-
+- make a thing where all values are manually adjustable for tuning
 
 ----------- Medium Priority ----------
--- make the button to activate intake, the one on top called bumper dispense extra balls that are grabbed during intaking.
+- try using integrated PIDF instead of costum, makes code cleaner
+- make the button to activate intake, the one on top called bumper dispense extra balls that are grabbed during intaking.
 - fix the distance sensor mechanism not working super well. ( tune the CHANGE_POINT Variable in distanceSensorClass )
 - test AUTO
 - FIX auto parking, its rlly slow, and vibrates a lot.
 - make a shoot button instead of a shoot trigger.
-- make everything manually adjustable in case of trouble && base distance off of camera when possible.
+base distance off of camera when possible.
 
 -------- tips for making auto faster --------
 - Intake balls at speed 1 not 0.5
@@ -30,6 +30,8 @@
 - In Every auto add a timer that when it runs out it triggers a park function out of the launch zone.
 - Make parking button for teleop.
 - Make Back auto that shoots and then moves out of the way
+
+- add encoder so that u cant go back and forth and ruin the gears in the intake.
 
 --------- only do if done with everything else -----------
 - Make Back Auto detect balls.

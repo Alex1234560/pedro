@@ -63,10 +63,10 @@ public class TurretRotation {
 
 
     // ---------- PIDF values for turret ---------------
-    public static double kP = 0.008;
-    public static double kI = 0.001;
+    public static double kP = .01;
+    public static double kI = 0.0001;
     public static double kD = 0.002;
-    public static double kF = 0.04;
+    public static double kF = 0.032;
     //    public static double kP = 0.004;
 //    public static double kI = 0.001;//.0005
 //    public static double kD = 0.005;

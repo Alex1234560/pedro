@@ -27,6 +27,8 @@ public class CleanTeleop extends OpMode {
     //private Servo ServoShooter1;
     //private Servo ReadyToShootServo;
 
+    public static double PowerValueForPreloading = 0.12;
+
     private static double ShooterAngle = FunctionsAndValues.startPoint;
     //setting up motors and time
     private ElapsedTime runtime = new ElapsedTime();
@@ -66,7 +68,7 @@ public class CleanTeleop extends OpMode {
 
     //declaring button globally
     //private boolean autoAimButton = false;
-    public static boolean AutoAim = true;
+    private static boolean UseOdosForSpeedAndDistance = true;
     public static boolean start_program_witouth_auto_first = true;
 
     private TurretRotation turretRotation = new TurretRotation();
@@ -152,18 +154,23 @@ public class CleanTeleop extends OpMode {
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose);
 
-        if (AutoAim){
+        if (UseOdosForSpeedAndDistance){
             double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
             hood.SetPosition(turretGoals[0]);
             shooter.setFlywheelTPS(turretGoals[1]);
-
-
-            turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         }
+        else if (camera.getRange()!=-1){
+            double[] turretGoals = FAndV.handleShootingRanges(camera.getRange());// remove -4 in the future
+            hood.SetPosition(turretGoals[0]);
+            shooter.setFlywheelTPS(turretGoals[1]);
+        }
+        turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
 
 
-        if (gamepad2.bWasPressed()) {AutoAim = true;}
-        if (gamepad2.aWasPressed()) {AutoAim = false;}
+        if (gamepad2.bWasPressed()) {
+            UseOdosForSpeedAndDistance = true;}
+        if (gamepad2.aWasPressed()) {
+            UseOdosForSpeedAndDistance = false;}
 
         handleDriving();
         handleIntakeAndShootingButtons();
@@ -200,9 +207,9 @@ public class CleanTeleop extends OpMode {
         telemetryM.addData("Is Turret Finished Rotating " ,turretRotation.isTurretFinishedRotating());
 
         //telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
-        //telemetryM.addData("Bearing " ,camera.getBearing());
-        //telemetryM.addData("Yaw " ,camera.getYaw());
-        //telemetryM.addData("Distance  " ,camera.getRange());
+        telemetryM.addData("Bearing " ,camera.getBearing());
+        telemetryM.addData("Yaw " ,camera.getYaw());
+        telemetryM.addData("Distance  " ,camera.getRange());
 
 
         telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
@@ -214,6 +221,7 @@ public class CleanTeleop extends OpMode {
     }
     private void handleIntakeAndShootingButtons() {
         //BACK button reversing.
+        boolean IntakeReversing = gamepad2.left_bumper;
         if (gamepad2.back){
             Reversing=true;
         }
@@ -225,12 +233,12 @@ public class CleanTeleop extends OpMode {
         if (Math.abs(gamepad1.left_trigger) > Math.abs(gamepad2.left_trigger)){
             IntakePowerValue = Math.abs(gamepad1.left_trigger);
         }
-        if (Math.abs(gamepad2.right_trigger) > Math.abs(gamepad2.left_trigger) && !Reversing){
+        if (Math.abs(gamepad2.right_trigger) > Math.abs(gamepad2.left_trigger)){
             IntakePowerValue = Math.abs(gamepad2.right_trigger);
         }
 
-        if (Reversing){
-            intake.intakeOn(-IntakePowerValue,1);
+        if (IntakeReversing){
+            intake.intakeOn(-1,1);
         }
         else if(IntakePowerValue!=0){
             intake.intakeOn(IntakePowerValue,1);
@@ -245,7 +253,7 @@ public class CleanTeleop extends OpMode {
 
         boolean Trigger = gamepad2.right_trigger>0;
 
-        if (Reversing && Trigger){shooter.SpinBallFeeder(-1);}
+        if (Reversing){shooter.SpinBallFeeder(-1);}
 
         else if (Trigger && shooter.IsFlywheelUpToSpeed() && turretRotation.isTurretFinishedRotating()){
             shooter.SpinBallFeeder(1);
@@ -257,7 +265,7 @@ public class CleanTeleop extends OpMode {
 
         //so that any button that intakes can spin ball feeder
         else if (IntakePowerValue>0 && !distanceSensor.IsBallDetected()){
-            shooter.SpinBallFeeder(1); // power less so that it doesnt pass the point it needs to go to and get shot
+            shooter.SpinBallFeeder(PowerValueForPreloading); // power less so that it doesnt pass the point it needs to go to and get shot
         }
 
         else{shooter.SpinBallFeeder(0);}
@@ -327,12 +335,12 @@ public class CleanTeleop extends OpMode {
         // Initialize shooterAngle with the servo's current position to start.
         // This ensures it always has a value.
 
-        if (AutoAim==false) {
-
-            ShooterAngle -= gamepad2.left_stick_y / 22;
-            hood.SetPosition(ShooterAngle);
-            telemetry.addData("ServoAngle ", ShooterAngle);
-        }
+//        if (AutoAim ==false) {
+//
+//            ShooterAngle -= gamepad2.left_stick_y / 22;
+//            hood.SetPosition(ShooterAngle);
+//            telemetry.addData("ServoAngle ", ShooterAngle);
+//        }
     }
     private void handleFlywheel(){
 
