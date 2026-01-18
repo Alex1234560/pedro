@@ -55,8 +55,6 @@ public class CleanTeleop extends OpMode {
 
     private boolean IsRed = false;
 
-
-
     private Pose GoalLocationPose, StartingPosition;
 
 
@@ -167,56 +165,46 @@ public class CleanTeleop extends OpMode {
         if (gamepad2.bWasPressed()) {AutoAim = true;}
         if (gamepad2.aWasPressed()) {AutoAim = false;}
 
-
         handleDriving();
         handleIntakeAndShootingButtons();
         handleShooterServos();
         TelemetryStatements();
-
         handleFlywheel();
 
-        if (gamepad2.back){
-            Reversing=true;
-        }
-        else{Reversing=false;}
 
 
-    }
 
-    @Override
-    public void stop(){
     }
 
     private void TelemetryStatements(){
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
-        telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
+        //telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
         telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPose));
 
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
-        telemetryM.addData("Hood Angle", hood.getPosition());
+        //telemetryM.addData("Hood Angle", hood.getPosition());
 
-        telemetryM.addData("Distance Sensor value: ", distanceSensor.GetDistance());
+        //telemetryM.addData("Distance Sensor value: ", distanceSensor.GetDistance());
 
-        telemetryM.addData("-360 turret angle?", turretRotation.IsTurretPastAnglePos());
         telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
         telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
+        telemetryM.addData("Turret Offset: ", Math.round(TurretRotation.turret_offset));
+
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
-        telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
+        //telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
         //telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
         //telemetryM.addData("Debugging angle Compensation" ,Math.round(turretRotation.DebugGetAngleCompensation()));
 
-        telemetryM.addData("IsRed?" ,IsRed);
+        //telemetryM.addData("IsRed?" ,IsRed);
         //for tuning purposes for auto
         telemetryM.addData("Is Turret Finished Rotating " ,turretRotation.isTurretFinishedRotating());
 
-        telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
-        telemetryM.addData("Bearing " ,camera.getBearing());
-        telemetryM.addData("Yaw " ,camera.getYaw());
-        telemetryM.addData("Distance  " ,camera.getRange());
+        //telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
+        //telemetryM.addData("Bearing " ,camera.getBearing());
+        //telemetryM.addData("Yaw " ,camera.getYaw());
+        //telemetryM.addData("Distance  " ,camera.getRange());
 
-        //telemetry.addData("x", follower.getPose().getX());
-        //telemetry.addData("y", follower.getPose().getY());
-        //telemetry.update();
+
         telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
         telemetryM.debug("y:" + Math.round(follower.getPose().getY()));
         telemetryM.debug("heading:" + Math.round(Math.toDegrees(follower.getPose().getHeading())));
@@ -225,7 +213,11 @@ public class CleanTeleop extends OpMode {
 
     }
     private void handleIntakeAndShootingButtons() {
-
+        //BACK button reversing.
+        if (gamepad2.back){
+            Reversing=true;
+        }
+        else{Reversing=false;}
 
         //intaking
 
@@ -269,8 +261,6 @@ public class CleanTeleop extends OpMode {
         }
 
         else{shooter.SpinBallFeeder(0);}
-
-
 
     }
     private void handleDriving() {
@@ -354,6 +344,4 @@ public class CleanTeleop extends OpMode {
         else{shooter.TurnFlywheelOff();}
 
     }
-
-
 }

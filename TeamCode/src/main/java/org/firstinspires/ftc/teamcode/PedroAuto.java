@@ -312,6 +312,8 @@ public class PedroAuto extends OpMode {
         shooter.setFlywheelTPS(turretGoals[1]);
 
         //turret.handleBearing(camera.getBearing());
+        telemetry.addData("Target angle: ", turretRotation.GetTargetAngle());
+        telemetry.addData("Turret Offset", turretRotation.turret_offset);
         telemetry.addData("Shots Remaining", shooter.GetShotsRemaining());
         telemetry.addData("Path State", pathState.toString());
         telemetry.addData("x", follower.getPose().getX());

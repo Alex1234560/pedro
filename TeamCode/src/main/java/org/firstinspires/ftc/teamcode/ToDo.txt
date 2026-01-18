@@ -7,11 +7,12 @@
 
 
 ----------- Medium Priority ----------
+-- make the button to activate intake, the one on top called bumper dispense extra balls that are grabbed during intaking.
 - fix the distance sensor mechanism not working super well. ( tune the CHANGE_POINT Variable in distanceSensorClass )
 - test AUTO
 - FIX auto parking, its rlly slow, and vibrates a lot.
 - make a shoot button instead of a shoot trigger.
-- make everything manually adjustable in case of trouble.
+- make everything manually adjustable in case of trouble && base distance off of camera when possible.
 
 -------- tips for making auto faster --------
 - Intake balls at speed 1 not 0.5

@@ -55,9 +55,14 @@ public class TurretRotation {
     private double actual_target_angle = 0;// these is the variable used to tell the turret what angle we want.
     private double angle_calculated_for_tracking_goal = 0;// this angle comes from the function getAngleFromTwoPoints
     private double camera_bearing_offset = 0;
-    private double turret_offset = 0;
+    public static double turret_offset = 0;
 
     private boolean is_turret_being_centered;
+
+    public static double actualTargetAngleBeforeLoopStarts;
+    public static double actualTargetAngleInTheMiddle;
+    public static double actualTargetAngleAtTheEnd;
+
 
 
     // ---------- PIDF values for turret ---------------
@@ -79,6 +84,11 @@ public class TurretRotation {
 
 
     public void init(HardwareMap hardwareMap){
+
+        //added line to see if i thelps
+        turret_offset=0;
+
+
         is_turret_being_centered=false;
         TurretRotatorMotor = hardwareMap.get(DcMotorEx.class, "TurretRotator");
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -89,9 +99,9 @@ public class TurretRotation {
 
             boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
             boolean is_turret_past_angle_neg = IsTurretPastAngleNeg();
+            actualTargetAngleBeforeLoopStarts = actual_target_angle;
 
             double_robot_angle_deg =  RobotAngleDeg;
-
 
             double current_position = GetCurrentPosTicks();// telemetry
             double current_velocity = GetCurrentVel();// telemetry
@@ -119,9 +129,12 @@ public class TurretRotation {
                 actual_target_angle += angle_calculated_for_tracking_goal;
             }
 
-            //limit handler that is working horrible
+            actualTargetAngleInTheMiddle = actual_target_angle;
 
-              if (is_turret_past_angle_pos){
+
+
+
+            if (is_turret_past_angle_pos){
                   turret_offset-=(180);
             }
             if (is_turret_past_angle_neg){
@@ -132,7 +145,6 @@ public class TurretRotation {
             if (is_turret_being_centered){
                 actual_target_angle=0;
             }
-
 
 
             double goal_tick_pos = (FULL_TURN / 360) * actual_target_angle; // gives us our target ticks value off of values we have
@@ -175,6 +187,10 @@ public class TurretRotation {
             // ---------- setting power to motor -----------
             if (MOTOR_ACTIVE) {TurretRotatorMotor.setPower(newPower);}
             else{TurretRotatorMotor.setPower(0);}
+
+
+            actualTargetAngleAtTheEnd = actual_target_angle;
+
         }
 
     // --------------- functions to return simple values ----------
