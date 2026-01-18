@@ -97,8 +97,7 @@ public class TurretRotation {
 
     public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose, Pose initPose){
 
-            boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
-            boolean is_turret_past_angle_neg = IsTurretPastAngleNeg();
+
             actualTargetAngleBeforeLoopStarts = actual_target_angle;
 
             double_robot_angle_deg =  RobotAngleDeg;
@@ -132,13 +131,14 @@ public class TurretRotation {
             actualTargetAngleInTheMiddle = actual_target_angle;
 
 
-
+            boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
+            boolean is_turret_past_angle_neg = IsTurretPastAngleNeg();
 
             if (is_turret_past_angle_pos){
-                  turret_offset-=(180);
+                  turret_offset-=(360);
             }
             if (is_turret_past_angle_neg){
-                turret_offset+=(180);
+                turret_offset+=(360);
             }
 
             // this is for cenetring at the end of auto, and passing onto teleop
