@@ -40,5 +40,6 @@ so that the turret points to the goal and not to
 the tag
 
  ------ BEFORE COMP -------
+- test auto - teleop transition
  - BUG CHECK
  - Take photos of configuration in case it gets deleted
