@@ -21,7 +21,6 @@ base distance measurement off of turret with offset, not center of robot.
 
 - --- ---- Low Priority ---------
 - try using integrated PIDF instead of costum, makes code cleaner
-- Right now I changed the speed tolerance for shooting, since by the time the ball gets to the shooter it is already up to speed, we need a better way to do it since recovering times will be longer at the back, and it wont work as well.
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
 - adjust PIDF so that correction back to the right place is more aggresive and works better ( Driving ).
 - Adjust PIDF for shooter if neccesary.
