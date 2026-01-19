@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
-
 public class Coordinates {
 
     // BLUE POSES ARE DEFAULT, THESE ARE BLUE side POSES
     public static final double StartingRobotAngleDeg = 144;
-//    public static final double GOAL_X = 12.5;
-//    public static final double GOAL_Y = 136.5;
+//    public static final double GOAL_X = 8;
+//    public static final double GOAL_Y = 136;
 
     public static final double GOAL_X = 8;
     public static final double GOAL_Y = 136;
+
 
 
     public static final double GOAL_X_FOR_DISTANCE = 16;
@@ -38,5 +38,19 @@ public class Coordinates {
             return oAng;
         }
     }
+
+    public double[] rotatePoint(double px, double py, double pivotX, double pivotY, double angleRadians) {
+        double dx = px - pivotX;
+        double dy = py - pivotY;
+
+        double cosA = Math.cos(angleRadians);
+        double sinA = Math.sin(angleRadians);
+
+        double rx = dx * cosA - dy * sinA;
+        double ry = dx * sinA + dy * cosA;
+
+        return new double[] {rx+pivotX, ry+pivotY};
+
+  }
 
 }

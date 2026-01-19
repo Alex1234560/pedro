@@ -15,12 +15,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.onbotjava.handlers.admin.Clean;
 import org.firstinspires.ftc.teamcode.CleanTeleop;
+import org.firstinspires.ftc.teamcode.Coordinates;
 import org.firstinspires.ftc.teamcode.FunctionsAndValues;
 import org.firstinspires.ftc.teamcode.PedroAuto;
 
 @Configurable
 public class TurretRotation {
     private FunctionsAndValues FAndV = new FunctionsAndValues();
+    private Coordinates Cords = new Coordinates();
 
     private DcMotorEx TurretRotatorMotor = null;
 
@@ -58,6 +60,10 @@ public class TurretRotation {
     public static double turret_offset = 0;
 
     private boolean is_turret_being_centered;
+
+    public static boolean COMPENSATE_FOR_TURRET_OFFSET = true;
+    public static double[] TurretOffsetINCHESXY = {-2.85244094,2.536};
+    public static double OffsetExtraRotation = 0;
 
 
 
@@ -116,8 +122,21 @@ public class TurretRotation {
                 actual_target_angle+= camera_bearing_offset;
             }
 
+            double turret_x = robotPose.getX();
+            double turret_y = robotPose.getY();
 
-            angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), robotPose.getX(), robotPose.getY());
+
+            if (COMPENSATE_FOR_TURRET_OFFSET) {
+                double BeforeRotX= turret_x+TurretOffsetINCHESXY[0];
+                double BeforeRotY= turret_y+TurretOffsetINCHESXY[1];
+
+                double[] RotatedCords = Cords.rotatePoint(BeforeRotX, BeforeRotY, turret_x, turret_y, Math.toRadians(RobotAngleDeg+OffsetExtraRotation));
+
+                turret_x = RotatedCords[0];
+                turret_y = RotatedCords[1];
+            }
+
+            angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), turret_x, turret_y);
 
             if (TRACK_GOAL){
                 actual_target_angle += angle_calculated_for_tracking_goal;
@@ -153,25 +172,15 @@ public class TurretRotation {
             // -------------- LOGIC FOR NO SUDDEN DIRECTION CHANGE -------------------  -----
 
             double TurretLastPower = TurretRotatorMotor.getPower();
+
             if (LIMIT_VELOCITY_SWITCHES){
 
                 double sign = 0;
-                if (newPower != 0) {
-                    sign = newPower / Math.abs(newPower);
-                }
-                ;
+                if (newPower != 0) {sign = newPower / Math.abs(newPower);}
                 double lastSign = 0;
+                if (TurretLastPower != 0) {lastSign = TurretLastPower / Math.abs(TurretLastPower);}
 
-                if (TurretLastPower != 0) {
-                    lastSign = TurretLastPower / Math.abs(TurretLastPower);
-                }
-
-                if (Math.abs(current_velocity) > DONT_SWITCH_VALUE) {
-                    if (sign != lastSign && sign != 0) {
-                        newPower = 0;
-                    }
-                }
-
+                if (Math.abs(current_velocity) > DONT_SWITCH_VALUE) {if (sign != lastSign && sign != 0) {newPower = 0;}}
             }
 
             if (LIMIT_MAX_SPEED){
@@ -182,7 +191,6 @@ public class TurretRotation {
             // ---------- setting power to motor -----------
             if (MOTOR_ACTIVE) {TurretRotatorMotor.setPower(newPower);}
             else{TurretRotatorMotor.setPower(0);}
-
 
         }
 
@@ -235,7 +243,7 @@ public class TurretRotation {
                 if (bearing_with_yaw > ERROR_MARGIN){
                     camera_bearing_offset += changeValue;
                 }
-                if (bearing_with_yaw < ERROR_MARGIN){
+                if (bearing_with_yaw < -ERROR_MARGIN){
                     camera_bearing_offset -=changeValue ;
                 }
 
