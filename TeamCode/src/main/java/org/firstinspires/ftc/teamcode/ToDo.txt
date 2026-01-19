@@ -1,7 +1,7 @@
 
  -------- High Priority -------
-make auto more efficient by preloading.
-
+make auto more efficient by preloading when moving to shoot.
+base distance measurement off of turret with offset, not center of robot.
 
 ----------- Medium Priority ----------
 - test AUTO
