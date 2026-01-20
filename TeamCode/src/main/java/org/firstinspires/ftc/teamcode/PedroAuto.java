@@ -283,7 +283,6 @@ public class PedroAuto extends OpMode {
 
     }
 
-
     @Override
     public void start() {
         autoTimer.resetTimer();
@@ -300,7 +299,7 @@ public class PedroAuto extends OpMode {
     public void loop(){
         LastPoseRecorded = follower.getPose();
 
-        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPoseForDistance);
+        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance);
 
         camera.update();
         follower.update();

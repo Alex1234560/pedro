@@ -1,13 +1,15 @@
 
  -------- High Priority -------
-make auto more efficient by preloading when moving to shoot.
-base distance measurement off of turret with offset, not center of robot.
+- make auto more efficient by preloading when moving to shoot.
+- base distance measurement off of turret with offset, not center of robot.
+- make telemetry good for drivers not tuning or debugging.
+- switch processing for turret from degrees to radians for more precise measurements.
+- FIX auto parking, its rlly slow, and vibrates a lot.
+- when shooting besides other goal, theres a point where trig gets confused adn starts vibrating turret.
 
 ----------- Medium Priority ----------
 - test AUTO
-- FIX auto parking, its rlly slow, and vibrates a lot.
 - make a shoot button instead of a shoot trigger.
-- when shooting besides other goal, theres a point where trig gets confused adn starts vibrating turret.
 - base distance off of camera when possible.
 
 -------- tips for making auto faster --------

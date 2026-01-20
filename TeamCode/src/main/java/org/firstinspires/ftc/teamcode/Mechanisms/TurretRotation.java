@@ -13,11 +13,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.onbotjava.handlers.admin.Clean;
-import org.firstinspires.ftc.teamcode.CleanTeleop;
 import org.firstinspires.ftc.teamcode.Coordinates;
 import org.firstinspires.ftc.teamcode.FunctionsAndValues;
-import org.firstinspires.ftc.teamcode.PedroAuto;
 
 @Configurable
 public class TurretRotation {
@@ -48,8 +45,6 @@ public class TurretRotation {
     public static double FULL_TURN = 1666;// ticks that make a full turn
 
     // ----- this are the limits that makes teh turret rotate in the opposite direction to not cross any cables -----
-//    public static double SWITCH_ANGLE_POS = 190;
-//    public static double SWITCH_ANGLE_NEG = -180;
     public static double SWITCH_ANGLE_POS = 10;
     public static double SWITCH_ANGLE_NEG = -360;
 
@@ -62,8 +57,14 @@ public class TurretRotation {
     private boolean is_turret_being_centered;
 
     public static boolean COMPENSATE_FOR_TURRET_OFFSET = true;
+    //public static double[] TurretOffsetINCHESXY = {2.85244094,-2.536};
     public static double[] TurretOffsetINCHESXY = {-2.85244094,2.536};
-    public static double OffsetExtraRotation = 0;
+    public static double SIGN_MULTIPLIER_ROBOT_ANGLE_OFFSET = 1;
+
+    private double turret_x;
+    private double turret_y;
+
+
 
 
 
@@ -98,39 +99,35 @@ public class TurretRotation {
         //TurretRotatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void update(double RobotAngleDeg, Pose robotPose, Pose goalPose, Pose initPose){
+    public void update(double TotalRotation, Pose robotPose, Pose goalPose, Pose initPose){
 
 
-            double_robot_angle_deg =  RobotAngleDeg;
+            double_robot_angle_deg =  TotalRotation + Math.toDegrees(initPose.getHeading());
 
             double current_position = GetCurrentPosTicks();// telemetry
             double current_velocity = GetCurrentVel();// telemetry
 
             actual_target_angle = 0;
 
-//            if (!PedroAuto.DidAutoGoToEnd && !CleanTeleop.start_program_witouth_auto_first){
-//                actual_target_angle+=180;
-//            }
-
             actual_target_angle+=turret_offset;
 
             if (AUTO_ROTATE) {
-                actual_target_angle -= double_robot_angle_deg + Math.toDegrees(initPose.getHeading());
+                actual_target_angle -= double_robot_angle_deg;
             }
 
             if (USE_CAMERA_BEARING){
                 actual_target_angle+= camera_bearing_offset;
             }
 
-            double turret_x = robotPose.getX();
-            double turret_y = robotPose.getY();
-
+            turret_x = robotPose.getX();
+            turret_y = robotPose.getY();
 
             if (COMPENSATE_FOR_TURRET_OFFSET) {
+
                 double BeforeRotX= turret_x+TurretOffsetINCHESXY[0];
                 double BeforeRotY= turret_y+TurretOffsetINCHESXY[1];
 
-                double[] RotatedCords = Cords.rotatePoint(BeforeRotX, BeforeRotY, turret_x, turret_y, Math.toRadians(RobotAngleDeg+OffsetExtraRotation));
+                double[] RotatedCords = Cords.rotatePoint(BeforeRotX, BeforeRotY, turret_x, turret_y, Math.toRadians(double_robot_angle_deg*SIGN_MULTIPLIER_ROBOT_ANGLE_OFFSET));
 
                 turret_x = RotatedCords[0];
                 turret_y = RotatedCords[1];
@@ -141,8 +138,6 @@ public class TurretRotation {
             if (TRACK_GOAL){
                 actual_target_angle += angle_calculated_for_tracking_goal;
             }
-
-
 
 
             boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
@@ -260,8 +255,8 @@ public class TurretRotation {
             }
     }
 
-    public double GetDistanceFromGoal(Pose robotPose, Pose goalPose){
-        return FAndV.distance(robotPose.getX(), robotPose.getY(), goalPose.getX(), goalPose.getY());
+    public double GetDistanceFromGoal(Pose goalPose){
+        return FAndV.distance(turret_x, turret_y, goalPose.getX(), goalPose.getY());
     }
 
     public void CalibrateTurretToCenter(){

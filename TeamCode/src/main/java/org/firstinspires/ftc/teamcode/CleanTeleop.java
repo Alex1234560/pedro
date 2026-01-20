@@ -150,13 +150,16 @@ public class CleanTeleop extends OpMode {
     @Override
     public void loop(){
 
+
+
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
         camera.update();
         follower.update();
         shooter.update();
         distanceSensor.update();
 
-        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPoseForDistance);
+
+        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance );
 
         // ----- everything below for manually adjustable values -----
         if (gamepad2.start && gamepad2.dpadUpWasPressed() || gamepad2.start && gamepad2.dpadDownWasPressed()){
@@ -206,10 +209,6 @@ public class CleanTeleop extends OpMode {
         //handleShooterServos();
         TelemetryStatements();
         handleFlywheel();
-
-
-
-
     }
 
     private void TelemetryStatements(){
@@ -217,15 +216,15 @@ public class CleanTeleop extends OpMode {
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
         telemetryM.addData("Turret Goal Speed ", FlywheelLogic.TARGET_FLYWHEEL_TPS);
-        telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(follower.getPose(), GoalLocationPoseForDistance));
+        telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance));
 
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
         telemetryM.addData("Hood Angle", hood.getPosition());
 
         //telemetryM.addData("Distance Sensor value: ", distanceSensor.GetDistance());
 
-        //telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
-        //telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
+        telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
+        telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
         //telemetryM.addData("Turret Offset: ", Math.round(TurretRotation.turret_offset));
 
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
