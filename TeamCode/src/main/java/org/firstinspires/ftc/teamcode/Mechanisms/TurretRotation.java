@@ -275,7 +275,7 @@ public class TurretRotation {
         double angleRad = Math.atan2(dy, dx);          // -180..180
         double angleDeg = Math.toDegrees(angleRad);
 
-        //angleDeg += AUTO_AIMING_TURRET_OFFSET_FOR_TELEOP_REMOVE_IN_FUTURE;         // account for turret mount
+        // this could fix the trouble point on one side: angleDeg = (angleDeg + 360) % 360;
         return angleDeg;
 }
 

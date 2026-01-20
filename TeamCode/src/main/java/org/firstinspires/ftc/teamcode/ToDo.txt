@@ -1,9 +1,7 @@
 
  -------- High Priority -------
 - make auto more efficient by preloading when moving to shoot.
-- base distance measurement off of turret with offset, not center of robot.
 - make telemetry good for drivers not tuning or debugging.
-- switch processing for turret from degrees to radians for more precise measurements.
 - FIX auto parking, its rlly slow, and vibrates a lot.
 - when shooting besides other goal, theres a point where trig gets confused adn starts vibrating turret.
 
@@ -22,6 +20,7 @@
 - try turret motor with Breaking behaviour at power 0.
 
 - --- ---- Low Priority ---------
+- switch processing for turret from degrees to radians for more precise measurements.
 - try using integrated PIDF instead of costum, makes code cleaner
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
 - adjust PIDF so that correction back to the right place is more aggresive and works better ( Driving ).
