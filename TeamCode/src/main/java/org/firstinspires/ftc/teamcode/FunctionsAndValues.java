@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 public class FunctionsAndValues {
 
     private static double BackRangeStart = 100;
-    private static double FrontRangeStart = 13;
+    private static double FrontRangeStart = 15;
     public static double OffsetForShootingAlgorithmRemoveLater=0;
 
     //public static double After90ChangeInAngle = 0; // was -3
@@ -59,47 +59,25 @@ public class FunctionsAndValues {
         return Math.hypot(dx, dy);   // safer and avoids overflow
     }
 
-    public double[] handleShootingRangesForWebcam(double range) {
+    public double[] handleShootingRanges(double range) {
         double[] turretGoals = new double[2];
         double targAngle = 0;
         double targSpeed = 0;
 
         //double targAngle = (0.00493055 * range) + 0.243814;
+
+
         if (range<BackRangeStart) {
              targAngle = (0.00729122 * range) + 0.0887001;
              targSpeed = (6.94554 * range) + 850.3396;
-        }else{
+        }
+        else{
             targAngle=.9;
             targSpeed = 4.78571*range+1009.28571; // Alexs house measurement
+            //targSpeed = (6.15554*range)+839.5422; One used in odometry pod class before.
         }
 
-        //normalize
-        if (targSpeed>2500){targSpeed=2500;}
-        if (targSpeed<0){targSpeed=0;}
-
-
-        turretGoals[0] = targAngle;
-        turretGoals[1] = targSpeed;
-        return turretGoals;
-    }
-
-    public double[] handleShootingRangesForOdometry(double range) {
-        double[] turretGoals = new double[2];
-        double targAngle = 0;
-        double targSpeed = 0;
-
-        //double targAngle = (0.00493055 * range) + 0.243814;
-        if (range <FrontRangeStart){
-            targAngle = ShooterAngle.START_POINT;
-            targSpeed = 1090;
-        }
-        else if (range<BackRangeStart) {
-            targAngle = (0.00729122 * range) + 0.0887001;
-            targSpeed = (6.94554 * range) + 850.3396;
-        }else{
-            targAngle=.9;
-            targSpeed = (6.15554*range)+839.5422;
-        }
+        if (range<FrontRangeStart){targAngle = ShooterAngle.START_POINT;}
 
         //normalize
         if (targSpeed>2500){targSpeed=2500;}

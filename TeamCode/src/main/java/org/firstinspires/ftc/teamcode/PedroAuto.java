@@ -308,7 +308,7 @@ public class PedroAuto extends OpMode {
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
-        double[] turretGoals = FAndV.handleShootingRangesForWebcam(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
+        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
 

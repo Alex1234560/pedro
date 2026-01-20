@@ -185,12 +185,12 @@ public class CleanTeleop extends OpMode {
         // --------------------------------------------------- /
 
         else if (UseOdosForSpeedAndDistance){
-            double[] turretGoals = FAndV.handleShootingRangesForOdometry(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
+            double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
             hood.SetPosition(turretGoals[0]);
             shooter.setFlywheelTPS(turretGoals[1]);
         }
         else if (camera.getRange()!=-1){
-            double[] turretGoals = FAndV.handleShootingRangesForWebcam(camera.getRange());// remove -4 in the future
+            double[] turretGoals = FAndV.handleShootingRanges(camera.getRange());// remove -4 in the future
             hood.SetPosition(turretGoals[0]);
             shooter.setFlywheelTPS(turretGoals[1]);
         }
