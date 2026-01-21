@@ -227,7 +227,7 @@ public class CleanTeleop extends OpMode {
         //telemetryM.addData("Distance Sensor value: ", distanceSensor.GetDistance());
 
         telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
-        telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
+        //telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
         //telemetryM.addData("Turret Offset: ", Math.round(TurretRotation.turret_offset));
 
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
@@ -241,14 +241,14 @@ public class CleanTeleop extends OpMode {
 
         //telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
         telemetryM.addData("Bearing " ,camera.getBearing());
-        telemetryM.addData("Yaw " ,camera.getYaw());
-        telemetryM.addData("Distance (camera) " ,camera.getRange());
+        //telemetryM.addData("Yaw " ,camera.getYaw());
+        //telemetryM.addData("Distance (camera) " ,camera.getRange());
 
 
         telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
         telemetryM.debug("y:" + Math.round(follower.getPose().getY()));
         telemetryM.debug("heading:" + Math.round(Math.toDegrees(follower.getPose().getHeading())));
-        telemetryM.debug("total heading:" + Math.round(Math.toDegrees(follower.getTotalHeading())));
+        //telemetryM.debug("total heading:" + Math.round(Math.toDegrees(follower.getTotalHeading())));
         telemetryM.update(telemetry);
 
     }
@@ -313,7 +313,7 @@ public class CleanTeleop extends OpMode {
         double yaw = -gamepad1.right_stick_x * speed;
 
         //parking precisly
-        double baseValue = 0;
+        double baseValue = 0.05;
 
         if (gamepad1.dpad_right){lateral= -baseValue + speed/3;}
         if (gamepad1.dpad_left){lateral= +baseValue- speed/3;}

@@ -4,7 +4,6 @@
 - make camera offseting good.
 - emtpy classifier in FrontAuto
 
-
 ----------- Medium Priority ----------
 - test back auto
 - test AUTO
