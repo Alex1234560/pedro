@@ -13,8 +13,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.Coordinates;
-import org.firstinspires.ftc.teamcode.FunctionsAndValues;
+import org.firstinspires.ftc.teamcode.Functions.Coordinates;
+import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 
 @Configurable
 public class TurretRotation {

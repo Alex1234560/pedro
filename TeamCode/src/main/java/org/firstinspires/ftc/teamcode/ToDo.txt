@@ -2,9 +2,11 @@
  -------- High Priority -------
 - make telemetry good for drivers not tuning or debugging.
 - make camera offseting good.
-- shooting around 90.
+- emtpy classifier in FrontAuto
+
 
 ----------- Medium Priority ----------
+- test back auto
 - test AUTO
 - make a shoot button instead of a shoot trigger.
 - base distance off of camera when possible.

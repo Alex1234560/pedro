@@ -12,6 +12,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Functions.Coordinates;
+import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
+import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
@@ -100,13 +104,13 @@ public class CleanTeleop extends OpMode {
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
 
         if (start_program_witouth_auto_first){
-            StartingPosition = new Pose(Cords.xFlip(Coordinates.START_X, IsRed), Coordinates.START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
+            StartingPosition = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
         }
         else{
-            StartingPosition = PedroAuto.LastPoseRecorded;
+            StartingPosition = AutoFunctions.LastPoseRecorded;
         }
 
-        if (start_program_witouth_auto_first){//(PedroAuto.DidAutoGoToEnd || start_program_witouth_auto_first){
+        if (start_program_witouth_auto_first){//(AutoFunctions.DidAutoGoToEnd || start_program_witouth_auto_first){
             turretRotation.CalibrateTurretToCenter();
         }
 
@@ -141,7 +145,7 @@ public class CleanTeleop extends OpMode {
         }
 
         else{
-            IsRed = PedroAuto.IsRed;
+            IsRed = AutoFunctions.IsRed;
         }
 
         telemetry.update();

@@ -4,12 +4,15 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.math.Vector;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Functions.Coordinates;
+import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
+import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.DistanceSensorClass;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
@@ -18,11 +21,9 @@ import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
-
-
 @Configurable
 @Autonomous
-public class PedroAuto extends OpMode {
+public class BackAuto extends OpMode {
 
    private Follower follower;
 
@@ -32,7 +33,7 @@ public class PedroAuto extends OpMode {
     //1 == true, 0 == false
     public static boolean IsRed = false;
 
-    public static boolean DidAutoGoToEnd;
+    //public static boolean DidAutoGoToEnd;
 
     public static double PARK_TIME_TRIGGER = 28;
 
@@ -40,6 +41,7 @@ public class PedroAuto extends OpMode {
 
     private DistanceSensorClass distanceSensor = new DistanceSensorClass();
     private Coordinates Cords = new Coordinates();
+    private AutoFunctions autoFunctions = new AutoFunctions();
     private FlywheelLogic shooter = new FlywheelLogic();
     private Intake intake = new Intake();
     private TurretRotation turretRotation = new TurretRotation();
@@ -53,11 +55,11 @@ public class PedroAuto extends OpMode {
 
     public enum PathState{
         // StartPos - EndPos
-        DRIVE_TO_SHOOT_POS,
+        DRIVE_TO_SHOOT_POS_FROM_START,
+        SHOOT,
         DRIVE_TO_INTAKE_POS,
         INTAKE_BALLS,
         DRIVE_BACK_TO_SHOOT,
-        SHOOT,
         FINISHED,
 
         AUTOPARK
@@ -65,19 +67,14 @@ public class PedroAuto extends OpMode {
     PathState pathState;
 
 
-    //for intaking balls where positiion needs to be precise
-    private static double ALLOWED_ERROR_POSITION = 3;
-    private static double ALLOWED_ERROR_VELOCITY = 15;
+
 
     //BallLines
 
-    private final double BALL_LINE_DIFFERENCE = -24;
     private double ball_line_offset;
     private double loop_times;
 
     // -------- everything Poses ---------
-
-
 
 
 
@@ -87,12 +84,12 @@ public class PedroAuto extends OpMode {
 
     //this is to track last pose recorded for TeleOp
     // it is start pose cuz if the code never starts then the last position is the start position :)
-    public static Pose LastPoseRecorded;
+    //public static Pose LastPoseRecorded;
     private static Pose driveToPark;
 
     // ------ these are for use only in this AUTO -------
-    private static  Pose shootPos,shootPos180,intakeStart,intakeEnd;
-    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
+    private static  Pose shootPos,intakeStart,intakeEnd;
+    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos;
 
 
 
@@ -113,60 +110,15 @@ public class PedroAuto extends OpMode {
         }
 
         switch(pathState) {
-            case DRIVE_TO_SHOOT_POS:
-                if(!isStateBusy){
-                    follower.followPath(driveStartToShootPos, 1,false);
+            case DRIVE_TO_SHOOT_POS_FROM_START:
+                if(isStateBusy == false){
+                    follower.followPath(driveStartToShootPos, true);
                     isStateBusy=true;
                 }
-
-                if (isStateBusy &&!follower.isBusy()) {
-                    intake.intakeOn(1,1); // to cycle balls to shooter
-                    shooter.fireShots(3); //change to three
-                    isStateBusy = false;
-                    setPathState(PathState.DRIVE_TO_INTAKE_POS);
-                }
-
-                break;
-
-            case DRIVE_TO_INTAKE_POS:
-
-                if (!shooter.isBusy()){
-                        intake.intakeOff();// to stop cycling balls to shooter.
-                        follower.followPath(driveShootPosToIntake, true);
-                        setPathState(PathState.INTAKE_BALLS);
-                }
-                break;
-
-            case INTAKE_BALLS:
-
-                intake.intakeOn(1,1);
-
-
-                if (isStateBusy == false &&!follower.isBusy()&&isRobotInPosition(intakeStart)){
-                    loop_times +=1;
-                    follower.followPath(driveIntakeForward, .5,true);
-                    isStateBusy = true;
-                }
-
-
-                if (!follower.isBusy() && isStateBusy ==true){
-                    isStateBusy = false;
-                    //intake.intakeOff();
-                    setPathState(PathState.DRIVE_BACK_TO_SHOOT);
-                }
-                break;
-
-            case DRIVE_BACK_TO_SHOOT:
-                if(isStateBusy == false && !follower.isBusy()){
-                    follower.followPath(driveFromIntake1ToShootPos, true);
-                    isStateBusy = true;
-                }
-
-                if (isStateBusy ==true&&!follower.isBusy()){
-                    isStateBusy =false;
+                else if (isStateBusy == true && !follower.isBusy()){
+                    isStateBusy=false;
                     setPathState(PathState.SHOOT);
                 }
-
                 break;
 
             case SHOOT:
@@ -176,26 +128,52 @@ public class PedroAuto extends OpMode {
                     isStateBusy=true;
                 }
 
-                if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>1.5){
-                    isStateBusy =false;
-
-                    if (loop_times >= 3) {
-                        AutoPark();
-                    }
-                    else{
-                        ball_line_offset+=BALL_LINE_DIFFERENCE;
-                        buildPoses();
-                        buildPaths();
-                        setPathState(PathState.DRIVE_TO_INTAKE_POS);
-                    }
+                if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>1){
+                    setPathState(PathState.DRIVE_TO_INTAKE_POS);
                     intake.intakeOff();
+                    isStateBusy=false;
+                }
+                break;
+
+            case DRIVE_TO_INTAKE_POS:
+
+                if (!shooter.isBusy()){
+                    intake.intakeOff();// to stop cycling balls to shooter.
+                    follower.followPath(driveShootPosToIntake, true);
+                    setPathState(PathState.INTAKE_BALLS);
+                }
+
+                break;
+
+            case INTAKE_BALLS:
+
+                if (!follower.isBusy() && !isStateBusy){
+                    intake.intakeOn(1,1);
+                    follower.followPath(driveIntakeForward, true);
+                    isStateBusy = true;
+                }
+                else if (isStateBusy && !follower.isBusy()){
+                    isStateBusy = false;
+                    intake.intakeOff();
+                    setPathState(PathState.DRIVE_BACK_TO_SHOOT);
                 }
 
 
                 break;
+            case DRIVE_BACK_TO_SHOOT:
+                if(isStateBusy == false){
+                    follower.followPath(driveFromIntakeToShootPos, true);
+                    isStateBusy = true;
+                }
+                else if (isStateBusy == true && !follower.isBusy()){
+                    isStateBusy = false;
+                    setPathState(PathState.SHOOT);
+                }
+
+                break;
 
             case FINISHED:
-                DidAutoGoToEnd = true;
+                AutoFunctions.DidAutoGoToEnd = true;
                 break;
 
             case AUTOPARK:
@@ -209,7 +187,7 @@ public class PedroAuto extends OpMode {
                     //follower.setPose(follower.getPose());
 
 
-                    driveToPark = new Pose(Cords.xFlip(25, IsRed), 69, Math.toRadians(Cords.angleFlip(0, IsRed)));
+                    driveToPark = new Pose(Cords.xFlip(47, IsRed), 34, Math.toRadians(Cords.angleFlip(0, IsRed)));
                     Pose currentPose = follower.getPose();
 
 
@@ -224,7 +202,7 @@ public class PedroAuto extends OpMode {
                     isStateBusy = true;
                 }
                 else{
-                    if (turretRotation.isTurretFinishedRotating()) {
+                    if (turretRotation.isTurretFinishedRotating()&&!follower.isBusy()) {
                         isStateBusy = false;
                         setPathState(PathState.FINISHED);
                     }
@@ -253,10 +231,10 @@ public class PedroAuto extends OpMode {
         AutoParkTriggered = false;
         ball_line_offset=0;
         loop_times = 0;
-        DidAutoGoToEnd = false;
 
 
-        pathState = PathState.DRIVE_TO_SHOOT_POS;
+
+        pathState = PathState.DRIVE_TO_SHOOT_POS_FROM_START;
         pathTimer = new Timer();
         opModeTimer = new Timer();
         follower = Constants.createFollower(hardwareMap);
@@ -294,6 +272,8 @@ public class PedroAuto extends OpMode {
 
     @Override
     public void start() {
+        AutoFunctions.IsRed = IsRed;
+        AutoFunctions.DidAutoGoToEnd = false;
         autoTimer.resetTimer();
         buildPoses();
         turretRotation.CalibrateTurretToCenter();
@@ -306,7 +286,7 @@ public class PedroAuto extends OpMode {
 
     @Override
     public void loop(){
-        LastPoseRecorded = follower.getPose();
+        AutoFunctions.LastPoseRecorded = follower.getPose();
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance);
 
@@ -354,43 +334,22 @@ public class PedroAuto extends OpMode {
                 .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
                 .build();
 
-        driveFromIntake1ToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeEnd, shootPos180))
-                .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos180.getHeading())
+        driveFromIntakeToShootPos = follower.pathBuilder()
+                .addPath(new BezierLine(intakeEnd, shootPos))
+                .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos.getHeading())
                 .build();
 
     }
 
     private void buildPoses(){
-        startPose = new Pose(Cords.xFlip(Coordinates.START_X, IsRed), Coordinates.START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
-        shootPos = new Pose(Cords.xFlip(51, IsRed), 83, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeStart = new Pose(Cords.xFlip(51, IsRed), 84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd = new Pose(Cords.xFlip(17, IsRed),  84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
+        shootPos = new Pose(Cords.xFlip(51, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeStart = new Pose(Cords.xFlip(33.89254108723136, IsRed), 12.336283185840703, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(11, IsRed),  11, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
     }
 
-    private boolean isRobotInPosition(Pose GoalPose) {
-        Vector VelocityVector = follower.getVelocity();
-        double vX = VelocityVector.getXComponent();
-        double vY = VelocityVector.getYComponent();
-        double Velocity = Math.hypot(vX, vY);
 
-        boolean isVelocityAcceptable = Velocity <= ALLOWED_ERROR_VELOCITY;
-
-        double dx = GoalPose.getX() - follower.getPose().getX();
-        double dy = GoalPose.getY() - follower.getPose().getY();
-        double difference = Math.hypot(dx, dy);
-
-        boolean isPositionAcceptable = difference <= ALLOWED_ERROR_POSITION;
-
-        if (isPositionAcceptable && isVelocityAcceptable) {
-            return true;
-        } else {
-            return false;
-
-        }
-    }
 }

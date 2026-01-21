@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode; // Make sure this matches your team's package name
+package org.firstinspires.ftc.teamcode.Functions; // Make sure this matches your team's package name
 
 //import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;

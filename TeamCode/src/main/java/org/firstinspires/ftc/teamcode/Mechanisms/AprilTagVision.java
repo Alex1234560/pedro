@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode; // Make sure this matches your team's package name
+package org.firstinspires.ftc.teamcode.Mechanisms; // Make sure this matches your team's package name
 
 //import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;

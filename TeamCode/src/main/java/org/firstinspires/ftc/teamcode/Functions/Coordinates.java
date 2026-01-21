@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Functions;
 
-import com.pedropathing.geometry.Pose;
+import com.bylazar.configurables.annotations.Configurable;
+
+@Configurable
 
 public class Coordinates {
-
-    public static Pose LastPoseRecorded=null;
 
     // BLUE POSES ARE DEFAULT, THESE ARE BLUE side POSES
     public static final double StartingRobotAngleDeg = 144;
@@ -15,8 +15,8 @@ public class Coordinates {
     public static final double GOAL_X_FOR_DISTANCE = 16;
     public static final double GOAL_Y_FOR_DISTANCE = 131;
 
-    public static final double START_X = 17.914;
-    public static final double START_Y = 121.168;
+    public static final double FRONT_START_X = 17.914;
+    public static final double FRONT_START_Y = 121.168;
 
 
     public double xFlip(double oPos, boolean Red){
