@@ -47,6 +47,9 @@ public class FlywheelLogic {
     public static double TARGET_FLYWHEEL_TPS = 1300;
     public static double FLYWHEEL_MAX_SPINUP_TIME = 6;
 
+    private boolean IsBallDetectedAutoBool = true;
+
+
     public void init(HardwareMap hardwareMap) {
         FAndV = new FunctionsAndValues();
 
@@ -154,6 +157,16 @@ public class FlywheelLogic {
                 }
                 break;
 
+
+
+        }
+
+
+        //preee feeding balls.
+        if (BallFeederServo.getPower()==0 && !IsBallDetectedAutoBool){
+            BallFeederServo.setPower(1);
+        }else{
+            BallFeederServo.setPower(0);
         }
     }
 
@@ -183,5 +196,10 @@ public class FlywheelLogic {
     public boolean isBusy() {
         boolean isStateBusy = flywheelState != FlywheelState.IDLE;
         return isStateBusy;
+    }
+
+    //to update variable in auto, not teleop
+    public void updateDistanceSensorValueForAuto(boolean IsBallDetected){
+        IsBallDetectedAutoBool = IsBallDetected;
     }
 }

@@ -1,16 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.pedropathing.geometry.Pose;
+
 public class Coordinates {
+
+    public static Pose LastPoseRecorded=null;
 
     // BLUE POSES ARE DEFAULT, THESE ARE BLUE side POSES
     public static final double StartingRobotAngleDeg = 144;
-//    public static final double GOAL_X = 8;
-//    public static final double GOAL_Y = 136;
 
     public static final double GOAL_X = 8;
     public static final double GOAL_Y = 136;
-
-
 
     public static final double GOAL_X_FOR_DISTANCE = 16;
     public static final double GOAL_Y_FOR_DISTANCE = 131;

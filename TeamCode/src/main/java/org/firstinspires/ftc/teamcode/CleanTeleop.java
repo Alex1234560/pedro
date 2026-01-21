@@ -72,7 +72,6 @@ public class CleanTeleop extends OpMode {
     public static boolean start_program_witouth_auto_first = true;
 
     private TurretRotation turretRotation = new TurretRotation();
-    //private PedroAuto PedroAutoFunctions = new PedroAuto();
 
     private double FlywheelSpeedForTuning = 1000;
 
@@ -107,7 +106,7 @@ public class CleanTeleop extends OpMode {
             StartingPosition = PedroAuto.LastPoseRecorded;
         }
 
-        if (PedroAuto.DidAutoGoToEnd || start_program_witouth_auto_first){
+        if (start_program_witouth_auto_first){//(PedroAuto.DidAutoGoToEnd || start_program_witouth_auto_first){
             turretRotation.CalibrateTurretToCenter();
         }
 
@@ -310,13 +309,14 @@ public class CleanTeleop extends OpMode {
         double yaw = -gamepad1.right_stick_x * speed;
 
         //parking precisly
+        double baseValue = 0;
 
-        if (gamepad1.dpad_right){lateral= +.1;}
-        if (gamepad1.dpad_left){lateral= -.1;}
-        if (gamepad1.dpad_up){axial= +.1;}
-        if (gamepad1.dpad_down){axial= -.1;}
-        if (gamepad1.x){yaw = -.1;}
-        if (gamepad1.b){yaw = +.1;}
+        if (gamepad1.dpad_right){lateral= -baseValue + speed/3;}
+        if (gamepad1.dpad_left){lateral= +baseValue- speed/3;}
+        if (gamepad1.dpad_up){axial= +baseValue+ speed/3;}
+        if (gamepad1.dpad_down){axial= -baseValue- speed/3;}
+        if (gamepad1.x){yaw = -baseValue- speed/3;}
+        if (gamepad1.b){yaw = +baseValue+ speed/3;}
 
         //field centric
 

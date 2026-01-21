@@ -1,9 +1,8 @@
 
  -------- High Priority -------
-- make auto more efficient by preloading when moving to shoot.
 - make telemetry good for drivers not tuning or debugging.
-- FIX auto parking, its rlly slow, and vibrates a lot.
-- when shooting besides other goal, theres a point where trig gets confused adn starts vibrating turret.
+- make camera offseting good.
+- shooting around 90.
 
 ----------- Medium Priority ----------
 - test AUTO

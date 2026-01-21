@@ -10,6 +10,7 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.Mechanisms.DistanceSensorClass;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
@@ -37,7 +38,7 @@ public class PedroAuto extends OpMode {
 
     private Timer pathTimer, opModeTimer;
 
-    // -------- FLYWHEEL SETUP -------
+    private DistanceSensorClass distanceSensor = new DistanceSensorClass();
     private Coordinates Cords = new Coordinates();
     private FlywheelLogic shooter = new FlywheelLogic();
     private Intake intake = new Intake();
@@ -93,16 +94,22 @@ public class PedroAuto extends OpMode {
     private static  Pose shootPos,shootPos180,intakeStart,intakeEnd;
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
 
+
+
     private boolean isStateBusy;
+    private boolean AutoParkTriggered;
 
 
 
-
+    public void AutoPark(){
+        isStateBusy = false;
+        AutoParkTriggered = true;
+        setPathState(PathState.AUTOPARK);
+    }
 
     public void statePathUpdate() {
-        if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER){
-            setPathState(PathState.AUTOPARK);
-            isStateBusy = false;
+        if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER && !AutoParkTriggered){
+            AutoPark();
         }
 
         switch(pathState) {
@@ -173,7 +180,7 @@ public class PedroAuto extends OpMode {
                     isStateBusy =false;
 
                     if (loop_times >= 3) {
-                        setPathState(PathState.FINISHED);
+                        AutoPark();
                     }
                     else{
                         ball_line_offset+=BALL_LINE_DIFFERENCE;
@@ -185,13 +192,14 @@ public class PedroAuto extends OpMode {
                 }
 
 
-                break; // was commented out for some reason
+                break;
 
             case FINISHED:
                 DidAutoGoToEnd = true;
                 break;
 
             case AUTOPARK:
+                PathChain driveToParkPath = null;
                 if (isStateBusy==false) {
                     turretRotation.TurretTo0Deg(true);
                     intake.intakeOff();
@@ -201,10 +209,10 @@ public class PedroAuto extends OpMode {
                     //follower.setPose(follower.getPose());
 
 
-                    driveToPark = new Pose(Cords.xFlip(40, IsRed), 60, Math.toRadians(Cords.angleFlip(180, IsRed)));
+                    driveToPark = new Pose(Cords.xFlip(25, IsRed), 69, Math.toRadians(Cords.angleFlip(0, IsRed)));
                     Pose currentPose = follower.getPose();
 
-                    PathChain driveToParkPath;
+
 
                     driveToParkPath = follower.pathBuilder()
                             .addPath(new BezierLine(currentPose, driveToPark))
@@ -242,6 +250,7 @@ public class PedroAuto extends OpMode {
     public void init(){
         //resseting variables
         isStateBusy=false;
+        AutoParkTriggered = false;
         ball_line_offset=0;
         loop_times = 0;
         DidAutoGoToEnd = false;
@@ -252,7 +261,7 @@ public class PedroAuto extends OpMode {
         opModeTimer = new Timer();
         follower = Constants.createFollower(hardwareMap);
         //We might want follower = new Follower(hardwareMap);, just check this if it doesnt work
-
+        distanceSensor.init(hardwareMap);
         shooter.init(hardwareMap);
         intake.init(hardwareMap);
         turretRotation.init(hardwareMap);
@@ -301,6 +310,8 @@ public class PedroAuto extends OpMode {
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance);
 
+        distanceSensor.update();
+        shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
         camera.update();
         follower.update();
         shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
@@ -352,7 +363,7 @@ public class PedroAuto extends OpMode {
 
     private void buildPoses(){
         startPose = new Pose(Cords.xFlip(Coordinates.START_X, IsRed), Coordinates.START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
-        shootPos = new Pose(Cords.xFlip(59, IsRed), 85, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootPos = new Pose(Cords.xFlip(51, IsRed), 83, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeStart = new Pose(Cords.xFlip(51, IsRed), 84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeEnd = new Pose(Cords.xFlip(17, IsRed),  84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
