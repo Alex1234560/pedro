@@ -135,8 +135,22 @@ public class FunctionsAndValues {
 
     }
 
-
+    public double[] getGoalOffset(double parallelx, double parallely, double perpx, double perpy){
     
+        double StrafeOffset = 0.5;
+        double RangeOffset = 0.5;
+        
+        double StrafeoffsetX = perpx * StrafeOffset;
+        double StrafeoffsetY = perpy * StrafeOffset;
+        
+        double RangeoffsetX = parallelx * RangeOffset;
+        double RangeoffsetY = parallely * RangeOffset;
+        
+
+        return new double[]{StrafeoffsetX, StrafeoffsetY, RangeoffsetX, RangeoffsetY};
+    }
+
+
     public static double getDotProduct(double ax, double ay, double bx, double by) {
         return (ax * bx) + (ay * by);
     }
@@ -171,10 +185,9 @@ public class FunctionsAndValues {
 
         double perpendicularX = velocityVectorX - parallelX;
         double perpendicularY= velocityVectorY - parallelY;
-
-        return new double[]{parallelX, parallelY, perpendicularX, perpendicularY};
+        
+        return getGoalOffset(parallelX, parallelY, perpendicularX, perpendicularY);
     }
-
 
     
     public double GetSpeedAvgFromTwoMotors(double Motor1Speed, double Motor2Speed ){
