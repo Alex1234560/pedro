@@ -99,7 +99,7 @@ public class TurretRotation {
         //TurretRotatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void update(double TotalRotation, Pose robotPose, Pose goalPose, Pose initPose){
+    public void update(double TotalRotation, Pose robotPose, Pose goalPose, Pose initPose, boolean IsRed){
 
 
             double_robot_angle_deg =  TotalRotation + Math.toDegrees(initPose.getHeading());
@@ -133,7 +133,7 @@ public class TurretRotation {
                 turret_y = RotatedCords[1];
             }
 
-            angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), turret_x, turret_y);
+            angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), turret_x, turret_y, IsRed);
 
             if (TRACK_GOAL){
                 actual_target_angle += angle_calculated_for_tracking_goal;
@@ -267,7 +267,7 @@ public class TurretRotation {
 
     }
 
-    public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy) {
+    public double getAngleFromTwoPoints(double goalPosx, double goalPosy, double curPosx, double curPosy, boolean IsRed) {
 
         double dx = goalPosx - curPosx;
         double dy = goalPosy - curPosy;
@@ -275,7 +275,9 @@ public class TurretRotation {
         double angleRad = Math.atan2(dy, dx);          // -180..180
         double angleDeg = Math.toDegrees(angleRad);
 
-        // this could fix the trouble point on one side: angleDeg = (angleDeg + 360) % 360;
+        // this code below is to account for the trig limits, witouth this code, in blue side when it crosses certain line, the angle goes from 180 to -180 making the turret vibrate.
+        if (!IsRed){ angleDeg = ((angleDeg + 360) % 360);}
+
         return angleDeg;
 }
 

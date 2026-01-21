@@ -152,7 +152,7 @@ public class CleanTeleop extends OpMode {
 
 
 
-        turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition);
+        turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition, IsRed);
         camera.update();
         follower.update();
         shooter.update();
