@@ -168,9 +168,6 @@ public class FlywheelLogic {
                     flywheelState = FlywheelState.IDLE;
                 }
                 break;
-
-
-
         }
 
 
