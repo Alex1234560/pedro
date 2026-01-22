@@ -34,6 +34,7 @@ public class FrontAuto extends OpMode {
 
     //1 == true, 0 == false
     public static boolean IsRed = false;
+    public static double WAIT_TO_SHOOT_TIME = 1.5;
 
     //public static boolean DidAutoGoToEnd;
 
@@ -144,7 +145,7 @@ public class FrontAuto extends OpMode {
 
                 if (isStateBusy == false &&!follower.isBusy()&&autoFunctions.isRobotInPosition(intakeStart,follower)){
                     loop_times +=1;
-                    follower.followPath(driveIntakeForward, .5,true);
+                    follower.followPath(driveIntakeForward, .6,true);
                     isStateBusy = true;
                 }
 
@@ -170,7 +171,7 @@ public class FrontAuto extends OpMode {
                 break;
 
             case SHOOT:
-                if(isStateBusy == false){
+                if(isStateBusy == false&& pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
                     intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;

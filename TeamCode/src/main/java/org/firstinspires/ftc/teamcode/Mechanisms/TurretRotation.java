@@ -27,7 +27,7 @@ public class TurretRotation {
     public static double CAMERA_MULTIPLIER_FOR_TURRET_CHANGE = .09;
     public static double CAMERA_STARTING_CHANGE = .003;
 
-    public static double TURRET_AIMING_ALLOWED_ERROR = 4.5;
+    public static double TURRET_AIMING_ALLOWED_ERROR = 2.5;
     //public static double LARGE_VALUE_TO_CHANGE = 1;
 
 
@@ -201,7 +201,7 @@ public class TurretRotation {
     // -------------- complicated functions ------------------
 
     public boolean isTurretFinishedRotating(){
-        double difference = Math.abs(GetCurrentPosDeg()-actual_target_angle);
+        double difference = Math.abs(Math.abs(GetCurrentPosDeg())-Math.abs(actual_target_angle));
         return difference < TURRET_AIMING_ALLOWED_ERROR;
     }
     public boolean IsTurretPastAnglePos(){

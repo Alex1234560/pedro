@@ -33,9 +33,10 @@ public class BackAuto extends OpMode {
     //1 == true, 0 == false
     public static boolean IsRed = false;
 
+
     //public static boolean DidAutoGoToEnd;
 
-    public static double PARK_TIME_TRIGGER = 28;
+    public static double PARK_TIME_TRIGGER = 27;
 
     private Timer pathTimer, opModeTimer;
 
@@ -122,7 +123,7 @@ public class BackAuto extends OpMode {
                 break;
 
             case SHOOT:
-                if(isStateBusy == false){
+                if(isStateBusy == false ){
                     intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;

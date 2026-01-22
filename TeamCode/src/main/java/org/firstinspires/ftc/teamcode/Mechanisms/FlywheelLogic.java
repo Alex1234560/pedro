@@ -139,6 +139,10 @@ public class FlywheelLogic {
                 }
                 break;
             case DETECT_IF_BALL_LAUNCHED:
+                if (!isRobotReadyToShoot || !IsFlywheelUpToSpeed()){
+                    SpinBallFeeder(0);
+                }else{SpinBallFeeder(1);}
+
                 if (stateTimer.seconds() > MAX_SHOOT_BALL_TIME || IsFlywheelSlowedFromShot()) {
                     shotsRemaining -= 1;
                     SpinBallFeeder(0);

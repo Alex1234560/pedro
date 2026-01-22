@@ -215,7 +215,10 @@ public class CleanTeleop extends OpMode {
     }
 
     private void TelemetryStatements(){
+        telemetryM.addData("Turret Finished Rotating?:  ", turretRotation.isTurretFinishedRotating());
         telemetryM.addData("TuningMode?:  ", ManuallyAdjustableValues);
+        telemetryM.addData("Is flywheel up to speed?:  ", shooter.IsFlywheelUpToSpeed());
+
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
         telemetryM.addData("Turret Goal Speed ", FlywheelLogic.TARGET_FLYWHEEL_TPS);
@@ -231,7 +234,7 @@ public class CleanTeleop extends OpMode {
         //telemetryM.addData("Turret Offset: ", Math.round(TurretRotation.turret_offset));
 
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
-        //telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
+        telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
         //telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
         //telemetryM.addData("Debugging angle Compensation" ,Math.round(turretRotation.DebugGetAngleCompensation()));
 
@@ -241,8 +244,8 @@ public class CleanTeleop extends OpMode {
 
         //telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
         telemetryM.addData("Bearing " ,camera.getBearing());
-        //telemetryM.addData("Yaw " ,camera.getYaw());
-        //telemetryM.addData("Distance (camera) " ,camera.getRange());
+        telemetryM.addData("Yaw " ,camera.getYaw());
+        telemetryM.addData("Distance (camera) " ,camera.getRange());
 
 
         telemetryM.debug("x:" + Math.round(follower.getPose().getX()));

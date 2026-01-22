@@ -20,7 +20,7 @@ public class FunctionsAndValues {
     //public static double After90ChangeInAngle = 0; // was -3
 
     // swiched it from 60 to 300 cuz i believe the time it takes for the ball to reach flywheeel it goes up to speed enough to be accurate
-    public static double SpeedToleranceToStartShooting = 50;
+    public static double SpeedToleranceToStartShooting = 20;
 
 
     //public static double AngleToleranceToStartShooting = 2;
@@ -68,12 +68,15 @@ public class FunctionsAndValues {
 
 
         if (range<BackRangeStart) {
-             targAngle = (0.00729122 * range) + 0.0887001;
-             targSpeed = (6.94554 * range) + 850.3396;
+             //targAngle = (0.00729122 * range) + 0.0887001;
+             //targSpeed = (6.94554 * range) + 850.3396;
+            targAngle = (0.00779122 * range) + .121448;
+            targSpeed = (5.64501 * range) + 925.3;
         }
         else{
             targAngle=.9;
-            targSpeed = 4.78571*range+1009.28571; // Alexs house measurement
+            targSpeed = 11.12353*range+288.91;
+            //targSpeed = 4.78571*range+1009.28571; // Alexs house measurement
             //targSpeed = (6.15554*range)+839.5422; One used in odometry pod class before.
         }
 

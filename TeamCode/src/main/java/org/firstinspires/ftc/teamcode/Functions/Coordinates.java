@@ -8,6 +8,8 @@ public class Coordinates {
 
     // BLUE POSES ARE DEFAULT, THESE ARE BLUE side POSES
     public static final double StartingRobotAngleDeg = 144;
+//    public static final double GOAL_X = 8;
+//    public static final double GOAL_Y = 136;
 
     public static final double GOAL_X = 8;
     public static final double GOAL_Y = 136;
