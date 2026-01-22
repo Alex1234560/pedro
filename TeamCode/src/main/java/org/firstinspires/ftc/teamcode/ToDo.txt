@@ -21,7 +21,7 @@
 - test autos ( blue and red ) with transition between auto and teleop.
 - try turret motor with Breaking behaviour at power 0.
 
-- --- ---- Low Priority ---------
+-------- Low Priority ---------
 - switch processing for turret from degrees to radians for more precise measurements.
 - try using integrated PIDF instead of costum, makes code cleaner
 - also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
