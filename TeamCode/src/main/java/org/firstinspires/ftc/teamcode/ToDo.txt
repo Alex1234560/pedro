@@ -1,6 +1,8 @@
 
  -------- High Priority -------
 - make telemetry good for drivers not tuning or debugging.
+- integrate distanceSensor ball count into the count for the auto balls to replace flywheel count.
+- make repositioning button to re-calibrate position in case it gets messed up.
 - make camera offseting good.
 - emtpy classifier in FrontAuto
 

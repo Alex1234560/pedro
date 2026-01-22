@@ -31,7 +31,7 @@ public class CleanTeleop extends OpMode {
     //private Servo ServoShooter1;
     //private Servo ReadyToShootServo;
 
-    public static double PowerValueForPreloading = 0.12;
+
 
     private static double HoodAngle = ShooterAngle.START_POINT;
     //setting up motors and time
@@ -39,7 +39,7 @@ public class CleanTeleop extends OpMode {
 
 
 
-    private DistanceSensorClass distanceSensor = new DistanceSensorClass();
+    //private DistanceSensorClass distanceSensor = new DistanceSensorClass();
     private Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
@@ -83,7 +83,7 @@ public class CleanTeleop extends OpMode {
 
     @Override
     public void init(){
-        distanceSensor.init(hardwareMap);
+
         camera = new AprilTagVision(hardwareMap);
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
@@ -159,7 +159,7 @@ public class CleanTeleop extends OpMode {
         camera.update();
         follower.update();
         shooter.update();
-        distanceSensor.update();
+
 
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance );
@@ -219,6 +219,8 @@ public class CleanTeleop extends OpMode {
         telemetryM.addData("TuningMode?:  ", ManuallyAdjustableValues);
         telemetryM.addData("Is flywheel up to speed?:  ", shooter.IsFlywheelUpToSpeed());
 
+        telemetryM.addData("Ball Count Distance Sensor ", shooter.GetBallsShotCount());
+
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
         telemetryM.addData("Turret Goal Speed ", FlywheelLogic.TARGET_FLYWHEEL_TPS);
@@ -227,7 +229,7 @@ public class CleanTeleop extends OpMode {
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
         telemetryM.addData("Hood Angle", hood.getPosition());
 
-        //telemetryM.addData("Distance Sensor value: ", distanceSensor.GetDistance());
+        telemetryM.addData("Distance Sensor value: ", shooter.GetDistance());
 
         telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
         //telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
@@ -299,8 +301,8 @@ public class CleanTeleop extends OpMode {
         }
 
         //so that any button that intakes can spin ball feeder
-        else if (IntakePowerValue>0 && !distanceSensor.IsBallDetected()){
-            shooter.SpinBallFeeder(PowerValueForPreloading); // power less so that it doesnt pass the point it needs to go to and get shot
+        else if (IntakePowerValue>0 && !shooter.IsBallDetected()){
+            shooter.SpinBallFeeder(FunctionsAndValues.PowerValueForPreloading); // power less so that it doesnt pass the point it needs to go to and get shot
         }
 
         else{shooter.SpinBallFeeder(0);}

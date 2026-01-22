@@ -40,7 +40,7 @@ public class BackAuto extends OpMode {
 
     private Timer pathTimer, opModeTimer;
 
-    private DistanceSensorClass distanceSensor = new DistanceSensorClass();
+    //private DistanceSensorClass distanceSensor = new DistanceSensorClass();
     private Coordinates Cords = new Coordinates();
     private AutoFunctions autoFunctions = new AutoFunctions();
     private FlywheelLogic shooter = new FlywheelLogic();
@@ -89,8 +89,8 @@ public class BackAuto extends OpMode {
     private static Pose driveToPark;
 
     // ------ these are for use only in this AUTO -------
-    private static  Pose shootPos,intakeStart,intakeEnd;
-    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos;
+    private static  Pose shootPos,intakeStart,intakeEnd,intakeBallsStart,intakeBallsEnd;
+    private PathChain driveFromBallsIntakeToShootPos,driveBallsIntakeForward,driveShootPosToBallsIntake,driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos;
 
 
 
@@ -109,6 +109,9 @@ public class BackAuto extends OpMode {
         if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER && !AutoParkTriggered){
             AutoPark();
         }
+        if (!AutoParkTriggered) {
+            intake.intakeOn(1, 1);
+        }
 
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS_FROM_START:
@@ -123,25 +126,31 @@ public class BackAuto extends OpMode {
                 break;
 
             case SHOOT:
-                if(isStateBusy == false ){
-                    intake.intakeOn(1,1); // to cycle balls to shooter
+                if(isStateBusy == false&&autoFunctions.isRobotInPosition(shootPos,follower) ){
+                    //intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;
                 }
 
-                if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>1){
+                if (isStateBusy ==true&&!shooter.isBusy()){
                     setPathState(PathState.DRIVE_TO_INTAKE_POS);
-                    intake.intakeOff();
+                    //intake.intakeOff();
                     isStateBusy=false;
                 }
                 break;
 
             case DRIVE_TO_INTAKE_POS:
 
-                if (!shooter.isBusy()){
-                    intake.intakeOff();// to stop cycling balls to shooter.
-                    follower.followPath(driveShootPosToIntake, true);
-                    setPathState(PathState.INTAKE_BALLS);
+                if (!shooter.isBusy() ){
+                    if (loop_times>0) {
+                        //intake.intakeOff();// to stop cycling balls to shooter.
+                        follower.followPath(driveShootPosToIntake, true);
+                        setPathState(PathState.INTAKE_BALLS);
+                    }
+                    else{
+                        follower.followPath(driveShootPosToBallsIntake, true);
+                        setPathState(PathState.INTAKE_BALLS);
+                    }
                 }
 
                 break;
@@ -149,13 +158,15 @@ public class BackAuto extends OpMode {
             case INTAKE_BALLS:
 
                 if (!follower.isBusy() && !isStateBusy){
-                    intake.intakeOn(1,1);
-                    follower.followPath(driveIntakeForward, true);
+                    if (loop_times>0) {
+                        follower.followPath(driveIntakeForward, true);
+                    }
+                    else{follower.followPath(driveBallsIntakeForward, true);}
                     isStateBusy = true;
                 }
                 else if (isStateBusy && !follower.isBusy()){
                     isStateBusy = false;
-                    intake.intakeOff();
+                    //intake.intakeOff();
                     setPathState(PathState.DRIVE_BACK_TO_SHOOT);
                 }
 
@@ -163,11 +174,17 @@ public class BackAuto extends OpMode {
                 break;
             case DRIVE_BACK_TO_SHOOT:
                 if(isStateBusy == false){
-                    follower.followPath(driveFromIntakeToShootPos, true);
+                    if (loop_times>0) {
+                        follower.followPath(driveFromIntakeToShootPos, true);
+                    }
+                    else{
+                        follower.followPath(driveFromBallsIntakeToShootPos, true);
+                    }
                     isStateBusy = true;
                 }
                 else if (isStateBusy == true && !follower.isBusy()){
                     isStateBusy = false;
+                    loop_times+=1;
                     setPathState(PathState.SHOOT);
                 }
 
@@ -181,7 +198,7 @@ public class BackAuto extends OpMode {
                 PathChain driveToParkPath = null;
                 if (isStateBusy==false) {
                     turretRotation.TurretTo0Deg(true);
-                    intake.intakeOff();
+                    //intake.intakeOff();
                     shooter.Stop();
 
                     follower.breakFollowing();
@@ -240,7 +257,7 @@ public class BackAuto extends OpMode {
         opModeTimer = new Timer();
         follower = Constants.createFollower(hardwareMap);
         //We might want follower = new Follower(hardwareMap);, just check this if it doesnt work
-        distanceSensor.init(hardwareMap);
+        //distanceSensor.init(hardwareMap);
         shooter.init(hardwareMap);
         intake.init(hardwareMap);
         turretRotation.init(hardwareMap);
@@ -291,8 +308,8 @@ public class BackAuto extends OpMode {
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance);
 
-        distanceSensor.update();
-        shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
+        //distanceSensor.update();
+        //shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
         camera.update();
         follower.update();
         shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
@@ -340,13 +357,29 @@ public class BackAuto extends OpMode {
                 .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos.getHeading())
                 .build();
 
+        driveShootPosToBallsIntake = follower.pathBuilder()
+                .addPath(new BezierLine(shootPos, intakeBallsStart))
+                .setLinearHeadingInterpolation(shootPos.getHeading(), intakeBallsStart.getHeading())
+                .build();
+
+        driveBallsIntakeForward = follower.pathBuilder()
+                .addPath(new BezierLine(intakeBallsStart, intakeBallsEnd))
+                .setLinearHeadingInterpolation(intakeBallsStart.getHeading(), intakeBallsEnd.getHeading())
+                .build();
+
+        driveFromBallsIntakeToShootPos = follower.pathBuilder()
+                .addPath(new BezierLine(intakeBallsEnd, shootPos))
+                .setLinearHeadingInterpolation(intakeBallsEnd.getHeading(), shootPos.getHeading())
+                .build();
     }
 
     private void buildPoses(){
-        startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
+        startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootPos = new Pose(Cords.xFlip(51, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeStart = new Pose(Cords.xFlip(33.89254108723136, IsRed), 12.336283185840703, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd = new Pose(Cords.xFlip(11, IsRed),  11, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(11, IsRed),  12.336, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeBallsStart = new Pose(Cords.xFlip(47.5, IsRed), 35, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeBallsEnd = new Pose(Cords.xFlip(13.530973451327434, IsRed),  35, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));

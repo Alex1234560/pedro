@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -34,15 +35,15 @@ public class FrontAuto extends OpMode {
 
     //1 == true, 0 == false
     public static boolean IsRed = false;
-    public static double WAIT_TO_SHOOT_TIME = 1.5;
+    public static double WAIT_TO_SHOOT_TIME = .6;
 
     //public static boolean DidAutoGoToEnd;
 
-    public static double PARK_TIME_TRIGGER = 28;
+    public static double PARK_TIME_TRIGGER = 27;
 
     private Timer pathTimer, opModeTimer;
 
-    private DistanceSensorClass distanceSensor = new DistanceSensorClass();
+    //private DistanceSensorClass distanceSensor = new DistanceSensorClass();
     private Coordinates Cords = new Coordinates();
     private AutoFunctions autoFunctions = new AutoFunctions();
     private FlywheelLogic shooter = new FlywheelLogic();
@@ -92,7 +93,7 @@ public class FrontAuto extends OpMode {
     private static Pose driveToPark;
 
     // ------ these are for use only in this AUTO -------
-    private static  Pose shootPos,shootPos180,intakeStart,intakeEnd;
+    private static  Pose shootPos,intakeStart,intakeEnd,shootPosControlPoint;
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
 
 
@@ -112,6 +113,9 @@ public class FrontAuto extends OpMode {
         if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER && !AutoParkTriggered){
             AutoPark();
         }
+        else if (autoTimer.getElapsedTimeSeconds() < PARK_TIME_TRIGGER) {
+            intake.intakeOn(1,1);
+        }
 
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS:
@@ -121,7 +125,7 @@ public class FrontAuto extends OpMode {
                 }
 
                 if (isStateBusy &&!follower.isBusy()) {
-                    intake.intakeOn(1,1); // to cycle balls to shooter
+                     // to cycle balls to shooter
                     shooter.fireShots(3); //change to three
                     isStateBusy = false;
                     setPathState(PathState.DRIVE_TO_INTAKE_POS);
@@ -132,7 +136,7 @@ public class FrontAuto extends OpMode {
             case DRIVE_TO_INTAKE_POS:
 
                 if (!shooter.isBusy()){
-                        intake.intakeOff();// to stop cycling balls to shooter.
+                        //intake.intakeOff();// to stop cycling balls to shooter.
                         follower.followPath(driveShootPosToIntake, true);
                         setPathState(PathState.INTAKE_BALLS);
                 }
@@ -140,7 +144,7 @@ public class FrontAuto extends OpMode {
 
             case INTAKE_BALLS:
 
-                intake.intakeOn(1,1);
+                //intake.intakeOn(1,1);
 
 
                 if (isStateBusy == false &&!follower.isBusy()&&autoFunctions.isRobotInPosition(intakeStart,follower)){
@@ -160,6 +164,7 @@ public class FrontAuto extends OpMode {
             case DRIVE_BACK_TO_SHOOT:
                 if(isStateBusy == false && !follower.isBusy()){
                     follower.followPath(driveFromIntake1ToShootPos, true);
+                    //intake.intakeOn(1,1);
                     isStateBusy = true;
                 }
 
@@ -171,13 +176,15 @@ public class FrontAuto extends OpMode {
                 break;
 
             case SHOOT:
-                if(isStateBusy == false&& pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
-                    intake.intakeOn(1,1); // to cycle balls to shooter
+                if (isStateBusy==true){}//intake.intakeOn(1,1);}
+
+                if(isStateBusy == false&&autoFunctions.isRobotInPosition(shootPos,follower)){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
+                    //intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;
                 }
 
-                if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>1.5){
+                else if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>2){
                     isStateBusy =false;
 
                     if (loop_times >= 3) {
@@ -189,7 +196,7 @@ public class FrontAuto extends OpMode {
                         buildPaths();
                         setPathState(PathState.DRIVE_TO_INTAKE_POS);
                     }
-                    intake.intakeOff();
+                    //intake.intakeOff();
                 }
 
 
@@ -203,7 +210,7 @@ public class FrontAuto extends OpMode {
                 PathChain driveToParkPath = null;
                 if (isStateBusy==false) {
                     turretRotation.TurretTo0Deg(true);
-                    intake.intakeOff();
+                    //intake.intakeOff();
                     shooter.Stop();
 
                     follower.breakFollowing();
@@ -262,7 +269,7 @@ public class FrontAuto extends OpMode {
         opModeTimer = new Timer();
         follower = Constants.createFollower(hardwareMap);
         //We might want follower = new Follower(hardwareMap);, just check this if it doesnt work
-        distanceSensor.init(hardwareMap);
+        //distanceSensor.init(hardwareMap);
         shooter.init(hardwareMap);
         intake.init(hardwareMap);
         turretRotation.init(hardwareMap);
@@ -313,10 +320,12 @@ public class FrontAuto extends OpMode {
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance);
 
-        distanceSensor.update();
-        shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
+        //distanceSensor.update();
+        //shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
         camera.update();
         follower.update();
+
+
         shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose,IsRed);;
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
@@ -332,11 +341,13 @@ public class FrontAuto extends OpMode {
         telemetry.addData("Is Shooter Busy?", shooter.isBusy());
         telemetry.addData("Shots Remaining", shooter.GetShotsRemaining());
         telemetry.addData("Path State", pathState.toString());
+        telemetry.addData("Shooter Path State", FlywheelLogic.flywheelState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("total heading", Math.toDegrees(follower.getTotalHeading()));
         telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
         telemetry.addData("Total time", autoTimer.getElapsedTimeSeconds());
+
 
         telemetry.update();
     }
@@ -344,9 +355,10 @@ public class FrontAuto extends OpMode {
     public void buildPaths(){
         // put in coordinates for starting pos > ending pos
         driveStartToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, shootPos))
+                .addPath(new BezierCurve(startPose,shootPosControlPoint, shootPos))
                 .setLinearHeadingInterpolation(startPose.getHeading(), shootPos.getHeading())
                 .build();
+
         driveShootPosToIntake = follower.pathBuilder()
                 .addPath(new BezierLine(shootPos, intakeStart))
                 .setLinearHeadingInterpolation(shootPos.getHeading(), intakeStart.getHeading())
@@ -358,18 +370,18 @@ public class FrontAuto extends OpMode {
                 .build();
 
         driveFromIntake1ToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeEnd, shootPos180))
-                .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos180.getHeading())
+                .addPath(new BezierLine(intakeEnd, shootPos))
+                .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos.getHeading())
                 .build();
-
     }
 
     private void buildPoses(){
         startPose = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
-        shootPos = new Pose(Cords.xFlip(51, IsRed), 83, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeStart = new Pose(Cords.xFlip(51, IsRed), 84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd = new Pose(Cords.xFlip(17, IsRed),  84.5+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootPos = new Pose(Cords.xFlip(52, IsRed), 89, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootPosControlPoint = new Pose(Cords.xFlip(44.28000884955753, IsRed), 109.20315297092289);
+        //shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeStart = new Pose(Cords.xFlip(51, IsRed), 85+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(17, IsRed),  85+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));

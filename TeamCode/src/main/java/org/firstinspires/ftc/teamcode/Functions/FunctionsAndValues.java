@@ -20,7 +20,12 @@ public class FunctionsAndValues {
     //public static double After90ChangeInAngle = 0; // was -3
 
     // swiched it from 60 to 300 cuz i believe the time it takes for the ball to reach flywheeel it goes up to speed enough to be accurate
-    public static double SpeedToleranceToStartShooting = 20;
+    public static double SPEED_TOLERANCE_TO_SHOOT_BACK = 20;
+    public static double SPEED_TOLERANCE_TO_SHOOT_FRONT = 50;
+    public static double SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;
+
+
+    public static double PowerValueForPreloading = 0.12;
 
 
     //public static double AngleToleranceToStartShooting = 2;
@@ -72,12 +77,15 @@ public class FunctionsAndValues {
              //targSpeed = (6.94554 * range) + 850.3396;
             targAngle = (0.00779122 * range) + .121448;
             targSpeed = (5.64501 * range) + 925.3;
+
+            SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_FRONT;
         }
         else{
             targAngle=.9;
             targSpeed = 11.12353*range+288.91;
             //targSpeed = 4.78571*range+1009.28571; // Alexs house measurement
             //targSpeed = (6.15554*range)+839.5422; One used in odometry pod class before.
+            SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;
         }
 
         if (range<FrontRangeStart){targAngle = ShooterAngle.START_POINT;}
@@ -194,9 +202,9 @@ public class FunctionsAndValues {
 
     
     public double GetSpeedAvgFromTwoMotors(double Motor1Speed, double Motor2Speed ){
-        double Speed = 0;
+        double Speed;
         double Motor1Vel = Math.abs(Motor1Speed);
-        double Motor2Vel =Math.abs(Motor2Speed);
+        double Motor2Vel = Math.abs(Motor2Speed);
         //Speed = (Motor2Vel +Motor1Vel) /2;
 
         //Check if difference in speed is enough that its an issue. If its not, speed = average. If it is, speed = working motor

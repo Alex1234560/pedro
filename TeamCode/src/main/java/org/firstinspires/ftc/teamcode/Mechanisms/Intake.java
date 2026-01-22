@@ -30,10 +30,6 @@ public class Intake {
         IntakeHelperCRServo.setPower(0);
     }
 
-    public void setIntakePower(int intake, int intakeHelper) {
-        IntakeMotor.setPower(intake);
-        IntakeHelperCRServo.setPower(intakeHelper);
-    }
 
     public void update() {
 
