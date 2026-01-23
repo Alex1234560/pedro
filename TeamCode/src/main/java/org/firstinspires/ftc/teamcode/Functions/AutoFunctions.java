@@ -15,7 +15,7 @@ public class AutoFunctions {
 
 
     //for intaking balls where positiion needs to be precise
-    private static double ALLOWED_ERROR_POSITION = 3;
+    private static double ALLOWED_ERROR_POSITION = 6;
     private static double ALLOWED_ERROR_VELOCITY = 15;
 
     public boolean isRobotInPosition(Pose GoalPose, Follower follower) {

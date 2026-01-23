@@ -14,8 +14,7 @@ import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
-import org.firstinspires.ftc.teamcode.Mechanisms.DistanceSensorClass;
-import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
+import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
@@ -46,11 +45,11 @@ public class FrontAuto extends OpMode {
     //private DistanceSensorClass distanceSensor = new DistanceSensorClass();
     private Coordinates Cords = new Coordinates();
     private AutoFunctions autoFunctions = new AutoFunctions();
-    private FlywheelLogic shooter = new FlywheelLogic();
+    private ShooterLogic shooter = new ShooterLogic();
     private Intake intake = new Intake();
     private TurretRotation turretRotation = new TurretRotation();
     private ShooterAngle hood = new ShooterAngle();
-    private AprilTagVision camera;
+    //private AprilTagVision camera;
 
     private FunctionsAndValues FAndV = new FunctionsAndValues();
 
@@ -178,7 +177,7 @@ public class FrontAuto extends OpMode {
             case SHOOT:
                 if (isStateBusy==true){}//intake.intakeOn(1,1);}
 
-                if(isStateBusy == false&&autoFunctions.isRobotInPosition(shootPos,follower)){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
+                if(isStateBusy == false&&autoFunctions.isRobotInPosition(shootPos,follower)&&!follower.isBusy()){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
                     //intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;
@@ -211,7 +210,7 @@ public class FrontAuto extends OpMode {
                 if (isStateBusy==false) {
                     turretRotation.TurretTo0Deg(true);
                     //intake.intakeOff();
-                    shooter.Stop();
+                    shooter.Off();
 
                     follower.breakFollowing();
                     //follower.setPose(follower.getPose());
@@ -274,7 +273,7 @@ public class FrontAuto extends OpMode {
         intake.init(hardwareMap);
         turretRotation.init(hardwareMap);
         hood.init(hardwareMap);
-        camera = new AprilTagVision(hardwareMap);
+        //camera = new AprilTagVision(hardwareMap);
 
         //intake = new Intake(hardwareMap);
 
@@ -322,26 +321,27 @@ public class FrontAuto extends OpMode {
 
         //distanceSensor.update();
         //shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
-        camera.update();
+        //camera.update();
         follower.update();
 
-
-        shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
+        boolean IsTurretReady = autoFunctions.isRobotInPosition(shootPos,follower) && turretRotation.isTurretFinishedRotating();
+        shooter.updateWithStateMachine(IsTurretReady);
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose,IsRed);;
-        turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
+        //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
         double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
 
-        //turret.handleBearing(camera.getBearing());
         //telemetry.addData("Target angle: ", turretRotation.GetTargetAngle());
         //telemetry.addData("Turret Offset", TurretRotation.turret_offset);
+
+        telemetry.addData("Is Robot In Shoot Position", autoFunctions.isRobotInPosition(shootPos,follower));
         telemetry.addData("Is Shooter Busy?", shooter.isBusy());
-        telemetry.addData("Shots Remaining", shooter.GetShotsRemaining());
+        telemetry.addData("Balls Shot", shooter.GetBallsShotCount());
         telemetry.addData("Path State", pathState.toString());
-        telemetry.addData("Shooter Path State", FlywheelLogic.flywheelState);
+        telemetry.addData("Shooter Path State", ShooterLogic.flywheelState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("total heading", Math.toDegrees(follower.getTotalHeading()));

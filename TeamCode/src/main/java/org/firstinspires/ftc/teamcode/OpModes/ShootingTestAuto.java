@@ -2,20 +2,22 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.math.Vector;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
-import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
+import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
+import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -23,24 +25,31 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 @Autonomous
-@Disabled
 public class ShootingTestAuto extends OpMode {
 
     private Follower follower;
 
+    //Overarching auto timer
+    Timer autoTimer = new Timer();
+
     //1 == true, 0 == false
     public static boolean IsRed = false;
+    public static double WAIT_TO_SHOOT_TIME = .6;
 
+    //public static boolean DidAutoGoToEnd;
+
+    public static double PARK_TIME_TRIGGER = 27;
 
     private Timer pathTimer, opModeTimer;
 
-    // -------- FLYWHEEL SETUP -------
-
-    private FlywheelLogic shooter = new FlywheelLogic();
+    //private DistanceSensorClass distanceSensor = new DistanceSensorClass();
+    private Coordinates Cords = new Coordinates();
+    private AutoFunctions autoFunctions = new AutoFunctions();
+    private ShooterLogic shooter = new ShooterLogic();
     private Intake intake = new Intake();
-    //private TurretRotation turretRotation = new TurretRotation();
+    private TurretRotation turretRotation = new TurretRotation();
     private ShooterAngle hood = new ShooterAngle();
-    private AprilTagVision camera;
+    //private AprilTagVision camera;
 
     private FunctionsAndValues FAndV = new FunctionsAndValues();
 
@@ -48,126 +57,190 @@ public class ShootingTestAuto extends OpMode {
 
 
     public enum PathState{
+        // StartPos - EndPos
+        DRIVE_TO_SHOOT_POS,
+        DRIVE_TO_INTAKE_POS,
+        INTAKE_BALLS,
+        DRIVE_BACK_TO_SHOOT,
         SHOOT,
-        SHOOT_AGAIN,
-        FINISHED
+        FINISHED,
+
+        AUTOPARK
     }
     PathState pathState;
 
 
-    //for intaking balls where positiion needs to be precise
-    private static double ALLOWED_ERROR_POSITION = 3;
-    private static double ALLOWED_ERROR_VELOCITY = 15;
+
+
+    //BallLines
+
+    private final double BALL_LINE_DIFFERENCE = -24;
+    private double ball_line_offset;
+    private double loop_times;
 
     // -------- everything Poses ---------
 
-    public double xFlip(double oPos, boolean Red){
-        double switcher;
-        if (Red){switcher=144;
-            return switcher-oPos; // Alex
-        }
-        else{switcher=0;
-            return oPos;
-        }
-
-    }
-
-    public double angleFlip(double oAng, boolean Red) {
-        double flipVal;
-        if (Red){flipVal = 180;
-            return flipVal-oAng;}
-        else{flipVal = 0;
-            return oAng;
-        }
-
-    }
 
 
-    // ---- following hard poses are for blue side in case CleanTeleop is started for practice ---
-    private static final double StartingRobotAngleDeg = 144;
-    private static final double GOAL_X = 7.5;
-    private static final double GOAL_Y = 142.122;
-    //    private static final double GOAL_X = 16;
-//    private static final double GOAL_Y = 132;
-    private static final double START_X = 17.914;
-    private static final double START_Y = 121.168;
-    // ----- NOTE: These poses will get rewritten in this file, their only purpose is to serve
-    // as a default for the TeleOp File.
-
-    public static Pose startPose = new Pose(START_X,START_Y,Math.toRadians(StartingRobotAngleDeg));
-    public static Pose GoalLocationPose = new Pose(GOAL_X, GOAL_Y, Math.toRadians(0));
+    //public static Pose startPose = new Pose(Coordinates.START_X,Coordinates.START_Y,Math.toRadians(Coordinates.StartingRobotAngleDeg));
+    public static Pose startPose;
+    private static Pose GoalLocationPose,GoalLocationPoseForDistance;
 
     //this is to track last pose recorded for TeleOp
     // it is start pose cuz if the code never starts then the last position is the start position :)
-    public static Pose LastPoseRecorded = startPose;
+    //public static Pose LastPoseRecorded;
+    private static Pose driveToPark;
 
     // ------ these are for use only in this AUTO -------
-    private static  Pose shootPos,shootPos180,intakeStart,intakeEnd;
+    private static  Pose shootPos,intakeStart,intakeEnd,shootPosControlPoint;
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
 
-    public void buildPaths(){
-        // put in coordinates for starting pos > ending pos
-        driveStartToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, shootPos))
-                .setLinearHeadingInterpolation(startPose.getHeading(), shootPos.getHeading())
-                .build();
-        driveShootPosToIntake = follower.pathBuilder()
-                .addPath(new BezierLine(shootPos, intakeStart))
-                .setLinearHeadingInterpolation(shootPos.getHeading(), intakeStart.getHeading())
-                .build();
 
-        driveIntakeForward = follower.pathBuilder()
-                .addPath(new BezierLine(intakeStart, intakeEnd))
-                .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
-                .build();
 
-        driveFromIntake1ToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeEnd, shootPos180))
-                .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos180.getHeading())
-                .build();
+    private boolean isStateBusy;
+    private boolean AutoParkTriggered;
 
+
+
+    public void AutoPark(){
+        isStateBusy = false;
+        AutoParkTriggered = true;
+        setPathState(PathState.AUTOPARK);
     }
 
-    private boolean isStateBusy = false;
-
     public void statePathUpdate() {
+        if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER && !AutoParkTriggered){
+            AutoPark();
+        }
+        else if (autoTimer.getElapsedTimeSeconds() < PARK_TIME_TRIGGER) {
+            intake.intakeOn(1,1);
+        }
+
         switch(pathState) {
+            case DRIVE_TO_SHOOT_POS:
+                if(!isStateBusy){
+                    //follower.followPath(driveStartToShootPos, 1,false);
+                    isStateBusy=true;
+                }
+
+                if (isStateBusy &&!follower.isBusy()) {
+                    // to cycle balls to shooter
+                    shooter.fireShots(3); //change to three
+                    isStateBusy = false;
+                    setPathState(PathState.DRIVE_TO_INTAKE_POS);
+                }
+
+                break;
+
+            case DRIVE_TO_INTAKE_POS:
+
+                if (!shooter.isBusy()){
+                    setPathState(PathState.AUTOPARK);
+                }
+                break;
+
+            case INTAKE_BALLS:
+
+                //intake.intakeOn(1,1);
+
+
+                if (isStateBusy == false &&!follower.isBusy()&&autoFunctions.isRobotInPosition(intakeStart,follower)){
+                    loop_times +=1;
+                    follower.followPath(driveIntakeForward, .6,true);
+                    isStateBusy = true;
+                }
+
+
+                if (!follower.isBusy() && isStateBusy ==true){
+                    isStateBusy = false;
+                    //intake.intakeOff();
+                    setPathState(PathState.DRIVE_BACK_TO_SHOOT);
+                }
+                break;
+
+            case DRIVE_BACK_TO_SHOOT:
+                if(isStateBusy == false && !follower.isBusy()){
+                    follower.followPath(driveFromIntake1ToShootPos, true);
+                    //intake.intakeOn(1,1);
+                    isStateBusy = true;
+                }
+
+                if (isStateBusy ==true&&!follower.isBusy()){
+                    isStateBusy =false;
+                    setPathState(PathState.SHOOT);
+                }
+
+                break;
+
             case SHOOT:
-                if(isStateBusy == false){
-                    intake.intakeOn(1,1); // to cycle balls to shooter
-                    shooter.fireShots(1);
+                if (isStateBusy==true){}//intake.intakeOn(1,1);}
+
+                if(isStateBusy == false&&autoFunctions.isRobotInPosition(shootPos,follower)){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
+                    //intake.intakeOn(1,1); // to cycle balls to shooter
+                    shooter.fireShots(3);
                     isStateBusy=true;
                 }
 
-                if (isStateBusy ==true&&!shooter.isBusy()){
+                else if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>2){
                     isStateBusy =false;
-                    setPathState(PathState.SHOOT_AGAIN);
-                    intake.intakeOff();
-                }
-            case SHOOT_AGAIN:
-                if(isStateBusy == false){
-                    intake.intakeOn(1,1); // to cycle balls to shooter
-                    shooter.fireShots(1);
-                    isStateBusy=true;
+
+                    if (loop_times >= 3) {
+                        AutoPark();
+                    }
+                    else{
+                        ball_line_offset+=BALL_LINE_DIFFERENCE;
+                        buildPoses();
+                        buildPaths();
+                        setPathState(PathState.DRIVE_TO_INTAKE_POS);
+                    }
+                    //intake.intakeOff();
                 }
 
-                if (isStateBusy ==true&&!shooter.isBusy()){
-                    isStateBusy =false;
-                    setPathState(PathState.FINISHED);
-                    intake.intakeOff();
-                }
 
-            //break;
+                break;
 
             case FINISHED:
+                AutoFunctions.DidAutoGoToEnd = true;
+                break;
+
+            case AUTOPARK:
+                PathChain driveToParkPath = null;
+                if (isStateBusy==false) {
+                    turretRotation.TurretTo0Deg(true);
+                    //intake.intakeOff();
+                    shooter.Off();
+
+                    follower.breakFollowing();
+                    //follower.setPose(follower.getPose());
+
+
+                    driveToPark = new Pose(Cords.xFlip(25, IsRed), 69, Math.toRadians(Cords.angleFlip(0, IsRed)));
+                    Pose currentPose = follower.getPose();
+
+
+
+                    driveToParkPath = follower.pathBuilder()
+                            .addPath(new BezierLine(currentPose, driveToPark))
+                            .setLinearHeadingInterpolation(currentPose.getHeading(), driveToPark.getHeading())
+                            .build();
+
+                    //follower.followPath(driveToParkPath, true);
+
+                    isStateBusy = true;
+                }
+                else{
+                    if (turretRotation.isTurretFinishedRotating()) {
+                        isStateBusy = false;
+                        setPathState(PathState.FINISHED);
+                    }
+                }
+
                 break;
 
             default:
                 break;
         }
     }
-
-
 
     public void setPathState(PathState newState){
         pathState = newState;
@@ -180,17 +253,29 @@ public class ShootingTestAuto extends OpMode {
 
     @Override
     public void init(){
-        pathState = PathState.SHOOT;
+        //resseting variables
+        isStateBusy=false;
+        AutoParkTriggered = false;
+        ball_line_offset=0;
+        loop_times = 0;
+
+
+
+        pathState = PathState.DRIVE_TO_SHOOT_POS;
         pathTimer = new Timer();
         opModeTimer = new Timer();
         follower = Constants.createFollower(hardwareMap);
         //We might want follower = new Follower(hardwareMap);, just check this if it doesnt work
-
+        //distanceSensor.init(hardwareMap);
         shooter.init(hardwareMap);
         intake.init(hardwareMap);
-        //turretRotation.init(hardwareMap);
+        turretRotation.init(hardwareMap);
         hood.init(hardwareMap);
-        camera = new AprilTagVision(hardwareMap);
+        //camera = new AprilTagVision(hardwareMap);
+
+        //intake = new Intake(hardwareMap);
+
+
 
     }
 
@@ -214,8 +299,11 @@ public class ShootingTestAuto extends OpMode {
 
     @Override
     public void start() {
+        AutoFunctions.IsRed = IsRed;
+        AutoFunctions.DidAutoGoToEnd = false;
+        autoTimer.resetTimer();
         buildPoses();
-        //turretRotation.CalibrateTurretToCenter();
+        turretRotation.CalibrateTurretToCenter();
         buildPaths();
         follower.setPose(startPose);
         opModeTimer.resetTimer();
@@ -225,56 +313,76 @@ public class ShootingTestAuto extends OpMode {
 
     @Override
     public void loop(){
-        LastPoseRecorded = follower.getPose();
+        AutoFunctions.LastPoseRecorded = follower.getPose();
 
-        camera.update();
+        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance);
+
+        //distanceSensor.update();
+        //shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
+        //camera.update();
         follower.update();
-        shooter.updateWithStateMachine(true);
+
+
+        shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
+        turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose,IsRed);;
+        //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
-        hood.SetPosition(0);
-        shooter.setFlywheelTPS(900);
+        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
+        hood.SetPosition(turretGoals[0]);
+        shooter.setFlywheelTPS(turretGoals[1]);
 
         //turret.handleBearing(camera.getBearing());
-        telemetry.addData("Latest upload 3:30:50", true);
-        telemetry.addData("Shots Remaining", shooter.GetShotsRemaining());
-        telemetry.addData("FlywheelTPS", shooter.GetFlywheelSpeed());
+        //telemetry.addData("Target angle: ", turretRotation.GetTargetAngle());
+        //telemetry.addData("Turret Offset", TurretRotation.turret_offset);
+        telemetry.addData("Is Shooter Busy?", shooter.isBusy());
+        telemetry.addData("Balls Shot", shooter.GetBallsShotCount());
         telemetry.addData("Path State", pathState.toString());
-        telemetry.addData("flywheel State", shooter.GetState());
-        telemetry.addData("IsFlywheelUpToSpeed", shooter.IsFlywheelUpToSpeed());
+        telemetry.addData("Shooter Path State", ShooterLogic.flywheelState);
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
+        telemetry.addData("total heading", Math.toDegrees(follower.getTotalHeading()));
+        telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("Total time", autoTimer.getElapsedTimeSeconds());
+
 
         telemetry.update();
     }
 
+    public void buildPaths(){
+        // put in coordinates for starting pos > ending pos
+        driveStartToShootPos = follower.pathBuilder()
+                .addPath(new BezierCurve(startPose,shootPosControlPoint, shootPos))
+                .setLinearHeadingInterpolation(startPose.getHeading(), shootPos.getHeading())
+                .build();
+
+        driveShootPosToIntake = follower.pathBuilder()
+                .addPath(new BezierLine(shootPos, intakeStart))
+                .setLinearHeadingInterpolation(shootPos.getHeading(), intakeStart.getHeading())
+                .build();
+
+        driveIntakeForward = follower.pathBuilder()
+                .addPath(new BezierLine(intakeStart, intakeEnd))
+                .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
+                .build();
+
+        driveFromIntake1ToShootPos = follower.pathBuilder()
+                .addPath(new BezierLine(intakeEnd, shootPos))
+                .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos.getHeading())
+                .build();
+    }
+
     private void buildPoses(){
-        startPose = new Pose(xFlip(START_X, IsRed), START_Y, Math.toRadians(angleFlip(StartingRobotAngleDeg, IsRed)));
-        shootPos = new Pose(xFlip(59, IsRed), 85, Math.toRadians(angleFlip(144, IsRed)));
-        shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(angleFlip(180, IsRed)));
-        intakeStart = new Pose(xFlip(51, IsRed), 60.5, Math.toRadians(angleFlip(180, IsRed)));
-        intakeEnd = new Pose(xFlip(16.4, IsRed),  60.5, Math.toRadians(angleFlip(180, IsRed)));
+        startPose = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
+        shootPos = new Pose(Cords.xFlip(52, IsRed), 89, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootPosControlPoint = new Pose(Cords.xFlip(44.28000884955753, IsRed), 109.20315297092289);
+        //shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeStart = new Pose(Cords.xFlip(51, IsRed), 85+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(17, IsRed),  85+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
-        GoalLocationPose = new Pose(xFlip(GOAL_X,IsRed), GOAL_Y, Math.toRadians(0));
+        GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
+        GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
     }
 
-    private boolean isRobotInPosition(Pose GoalPose) {
-        Vector VelocityVector = follower.getVelocity();
-        double vX = VelocityVector.getXComponent();
-        double vY = VelocityVector.getYComponent();
-        double Velocity = Math.hypot(vX, vY);
 
-        boolean isVelocityAcceptable = Velocity <= ALLOWED_ERROR_VELOCITY;
-
-        double dx = GoalPose.getX() - follower.getPose().getX();
-        double dy = GoalPose.getY() - follower.getPose().getY();
-        double difference = Math.hypot(dx, dy);
-
-        boolean isPositionAcceptable = difference <= ALLOWED_ERROR_POSITION;
-
-        if (isPositionAcceptable && isVelocityAcceptable) {
-            return true;
-        } else {
-            return false;
-
-        }
-    }
 }

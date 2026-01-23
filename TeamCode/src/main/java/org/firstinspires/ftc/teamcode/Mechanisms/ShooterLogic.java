@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 
 @Configurable
-public class FlywheelLogic {
+public class ShooterLogic {
     private FunctionsAndValues FAndV;
     private DcMotorEx ShooterMotor = null;
     private DcMotorEx ShooterMotor2 = null;
@@ -24,8 +24,8 @@ public class FlywheelLogic {
 
     private enum FlywheelState {
         IDLE,
-        LAUNCH_BALL,
-        DETECT_IF_BALL_LAUNCHED,
+        SPIN_UP_FLYWHEEL,
+        LAUNCH_BALLS,
         RESET
     }
 
@@ -35,7 +35,7 @@ public class FlywheelLogic {
     // ----------- FEEDER CONSTANTS -------------
     //public static double MAX_SHOOT_BALL_TIME = 7;
     //public static double MAX_SHOOT_BALL_TIME = 2;
-    public static double MAX_SHOOT_BALL_TIME = .8;
+    public static double MAX_SHOOT_BALLS_TIME = 2.5;
 
     //------------- FLYWHEEL CONSTANTS ------------
 
@@ -44,7 +44,7 @@ public class FlywheelLogic {
     private boolean flywheel_on = true;
 
 
-    private int shotsRemaining = 0;
+    private double shotsRemaining = 0;
     private double flywheelVelocity = 0;
     public static double TARGET_FLYWHEEL_TPS = 1300;
     public static double FLYWHEEL_MAX_SPINUP_TIME = 6;
@@ -73,6 +73,8 @@ public class FlywheelLogic {
         ShooterMotor2.setPower(0);
         BallFeederServo.setPower(0);
         BallFeederServo2.setPower(0);
+
+        distanceSensor.SetBallsShotCount(3);
 
     }
 
@@ -115,58 +117,52 @@ public class FlywheelLogic {
     }
 
     public void start() {
+
         SetMotorPowerToTarget();
     }
 
     public double GetFlywheelSpeed() {return flywheelVelocity;}
 
-    public void updateWithStateMachine(boolean isRobotReadyToShoot){
-        double ball_feeder_servo_power = 0;
-        update();
-        if(flywheel_on){SetMotorPowerToTarget();}
-        else{TurnFlywheelOff();}
+    public void setShooterState(FlywheelState state){
+        flywheelState = state;
+        stateTimer.reset();
+    }
 
-        if (shotsRemaining>0){flywheel_on=true;}
+    public void updateWithStateMachine(boolean isRobotReadyToShoot){
+        update();
+        double ball_feeder_servo_power = 0;
+        double balls_shoot = distanceSensor.GetBallsShotCount();
 
         switch (flywheelState) {
             case IDLE:
-                if (shotsRemaining > 0) {
-                    stateTimer.reset();
-                    flywheelState = FlywheelState.LAUNCH_BALL;
+
+                if (balls_shoot<3) {
+                    setShooterState( FlywheelState.SPIN_UP_FLYWHEEL);
                 }
                 break;
 
-            case LAUNCH_BALL:
+            case SPIN_UP_FLYWHEEL:
                 if (IsFlywheelUpToSpeed() && isRobotReadyToShoot || stateTimer.seconds() > FLYWHEEL_MAX_SPINUP_TIME) {
-
-                    stateTimer.reset();
-
-                    flywheelState = FlywheelState.DETECT_IF_BALL_LAUNCHED;
+                    setShooterState(FlywheelState.LAUNCH_BALLS);
                 }
                 break;
-            case DETECT_IF_BALL_LAUNCHED:
-                 //SpinBallFeeder(1);
-                 ball_feeder_servo_power=1;
-//                if (!isRobotReadyToShoot || !IsFlywheelUpToSpeed()){
-//                    ball_feeder_servo_power=0;
-//                }else{ball_feeder_servo_power=1;}
+            case LAUNCH_BALLS:
+                if (IsFlywheelUpToSpeed()&& isRobotReadyToShoot){
+                 ball_feeder_servo_power=1;}
 
-                if (stateTimer.seconds() > MAX_SHOOT_BALL_TIME || IsFlywheelSlowedFromShot()) {
-                    shotsRemaining -= 1;
-
-                    stateTimer.reset();
-
-                    flywheelState = FlywheelState.RESET;
+                if (stateTimer.seconds() > MAX_SHOOT_BALLS_TIME || balls_shoot>=3) { // change balls_shot to 3 eventually.
+                    //shotsRemaining=0;
+                    if (distanceSensor.IsBallDetected() && isRobotReadyToShoot){
+                        ball_feeder_servo_power=1;
+                    }
+                    else {
+                        setShooterState(FlywheelState.RESET);
+                    }
                 }
                 break;
+
             case RESET:
-                if (shotsRemaining > 0) {
-                    stateTimer.reset();
-                    flywheelState = FlywheelState.LAUNCH_BALL;
-                } else {
-                    stateTimer.reset();
-                    flywheelState = FlywheelState.IDLE;
-                }
+                setShooterState(FlywheelState.IDLE);
                 break;
         }
 
@@ -180,6 +176,9 @@ public class FlywheelLogic {
     }
 
     public void update(){
+        if(flywheel_on){SetMotorPowerToTarget();}
+        else{TurnFlywheelOff();}
+
         IsBallDetectedAutoBool = distanceSensor.IsBallDetected();
         flywheelVelocity = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(), ShooterMotor2.getVelocity());
         distanceSensor.update();
@@ -189,15 +188,20 @@ public class FlywheelLogic {
         return shotsRemaining;
     }
 
-    public void Stop(){
-        shotsRemaining = 0;
+
+    public void Off(){
         flywheel_on=false;
         flywheelState = FlywheelState.IDLE;
     }
 
+    public void On(){
+        flywheel_on=true;
+    }
+
     public void fireShots(int numberOfShots) {
         if (flywheelState == FlywheelState.IDLE) {
-            shotsRemaining = numberOfShots;
+            //shotsRemaining = numberOfShots;
+            distanceSensor.SetBallsShotCount(0);
         }
     }
 
@@ -206,7 +210,6 @@ public class FlywheelLogic {
     public boolean isBusy() {
         return flywheelState != FlywheelState.IDLE;
     }
-
     public double GetBallsShotCount(){
         return distanceSensor.GetBallsShotCount();
     }

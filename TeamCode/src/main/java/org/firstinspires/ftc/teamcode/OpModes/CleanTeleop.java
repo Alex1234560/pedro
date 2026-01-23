@@ -16,13 +16,13 @@ import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
-import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelLogic;
+import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.Mechanisms.DistanceSensorClass;
 
+// NOTE BALL COUNTING ISNT AMAZING IN THIS OP MODE BEACUSE OF CAMERA LOOP DELAY////
 
 @Configurable
 @TeleOp
@@ -43,7 +43,7 @@ public class CleanTeleop extends OpMode {
     private Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
-    private FlywheelLogic shooter = new FlywheelLogic();
+    private ShooterLogic shooter = new ShooterLogic();
     private ShooterAngle hood = new ShooterAngle();
     private AprilTagVision camera;
 
@@ -80,6 +80,7 @@ public class CleanTeleop extends OpMode {
     private double FlywheelSpeedForTuning = 1000;
 
     private boolean ManuallyAdjustableValues = false;
+
 
     @Override
     public void init(){
@@ -156,9 +157,12 @@ public class CleanTeleop extends OpMode {
 
 
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition, IsRed);
-        camera.update();
+
         follower.update();
         shooter.update();
+
+        if (true){
+        camera.update();}
 
 
 
@@ -168,7 +172,7 @@ public class CleanTeleop extends OpMode {
         if (gamepad2.start && gamepad2.dpadUpWasPressed() || gamepad2.start && gamepad2.dpadDownWasPressed()){
             ManuallyAdjustableValues=!ManuallyAdjustableValues;
             HoodAngle = hood.getPosition();
-            FlywheelSpeedForTuning = FlywheelLogic.TARGET_FLYWHEEL_TPS;
+            FlywheelSpeedForTuning = ShooterLogic.TARGET_FLYWHEEL_TPS;
         }
 
         if (ManuallyAdjustableValues){
@@ -196,9 +200,12 @@ public class CleanTeleop extends OpMode {
             double[] turretGoals = FAndV.handleShootingRanges(camera.getRange());// remove -4 in the future
             hood.SetPosition(turretGoals[0]);
             shooter.setFlywheelTPS(turretGoals[1]);
-        }
 
+            turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
+        }
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
+
+
 
 
         if (gamepad2.bWasPressed()) {
@@ -223,7 +230,7 @@ public class CleanTeleop extends OpMode {
 
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
-        telemetryM.addData("Turret Goal Speed ", FlywheelLogic.TARGET_FLYWHEEL_TPS);
+        telemetryM.addData("Turret Goal Speed ", ShooterLogic.TARGET_FLYWHEEL_TPS);
         telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance));
 
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
@@ -366,17 +373,9 @@ public class CleanTeleop extends OpMode {
             );
         }
 
-
-
     }
     private void handleFlywheel(){
-
-        if (gamepad2.xWasPressed()) {shooterMotorOn = true;}
-        if (gamepad2.yWasPressed()) {shooterMotorOn = false;}
-        //if (!shooterMotorOn){shooter.TurnFlywheelOff();}
-
-        if (shooterMotorOn){shooter.SetMotorPowerToTarget();}
-        else{shooter.TurnFlywheelOff();}
-
+        if (gamepad2.xWasPressed()) {shooter.On();}
+        if (gamepad2.yWasPressed()) {shooter.Off();}
     }
 }

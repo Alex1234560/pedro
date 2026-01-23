@@ -1,13 +1,17 @@
 
  -------- High Priority -------
 - make telemetry good for drivers not tuning or debugging.
-- integrate distanceSensor ball count into the count for the auto balls to replace flywheel count.
 - make repositioning button to re-calibrate position in case it gets messed up.
-- make camera offseting good.
-- emtpy classifier in FrontAuto
-- get levis code integrated into the turret code.
+
+
+
+- Ball counter undercounts sometimes, fix it for auto.
 
 ----------- Medium Priority ----------
+- emtpy classifier in FrontAuto
+- get levis code integrated into the turret code.
+- make camera offseting good.
+- make flywheel PIDF better
 - test back auto
 - test AUTO
 - make a shoot button instead of a shoot trigger.

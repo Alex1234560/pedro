@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 public class DistanceSensorClass
 {
     public static double CHANGE_POINT = .18;
+    public static double CHANGE_POINT_FOR_COUNTING = .12;
     double ballsShotCount;
     private double distance;
     private OpticalDistanceSensor distanceSensor;
@@ -23,15 +24,17 @@ public class DistanceSensorClass
         return ballsShotCount;
     }
 
-    public void ResetBallsShotCount(){
-        ballsShotCount=0;
+    public void SetBallsShotCount(double Balls){
+        ballsShotCount=Balls;
     }
     public void update(){
         distance = GetDistance();
-        if (!wasBallDetected && IsBallDetected()){
+
+        //.15?
+        if (!wasBallDetected && IsBallDetectedForCounting()){
             wasBallDetected=true;
         }
-        if (wasBallDetected&&!IsBallDetected()){
+        if (wasBallDetected&&!IsBallDetectedForCounting()){
             wasBallDetected=false;
             ballsShotCount+=1;
         }
@@ -46,6 +49,11 @@ public class DistanceSensorClass
     public boolean IsBallDetected(){
 
         if (distance>= CHANGE_POINT){return false;}
+        else{return true;}
+    }
+    public boolean IsBallDetectedForCounting(){
+
+        if (distance>= CHANGE_POINT_FOR_COUNTING){return false;}
         else{return true;}
     }
 
