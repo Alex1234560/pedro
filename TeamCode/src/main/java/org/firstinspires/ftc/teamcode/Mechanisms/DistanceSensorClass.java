@@ -27,6 +27,7 @@ public class DistanceSensorClass
     public void SetBallsShotCount(double Balls){
         ballsShotCount=Balls;
     }
+
     public void update(){
         distance = GetDistance();
 

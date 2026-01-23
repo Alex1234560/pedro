@@ -21,6 +21,7 @@ public class ShooterLogic {
     private CRServo BallFeederServo2 = null;
 
     private ElapsedTime stateTimer = new ElapsedTime();
+    private ElapsedTime shootTimer = new ElapsedTime();
 
     private enum FlywheelState {
         IDLE,
@@ -35,7 +36,8 @@ public class ShooterLogic {
     // ----------- FEEDER CONSTANTS -------------
     //public static double MAX_SHOOT_BALL_TIME = 7;
     //public static double MAX_SHOOT_BALL_TIME = 2;
-    public static double MAX_SHOOT_BALLS_TIME = 2.5;
+    public static double MAX_SHOOT_TIME_WITOUTH_BALLS = .75;
+    public static double MIN_SHOOTING_TIME = 1.2;
 
     //------------- FLYWHEEL CONSTANTS ------------
 
@@ -126,6 +128,7 @@ public class ShooterLogic {
     public void setShooterState(FlywheelState state){
         flywheelState = state;
         stateTimer.reset();
+        shootTimer.reset();
     }
 
     public void updateWithStateMachine(boolean isRobotReadyToShoot){
@@ -150,14 +153,10 @@ public class ShooterLogic {
                 if (IsFlywheelUpToSpeed()&& isRobotReadyToShoot){
                  ball_feeder_servo_power=1;}
 
-                if (stateTimer.seconds() > MAX_SHOOT_BALLS_TIME || balls_shoot>=3) { // change balls_shot to 3 eventually.
-                    //shotsRemaining=0;
-                    if (distanceSensor.IsBallDetected() && isRobotReadyToShoot){
-                        ball_feeder_servo_power=1;
-                    }
-                    else {
-                        setShooterState(FlywheelState.RESET);
-                    }
+                if (distanceSensor.IsBallDetected()){shootTimer.reset();}
+
+                if (shootTimer.seconds() > MAX_SHOOT_TIME_WITOUTH_BALLS && stateTimer.seconds()>MIN_SHOOTING_TIME) { // change balls_shot to 3 eventually.
+                    setShooterState(FlywheelState.RESET);
                 }
                 break;
 

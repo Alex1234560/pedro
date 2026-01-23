@@ -5,6 +5,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 
 
@@ -55,13 +56,16 @@ public class CleanTeleop extends OpMode {
     private TelemetryManager telemetryM;
 
     public static boolean fieldCentricDrive = true;
+
+    private boolean automatedDrive = false;
+    private boolean tuningTelemetry = false;
 //    public static double GOAL_X = 15;
 //    public static double GOAL_Y = 131;
     //public static double STARTING_ANGLE_ROBOT = 144;
 
     private boolean IsRed = false;
 
-    private Pose GoalLocationPose, StartingPosition, GoalLocationPoseForDistance;
+    private Pose GoalLocationPose, StartingPosition, GoalLocationPoseForDistance, restartPos;
 
 
     // --- Button Variables For Shooter ---
@@ -85,6 +89,7 @@ public class CleanTeleop extends OpMode {
     @Override
     public void init(){
 
+
         camera = new AprilTagVision(hardwareMap);
         hood.init(hardwareMap);
         shooter.init(hardwareMap);
@@ -97,12 +102,19 @@ public class CleanTeleop extends OpMode {
         //new try start pose
 
         follower.update();
+
+//        DriveBack = follower.pathBuilder()
+//                .addPath(new BezierLine(follower::getPose, shootPos))
+//                .setLinearHeadingInterpolation(follower::getHeading, shootPos.getHeading())
+//                .build();
     }
 
     @Override
     public void start(){
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
+
+        restartPos = new Pose(Cords.xFlip(Coordinates.RESTART_X,!IsRed), Coordinates.RESTART_Y, Math.toRadians(90));
 
         if (start_program_witouth_auto_first){
             StartingPosition = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
@@ -164,6 +176,10 @@ public class CleanTeleop extends OpMode {
         if (true){
         camera.update();}
 
+        if (gamepad2.dpadLeftWasPressed()){
+            tuningTelemetry=!tuningTelemetry;
+        }
+
 
 
         double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance );
@@ -185,9 +201,7 @@ public class CleanTeleop extends OpMode {
             if (gamepad2.dpadDownWasPressed()){
                 FlywheelSpeedForTuning-=50;
             }
-
             shooter.setFlywheelTPS(FlywheelSpeedForTuning);
-
         }
         // --------------------------------------------------- /
 
@@ -205,45 +219,67 @@ public class CleanTeleop extends OpMode {
         }
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
 
-
-
-
         if (gamepad2.bWasPressed()) {
             UseOdosForSpeedAndDistance = true;
         }
         if (gamepad2.aWasPressed()) {
             UseOdosForSpeedAndDistance = false;}
 
+        handleAutomatedDriving();
         handleDriving();
         handleIntakeAndShootingButtons();
-        //handleShooterServos();
+        handleResetPositionFunction();
         TelemetryStatements();
         handleFlywheel();
     }
 
+    private void handleResetPositionFunction(){
+//        if (gamepad1.back&&gamepad1.start&&gamepad1.rightBumperWasPressed()){
+//            follower.setPose(restartPos);
+//        }
+    }
+
     private void TelemetryStatements(){
-        telemetryM.addData("Turret Finished Rotating?:  ", turretRotation.isTurretFinishedRotating());
-        telemetryM.addData("TuningMode?:  ", ManuallyAdjustableValues);
-        telemetryM.addData("Is flywheel up to speed?:  ", shooter.IsFlywheelUpToSpeed());
+        if (tuningTelemetry) {
+            telemetryM.addData("Turret Finished Rotating?:  ", turretRotation.isTurretFinishedRotating());
+            telemetryM.addData("TuningMode?:  ", ManuallyAdjustableValues);
+            telemetryM.addData("Ball Count Distance Sensor ", shooter.GetBallsShotCount());
+            telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
 
-        telemetryM.addData("Ball Count Distance Sensor ", shooter.GetBallsShotCount());
+            telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
+            telemetryM.addData("Distance Sensor value: ", shooter.GetDistance());
+            telemetryM.addData("Bearing " ,camera.getBearing());
+            telemetryM.addData("Yaw " ,camera.getYaw());
+            telemetryM.addData("Distance (camera) " ,camera.getRange());
 
+        }
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
-        telemetryM.addData("Turret Rotation Ticks/Sec ", Math.round(turretRotation.GetCurrentVel()));
-        telemetryM.addData("Turret Goal Speed ", ShooterLogic.TARGET_FLYWHEEL_TPS);
+        telemetryM.addData("shooter Goal Speed ", ShooterLogic.TARGET_FLYWHEEL_TPS);
+        telemetryM.addData("Is flywheel up to speed?:  ", shooter.IsFlywheelUpToSpeed());
         telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance));
+        telemetryM.addData("Hood Angle", hood.getPosition());
+        telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
+
+        telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
+        telemetryM.debug("y:" + Math.round(follower.getPose().getY()));
+        telemetryM.debug("heading:" + Math.round(Math.toDegrees(follower.getPose().getHeading())));
+
+
+
+
+
 
         //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
-        telemetryM.addData("Hood Angle", hood.getPosition());
 
-        telemetryM.addData("Distance Sensor value: ", shooter.GetDistance());
 
-        telemetryM.addData("Target Angle ", Math.round(turretRotation.GetTargetAngle()));
+
+
+
         //telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
         //telemetryM.addData("Turret Offset: ", Math.round(TurretRotation.turret_offset));
 
         //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
-        telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
+
         //telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
         //telemetryM.addData("Debugging angle Compensation" ,Math.round(turretRotation.DebugGetAngleCompensation()));
 
@@ -252,14 +288,7 @@ public class CleanTeleop extends OpMode {
         //telemetryM.addData("Is Turret Finished Rotating " ,turretRotation.isTurretFinishedRotating());
 
         //telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
-        telemetryM.addData("Bearing " ,camera.getBearing());
-        telemetryM.addData("Yaw " ,camera.getYaw());
-        telemetryM.addData("Distance (camera) " ,camera.getRange());
 
-
-        telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
-        telemetryM.debug("y:" + Math.round(follower.getPose().getY()));
-        telemetryM.debug("heading:" + Math.round(Math.toDegrees(follower.getPose().getHeading())));
         //telemetryM.debug("total heading:" + Math.round(Math.toDegrees(follower.getTotalHeading())));
         telemetryM.update(telemetry);
 
@@ -280,6 +309,7 @@ public class CleanTeleop extends OpMode {
         if (Math.abs(gamepad2.right_trigger) > Math.abs(gamepad2.left_trigger)){
             IntakePowerValue = Math.abs(gamepad2.right_trigger);
         }
+        if (gamepad2.y){IntakePowerValue = 1;}
 
         if (IntakeReversing){
             intake.intakeOn(-1,1);
@@ -295,7 +325,8 @@ public class CleanTeleop extends OpMode {
 
         //shooting
 
-        boolean Trigger = gamepad2.right_trigger>0;
+        //boolean Trigger = gamepad2.right_trigger>0;
+        boolean Trigger = gamepad2.y;
 
         if (gamepad2.back){shooter.SpinBallFeeder(-1);}
 
@@ -315,67 +346,86 @@ public class CleanTeleop extends OpMode {
         else{shooter.SpinBallFeeder(0);}
 
     }
+    private void handleAutomatedDriving() {
+        if (automatedDrive){
+
+        }
+    }
     private void handleDriving() {
-        double speed = .5; //
-        //if (gamepad1.right_trigger ==1){speed = 1;}
-        speed += gamepad1.right_trigger/2 ; // trigger makes it slower
+        if (!automatedDrive) {
+            //follower.startTeleopDrive();
 
-        double axial = -gamepad1.left_stick_y * speed;
-        double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
-        double yaw = -gamepad1.right_stick_x * speed;
+            double speed = .5; //
+            //if (gamepad1.right_trigger ==1){speed = 1;}
+            speed += gamepad1.right_trigger / 2; // trigger makes it slower
 
-        //parking precisly
-        double baseValue = 0.05;
+            double axial = -gamepad1.left_stick_y * speed;
+            double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
+            double yaw = -gamepad1.right_stick_x * speed;
 
-        if (gamepad1.dpad_right){lateral= -baseValue + speed/3;}
-        if (gamepad1.dpad_left){lateral= +baseValue- speed/3;}
-        if (gamepad1.dpad_up){axial= +baseValue+ speed/3;}
-        if (gamepad1.dpad_down){axial= -baseValue- speed/3;}
-        if (gamepad1.x){yaw = -baseValue- speed/3;}
-        if (gamepad1.b){yaw = +baseValue+ speed/3;}
+            //parking precisly
+            double baseValue = 0.05;
 
-        //field centric
+            if (gamepad1.dpad_right) {
+                lateral = -baseValue + speed / 3;
+            }
+            if (gamepad1.dpad_left) {
+                lateral = +baseValue - speed / 3;
+            }
+            if (gamepad1.dpad_up) {
+                axial = +baseValue + speed / 3;
+            }
+            if (gamepad1.dpad_down) {
+                axial = -baseValue - speed / 3;
+            }
+            if (gamepad1.x) {
+                yaw = -baseValue - speed / 3;
+            }
+            if (gamepad1.b) {
+                yaw = +baseValue + speed / 3;
+            }
 
-        if (gamepad1.yWasPressed()) {
-            fieldCentricDrive = true;
-        }
-        if (gamepad1.aWasPressed()) {
-            fieldCentricDrive = false;
-        }
+            //field centric
 
-        //send commands to pedro.
+            if (gamepad1.yWasPressed()) {
+                fieldCentricDrive = true;
+            }
+            if (gamepad1.aWasPressed()) {
+                fieldCentricDrive = false;
+            }
 
-        if (!fieldCentricDrive){
+            //send commands to pedro.
 
-            follower.setTeleOpDrive(
-                    axial,
-                    lateral,
-                    yaw,
-                    true // Robot Centric
-            );
-        }
-        else if (IsRed==false){
-            follower.setTeleOpDrive(
-                    //works i think
-                    -axial,
-                    -lateral,
-                    yaw,
-                    false // Robot Centric
-            );
-        }
-        else if (IsRed==true){
-            follower.setTeleOpDrive(
+            if (!fieldCentricDrive) {
 
-                    axial,
-                    lateral,
-                    yaw,
-                    false // Robot Centric
-            );
+                follower.setTeleOpDrive(
+                        axial,
+                        lateral,
+                        yaw,
+                        true // Robot Centric
+                );
+            } else if (IsRed == false) {
+                follower.setTeleOpDrive(
+                        //works i think
+                        -axial,
+                        -lateral,
+                        yaw,
+                        false // Robot Centric
+                );
+            } else if (IsRed == true) {
+                follower.setTeleOpDrive(
+
+                        axial,
+                        lateral,
+                        yaw,
+                        false // Robot Centric
+                );
+            }
         }
 
     }
     private void handleFlywheel(){
-        if (gamepad2.xWasPressed()) {shooter.On();}
-        if (gamepad2.yWasPressed()) {shooter.Off();}
+        if (gamepad2.rightStickButtonWasPressed()) {shooter.On();}
+        if (gamepad2.leftStickButtonWasPressed()){shooter.Off();}
     }
 }

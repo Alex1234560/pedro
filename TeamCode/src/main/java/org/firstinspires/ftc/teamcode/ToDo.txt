@@ -2,23 +2,17 @@
  -------- High Priority -------
 - make telemetry good for drivers not tuning or debugging.
 - make repositioning button to re-calibrate position in case it gets messed up.
-
-
-
-- Ball counter undercounts sometimes, fix it for auto.
+- make button to automatically go to shoot positions, and to autopark. maybe even to empty classifier.
 
 ----------- Medium Priority ----------
 - emtpy classifier in FrontAuto
 - get levis code integrated into the turret code.
 - make camera offseting good.
 - make flywheel PIDF better
-- test back auto
-- test AUTO
 - make a shoot button instead of a shoot trigger.
 - base distance off of camera when possible.
 
 -------- tips for making auto faster --------
-- Intake balls at speed 1 not 0.5
 - Shoot while moving ( need to implement just time or smh like that, since when moving shoot detection doesnt work.
 - to shoot while moving we could also just make the path slower
 

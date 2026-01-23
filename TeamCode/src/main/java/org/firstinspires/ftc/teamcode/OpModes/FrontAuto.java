@@ -112,9 +112,10 @@ public class FrontAuto extends OpMode {
         if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER && !AutoParkTriggered){
             AutoPark();
         }
-        else if (autoTimer.getElapsedTimeSeconds() < PARK_TIME_TRIGGER) {
+        if (autoTimer.getElapsedTimeSeconds() < PARK_TIME_TRIGGER) {
             intake.intakeOn(1,1);
         }
+        else{intake.intakeOff();}
 
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS:
@@ -148,7 +149,7 @@ public class FrontAuto extends OpMode {
 
                 if (isStateBusy == false &&!follower.isBusy()&&autoFunctions.isRobotInPosition(intakeStart,follower)){
                     loop_times +=1;
-                    follower.followPath(driveIntakeForward, .6,true);
+                    follower.followPath(driveIntakeForward, .8,true);
                     isStateBusy = true;
                 }
 
@@ -190,7 +191,10 @@ public class FrontAuto extends OpMode {
                         AutoPark();
                     }
                     else{
+//                        if (ball_line_offset==0) {//if first time running
+//                        }
                         ball_line_offset+=BALL_LINE_DIFFERENCE;
+
                         buildPoses();
                         buildPaths();
                         setPathState(PathState.DRIVE_TO_INTAKE_POS);
@@ -216,7 +220,7 @@ public class FrontAuto extends OpMode {
                     //follower.setPose(follower.getPose());
 
 
-                    driveToPark = new Pose(Cords.xFlip(25, IsRed), 69, Math.toRadians(Cords.angleFlip(0, IsRed)));
+                    driveToPark = new Pose(Cords.xFlip(36.83312262958282, IsRed), 74.0973451327433, Math.toRadians(Cords.angleFlip(180, IsRed)));
                     Pose currentPose = follower.getPose();
 
 

@@ -311,7 +311,8 @@ public class BackAuto extends OpMode {
         //shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
         //camera.update();
         follower.update();
-        shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
+        boolean IsTurretReady = autoFunctions.isRobotInPosition(shootPos,follower) && turretRotation.isTurretFinishedRotating();
+        shooter.updateWithStateMachine(IsTurretReady);
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose,IsRed);;
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
