@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
-import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
@@ -31,6 +30,7 @@ public class BackAuto extends OpMode {
 
     //1 == true, 0 == false
     public static boolean IsRed = false;
+    public static boolean GrabFromSpikeMark = true;
 
 
     //public static boolean DidAutoGoToEnd;
@@ -72,7 +72,7 @@ public class BackAuto extends OpMode {
     //BallLines
 
     private double ball_line_offset;
-    private double loop_times;
+    private int loop_times;
 
     // -------- everything Poses ---------
 
@@ -88,10 +88,12 @@ public class BackAuto extends OpMode {
     private static Pose driveToPark;
 
     // ------ these are for use only in this AUTO -------
-    private static  Pose shootPos,intakeStart,intakeEnd,intakeBallsStart,intakeBallsEnd;
-    private PathChain driveFromBallsIntakeToShootPos,driveBallsIntakeForward,driveShootPosToBallsIntake,driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos;
+    private static  Pose shootPos,intakeStart,intakeEnd, intakeSpikeMarkStart, intakeSpikeMarkEnd;
+    private PathChain driveFromBallsIntakeSpikeMarkBallsToShootPos, driveIntakeForwardForSpikeMarkBalls, driveShootPosToBallsIntakeSpikeMarkBalls,driveStartToShootPos, driveShootPosToIntakeCornerBalls, driveIntakeForwardForCornerBalls, driveFromIntakeToShootPosCornerBalls;
 
-
+    PathChain[] IntakeToShootPaths;
+    PathChain[] IntakeBallsPaths;
+    PathChain[] ShootPosToIntakePosPaths;
 
     private boolean isStateBusy;
     private boolean AutoParkTriggered;
@@ -111,6 +113,7 @@ public class BackAuto extends OpMode {
         if (!AutoParkTriggered) {
             intake.intakeOn(1, 1);
         }
+        else{ intake.intakeOff();}
 
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS_FROM_START:
@@ -141,15 +144,18 @@ public class BackAuto extends OpMode {
             case DRIVE_TO_INTAKE_POS:
 
                 if (!shooter.isBusy() ){
-                    if (loop_times>0) {
-                        //intake.intakeOff();// to stop cycling balls to shooter.
-                        follower.followPath(driveShootPosToIntake, true);
-                        setPathState(PathState.INTAKE_BALLS);
-                    }
-                    else{
-                        follower.followPath(driveShootPosToBallsIntake, true);
-                        setPathState(PathState.INTAKE_BALLS);
-                    }
+                    follower.followPath(ShootPosToIntakePosPaths[loop_times], true);
+//                    if (loop_times==0){
+//                        follower.followPath(driveShootPosToBallsIntakeSpikeMarkBalls, true);
+//
+//                    }
+//                    else{
+//                        //intake.intakeOff();// to stop cycling balls to shooter.
+//                        follower.followPath(driveShootPosToIntakeCornerBalls, true);
+//
+//                    }
+                    setPathState(PathState.INTAKE_BALLS);
+
                 }
 
                 break;
@@ -157,10 +163,14 @@ public class BackAuto extends OpMode {
             case INTAKE_BALLS:
 
                 if (!follower.isBusy() && !isStateBusy){
-                    if (loop_times>0) {
-                        follower.followPath(driveIntakeForward, true);
-                    }
-                    else{follower.followPath(driveBallsIntakeForward, true);}
+                    follower.followPath(IntakeBallsPaths[loop_times],.7, true);
+
+//                    if (loop_times==0){
+//                        follower.followPath(driveIntakeForwardForSpikeMarkBalls, true);
+//                    }
+//                    else{
+//                        follower.followPath(driveIntakeForwardForCornerBalls, true);
+//                    }
                     isStateBusy = true;
                 }
                 else if (isStateBusy && !follower.isBusy()){
@@ -173,17 +183,20 @@ public class BackAuto extends OpMode {
                 break;
             case DRIVE_BACK_TO_SHOOT:
                 if(isStateBusy == false){
-                    if (loop_times>0) {
-                        follower.followPath(driveFromIntakeToShootPos, true);
-                    }
-                    else{
-                        follower.followPath(driveFromBallsIntakeToShootPos, true);
-                    }
+                    follower.followPath(IntakeToShootPaths[loop_times], true);
+
+//                    if (loop_times==0){
+//                        follower.followPath(driveFromBallsIntakeSpikeMarkBallsToShootPos, true);
+//                    }
+//                    else {
+//                        follower.followPath(driveFromIntakeToShootPosCornerBalls, true);
+//                    }
                     isStateBusy = true;
                 }
                 else if (isStateBusy == true && !follower.isBusy()){
                     isStateBusy = false;
-                    loop_times+=1;
+                    if (loop_times<1){
+                    loop_times+=1;}
                     setPathState(PathState.SHOOT);
                 }
 
@@ -204,7 +217,7 @@ public class BackAuto extends OpMode {
                     //follower.setPose(follower.getPose());
 
 
-                    driveToPark = new Pose(Cords.xFlip(47, IsRed), 34, Math.toRadians(Cords.angleFlip(0, IsRed)));
+                    driveToPark = new Pose(Cords.xFlip(44, IsRed), 29, Math.toRadians(Cords.angleFlip(180, IsRed)));
                     Pose currentPose = follower.getPose();
 
 
@@ -247,7 +260,7 @@ public class BackAuto extends OpMode {
         isStateBusy=false;
         AutoParkTriggered = false;
         ball_line_offset=0;
-        loop_times = 0;
+
 
 
 
@@ -271,7 +284,7 @@ public class BackAuto extends OpMode {
 
     @Override
     public void init_loop(){
-        telemetry.addData("Alliance Selection", "X for BLUE, B for RED, Y for FRONT, A for BACK");
+        telemetry.addData("Alliance Selection", "X for BLUE, B for RED");
         if (IsRed == false) {
             telemetry.addData("Color: BLUE ", "");
         }
@@ -279,8 +292,21 @@ public class BackAuto extends OpMode {
             telemetry.addData("Color: RED ", "");
         }
 
+
+
+
+
         if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
         if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
+
+        telemetry.addData("Back Auto Selection", "Y to toggle");
+        telemetry.addData(" Grab From Spike Mark: ", GrabFromSpikeMark);
+
+        if (gamepad1.yWasPressed() || gamepad2.yWasPressed()) {GrabFromSpikeMark = !GrabFromSpikeMark;} // blue
+
+
+        if (GrabFromSpikeMark){loop_times = 0;}
+        else{loop_times = 1;}
 
         telemetry.update();
 
@@ -337,53 +363,68 @@ public class BackAuto extends OpMode {
     }
 
     public void buildPaths(){
+        IntakeToShootPaths = new PathChain[2];
+        IntakeBallsPaths = new PathChain[2];
+        ShootPosToIntakePosPaths = new PathChain[2];
+
         // put in coordinates for starting pos > ending pos
         driveStartToShootPos = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, shootPos))
                 .setLinearHeadingInterpolation(startPose.getHeading(), shootPos.getHeading())
                 .build();
-        driveShootPosToIntake = follower.pathBuilder()
+        driveShootPosToIntakeCornerBalls = follower.pathBuilder()
                 .addPath(new BezierLine(shootPos, intakeStart))
                 .setLinearHeadingInterpolation(shootPos.getHeading(), intakeStart.getHeading())
                 .build();
 
-        driveIntakeForward = follower.pathBuilder()
+        driveIntakeForwardForCornerBalls = follower.pathBuilder()
                 .addPath(new BezierLine(intakeStart, intakeEnd))
                 .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
                 .build();
 
-        driveFromIntakeToShootPos = follower.pathBuilder()
+        driveFromIntakeToShootPosCornerBalls = follower.pathBuilder()
                 .addPath(new BezierLine(intakeEnd, shootPos))
                 .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos.getHeading())
                 .build();
 
-        driveShootPosToBallsIntake = follower.pathBuilder()
-                .addPath(new BezierLine(shootPos, intakeBallsStart))
-                .setLinearHeadingInterpolation(shootPos.getHeading(), intakeBallsStart.getHeading())
+        driveShootPosToBallsIntakeSpikeMarkBalls = follower.pathBuilder()
+                .addPath(new BezierLine(shootPos, intakeSpikeMarkStart))
+                .setLinearHeadingInterpolation(shootPos.getHeading(), intakeSpikeMarkStart.getHeading())
                 .build();
 
-        driveBallsIntakeForward = follower.pathBuilder()
-                .addPath(new BezierLine(intakeBallsStart, intakeBallsEnd))
-                .setLinearHeadingInterpolation(intakeBallsStart.getHeading(), intakeBallsEnd.getHeading())
+        driveIntakeForwardForSpikeMarkBalls = follower.pathBuilder()
+                .addPath(new BezierLine(intakeSpikeMarkStart, intakeSpikeMarkEnd))
+                .setLinearHeadingInterpolation(intakeSpikeMarkStart.getHeading(), intakeSpikeMarkEnd.getHeading())
                 .build();
 
-        driveFromBallsIntakeToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(intakeBallsEnd, shootPos))
-                .setLinearHeadingInterpolation(intakeBallsEnd.getHeading(), shootPos.getHeading())
+        driveFromBallsIntakeSpikeMarkBallsToShootPos = follower.pathBuilder()
+                .addPath(new BezierLine(intakeSpikeMarkEnd, shootPos))
+                .setLinearHeadingInterpolation(intakeSpikeMarkEnd.getHeading(), shootPos.getHeading())
                 .build();
+
+
+        IntakeToShootPaths[0] =driveFromBallsIntakeSpikeMarkBallsToShootPos;
+        IntakeToShootPaths[1] = driveFromIntakeToShootPosCornerBalls;
+
+        IntakeBallsPaths[0] = driveIntakeForwardForSpikeMarkBalls;
+        IntakeBallsPaths[1] = driveIntakeForwardForCornerBalls;
+
+        ShootPosToIntakePosPaths[0] = driveShootPosToBallsIntakeSpikeMarkBalls;
+        ShootPosToIntakePosPaths[1] = driveShootPosToIntakeCornerBalls;
+
+
+
     }
 
     private void buildPoses(){
         startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        shootPos = new Pose(Cords.xFlip(51, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootPos = new Pose(Cords.xFlip(57, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeStart = new Pose(Cords.xFlip(33.89254108723136, IsRed), 12.336283185840703, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeEnd = new Pose(Cords.xFlip(11, IsRed),  12.336, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeBallsStart = new Pose(Cords.xFlip(47.5, IsRed), 35, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeBallsEnd = new Pose(Cords.xFlip(13.530973451327434, IsRed),  35, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeSpikeMarkStart = new Pose(Cords.xFlip(47.5, IsRed), 35, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeSpikeMarkEnd = new Pose(Cords.xFlip(13.530973451327434, IsRed),  35, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
     }
-
-
 }
