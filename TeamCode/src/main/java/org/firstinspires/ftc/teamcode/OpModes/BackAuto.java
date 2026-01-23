@@ -373,7 +373,7 @@ public class BackAuto extends OpMode {
     }
 
     private void buildPoses(){
-        startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(90, IsRed)));
+        startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootPos = new Pose(Cords.xFlip(51, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeStart = new Pose(Cords.xFlip(33.89254108723136, IsRed), 12.336283185840703, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeEnd = new Pose(Cords.xFlip(11, IsRed),  12.336, Math.toRadians(Cords.angleFlip(180, IsRed)));
