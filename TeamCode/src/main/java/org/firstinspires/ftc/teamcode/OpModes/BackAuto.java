@@ -8,6 +8,7 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
@@ -113,7 +114,9 @@ public class BackAuto extends OpMode {
         if (!AutoParkTriggered) {
             intake.intakeOn(1, 1);
         }
-        else{ intake.intakeOff();}
+        // only spitting out balls if theres already a ball ready to shoot and is in shoot state.
+        else if (pathState==PathState.SHOOT&&shooter.IsBallDetected()){ intake.intakeOn(-1, 1);}
+        else{intake.intakeOff();}
 
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS_FROM_START:
@@ -145,15 +148,7 @@ public class BackAuto extends OpMode {
 
                 if (!shooter.isBusy() ){
                     follower.followPath(ShootPosToIntakePosPaths[loop_times], true);
-//                    if (loop_times==0){
-//                        follower.followPath(driveShootPosToBallsIntakeSpikeMarkBalls, true);
-//
-//                    }
-//                    else{
-//                        //intake.intakeOff();// to stop cycling balls to shooter.
-//                        follower.followPath(driveShootPosToIntakeCornerBalls, true);
-//
-//                    }
+
                     setPathState(PathState.INTAKE_BALLS);
 
                 }
@@ -165,12 +160,6 @@ public class BackAuto extends OpMode {
                 if (!follower.isBusy() && !isStateBusy){
                     follower.followPath(IntakeBallsPaths[loop_times],.7, true);
 
-//                    if (loop_times==0){
-//                        follower.followPath(driveIntakeForwardForSpikeMarkBalls, true);
-//                    }
-//                    else{
-//                        follower.followPath(driveIntakeForwardForCornerBalls, true);
-//                    }
                     isStateBusy = true;
                 }
                 else if (isStateBusy && !follower.isBusy()){
@@ -185,12 +174,6 @@ public class BackAuto extends OpMode {
                 if(isStateBusy == false){
                     follower.followPath(IntakeToShootPaths[loop_times], true);
 
-//                    if (loop_times==0){
-//                        follower.followPath(driveFromBallsIntakeSpikeMarkBallsToShootPos, true);
-//                    }
-//                    else {
-//                        follower.followPath(driveFromIntakeToShootPosCornerBalls, true);
-//                    }
                     isStateBusy = true;
                 }
                 else if (isStateBusy == true && !follower.isBusy()){

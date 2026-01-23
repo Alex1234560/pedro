@@ -9,6 +9,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 
 
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -41,6 +42,7 @@ public class CleanTeleop extends OpMode {
 
 
     //private DistanceSensorClass distanceSensor = new DistanceSensorClass();
+    private AutoFunctions autoFunctions = new AutoFunctions();
     private Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
@@ -64,6 +66,7 @@ public class CleanTeleop extends OpMode {
     //public static double STARTING_ANGLE_ROBOT = 144;
 
     private boolean IsRed = false;
+    private boolean SlowMode = false;
 
     private Pose GoalLocationPose, StartingPosition, GoalLocationPoseForDistance, restartPos;
 
@@ -86,6 +89,11 @@ public class CleanTeleop extends OpMode {
     private boolean ManuallyAdjustableValues = false;
 
 
+    Pose shootFrontPos, parkPos, shootBackPos;
+
+    Pose lastPoseTriggered;
+
+
     @Override
     public void init(){
 
@@ -103,14 +111,17 @@ public class CleanTeleop extends OpMode {
 
         follower.update();
 
-//        DriveBack = follower.pathBuilder()
-//                .addPath(new BezierLine(follower::getPose, shootPos))
-//                .setLinearHeadingInterpolation(follower::getHeading, shootPos.getHeading())
-//                .build();
+
     }
 
     @Override
     public void start(){
+        shootFrontPos = new Pose(Cords.xFlip(57, IsRed), 95, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootBackPos = new Pose(Cords.xFlip(57, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        parkPos = new Pose(Cords.xFlip(38.71049304677624, IsRed), 33.29329962073322, Math.toRadians(Cords.angleFlip(180, IsRed)));
+
+
+
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
 
@@ -225,7 +236,7 @@ public class CleanTeleop extends OpMode {
         if (gamepad2.aWasPressed()) {
             UseOdosForSpeedAndDistance = false;}
 
-        handleAutomatedDriving();
+
         handleDriving();
         handleIntakeAndShootingButtons();
         handleResetPositionFunction();
@@ -234,7 +245,7 @@ public class CleanTeleop extends OpMode {
     }
 
     private void handleResetPositionFunction(){
-//        if (gamepad1.back&&gamepad1.start&&gamepad1.rightBumperWasPressed()){
+//        if (gamepad1.start&&gamepad1.rightBumperWasPressed()){
 //            follower.setPose(restartPos);
 //        }
     }
@@ -316,8 +327,6 @@ public class CleanTeleop extends OpMode {
         }
         else if(IntakePowerValue!=0){
             intake.intakeOn(IntakePowerValue,1);
-
-
         }
         else{
             intake.intakeOff();
@@ -346,44 +355,45 @@ public class CleanTeleop extends OpMode {
         else{shooter.SpinBallFeeder(0);}
 
     }
-    private void handleAutomatedDriving() {
-        if (automatedDrive){
 
-        }
-    }
     private void handleDriving() {
+        double speed = .5; //
+        //if (gamepad1.right_trigger ==1){speed = 1;}
+        double speedModifier = gamepad1.right_trigger / 2;
+        speed += speedModifier; // trigger makes it slower
+
+        if (SlowMode){speed=.1+speedModifier/1.5;}
+        if (gamepad1.leftStickButtonWasPressed()){SlowMode=!SlowMode;}
+
+
+        double axial = -gamepad1.left_stick_y * speed;
+        double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
+        double yaw = -gamepad1.right_stick_x * speed;
+
         if (!automatedDrive) {
             //follower.startTeleopDrive();
 
-            double speed = .5; //
-            //if (gamepad1.right_trigger ==1){speed = 1;}
-            speed += gamepad1.right_trigger / 2; // trigger makes it slower
-
-            double axial = -gamepad1.left_stick_y * speed;
-            double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
-            double yaw = -gamepad1.right_stick_x * speed;
-
             //parking precisly
-            double baseValue = 0.05;
-
-            if (gamepad1.dpad_right) {
-                lateral = -baseValue + speed / 3;
-            }
-            if (gamepad1.dpad_left) {
-                lateral = +baseValue - speed / 3;
-            }
-            if (gamepad1.dpad_up) {
-                axial = +baseValue + speed / 3;
-            }
-            if (gamepad1.dpad_down) {
-                axial = -baseValue - speed / 3;
-            }
-            if (gamepad1.x) {
-                yaw = -baseValue - speed / 3;
-            }
-            if (gamepad1.b) {
-                yaw = +baseValue + speed / 3;
-            }
+//            double baseValue = 0.05;
+//
+//            if (gamepad1.dpad_right) {
+//                lateral = -baseValue + speed / 3;
+//            }
+//            if (gamepad1.dpad_left) {
+//                lateral = +baseValue - speed / 3;
+//            }
+//            if (gamepad1.dpad_up) {
+//                axial = +baseValue + speed / 3;
+//            }
+//            if (gamepad1.dpad_down) {
+//                axial = -baseValue - speed / 3;
+//            }
+//            if (gamepad1.x) {
+//                yaw = -baseValue - speed / 3;
+//            }
+//            if (gamepad1.b) {
+//                yaw = +baseValue + speed / 3;
+//            }
 
             //field centric
 
@@ -421,6 +431,58 @@ public class CleanTeleop extends OpMode {
                         false // Robot Centric
                 );
             }
+        }
+
+        // ----- automated Driving ---
+        if (gamepad1.backWasPressed()){
+
+            PathChain GoToParkPos = follower.pathBuilder()
+                    .addPath(new BezierLine(follower.getPose(), parkPos))
+                    .setLinearHeadingInterpolation(follower.getHeading(), parkPos.getHeading())
+                    .build();
+            follower.followPath(GoToParkPos,1,true);
+            automatedDrive = true;
+
+            lastPoseTriggered = parkPos;
+
+        }
+
+        if (gamepad1.dpadUpWasPressed()){
+
+            PathChain GoToFrontShootPos = follower.pathBuilder()
+                    .addPath(new BezierLine(follower.getPose(), shootFrontPos))
+                    .setLinearHeadingInterpolation(follower.getHeading(), follower.getHeading())
+                    .build();
+            follower.followPath(GoToFrontShootPos,1,true);
+            automatedDrive = true;
+
+            lastPoseTriggered = shootFrontPos;
+
+        }
+
+        if (gamepad1.dpadDownWasPressed()){
+
+            PathChain GoToBackShootPos = follower.pathBuilder()
+                    .addPath(new BezierLine(follower.getPose(), shootBackPos))
+                    .setLinearHeadingInterpolation(follower.getHeading(),shootBackPos.getHeading())
+                    .build();
+            follower.followPath(GoToBackShootPos,1,true);
+            automatedDrive = true;
+
+            lastPoseTriggered = shootBackPos;
+
+        }
+
+
+        boolean BreakPaths = false;
+        double BreakTolerance=.04;
+        if (Math.abs(lateral)>BreakTolerance ||Math.abs(yaw)>BreakTolerance || Math.abs(axial)>BreakTolerance){
+            BreakPaths = true;
+        }
+
+        if (automatedDrive && (BreakPaths || autoFunctions.isRobotInPosition(lastPoseTriggered,follower))) {
+            follower.startTeleopDrive();
+            automatedDrive = false;
         }
 
     }

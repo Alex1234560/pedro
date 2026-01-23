@@ -1,8 +1,8 @@
 
  -------- High Priority -------
-- make telemetry good for drivers not tuning or debugging.
+
 - make repositioning button to re-calibrate position in case it gets messed up.
-- make button to automatically go to shoot positions, and to autopark. maybe even to empty classifier.
+- make button that emtpies auto
 
 ----------- Medium Priority ----------
 - emtpy classifier in FrontAuto
