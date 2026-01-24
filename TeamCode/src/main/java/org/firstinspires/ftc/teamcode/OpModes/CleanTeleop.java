@@ -117,8 +117,8 @@ public class CleanTeleop extends OpMode {
     @Override
     public void start(){
         shootFrontPos = new Pose(Cords.xFlip(57, IsRed), 95, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        shootBackPos = new Pose(Cords.xFlip(57, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        parkPos = new Pose(Cords.xFlip(38.71049304677624, IsRed), 33.29329962073322, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootBackPos = new Pose(Cords.xFlip(57, !IsRed), 18, Math.toRadians(Cords.angleFlip(0, IsRed)));
+        parkPos = new Pose(Cords.xFlip(38.71049304677624, !IsRed), 33.29329962073322, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
 
 
@@ -480,7 +480,7 @@ public class CleanTeleop extends OpMode {
             BreakPaths = true;
         }
 
-        if (automatedDrive && (BreakPaths || autoFunctions.isRobotInPosition(lastPoseTriggered,follower))) {
+        if (automatedDrive && (BreakPaths || autoFunctions.isRobotInPositionCustomAmounts(lastPoseTriggered,follower,14,.2))) {
             follower.startTeleopDrive();
             automatedDrive = false;
         }

@@ -2,7 +2,8 @@
  -------- High Priority -------
 
 - make repositioning button to re-calibrate position in case it gets messed up.
-- make button that emtpies auto
+- emtpy classifier button in teleop
+- emtpy classifier choice, either in first row of balls or second.
 
 ----------- Medium Priority ----------
 - emtpy classifier in FrontAuto

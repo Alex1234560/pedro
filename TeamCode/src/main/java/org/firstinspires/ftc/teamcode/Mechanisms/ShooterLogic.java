@@ -191,6 +191,7 @@ public class ShooterLogic {
     public void Off(){
         flywheel_on=false;
         flywheelState = FlywheelState.IDLE;
+        SpinBallFeeder(0);
     }
 
     public void On(){

@@ -73,16 +73,17 @@ public class FunctionsAndValues {
 
 
         if (range<BackRangeStart) {
-             //targAngle = (0.00729122 * range) + 0.0887001;
-             //targSpeed = (6.94554 * range) + 850.3396;
-            targAngle = (0.00779122 * range) + .121448;
-            targSpeed = (5.64501 * range) + 925.3;
+            //targAngle = (0.00779122 * range) + .121448;
+            //targSpeed = (5.64501 * range) + 925.3;
+            targAngle = (.00890654 * range) + .0542134;
+            targSpeed = (6.62105 * range) + 827.79659;
 
             SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_FRONT;
         }
         else{
             targAngle=.9;
-            targSpeed = 11.12353*range+288.91;
+            //targSpeed = 11.12353*range+288.91;
+            targSpeed = 4.07072*range+1077.60987;
             //targSpeed = 4.78571*range+1009.28571; // Alexs house measurement
             //targSpeed = (6.15554*range)+839.5422; One used in odometry pod class before.
             SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;

@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
-import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
@@ -61,6 +60,7 @@ public class FrontAuto extends OpMode {
         DRIVE_TO_SHOOT_POS,
         DRIVE_TO_INTAKE_POS,
         INTAKE_BALLS,
+        CLEAR_CLASSIFIER,
         DRIVE_BACK_TO_SHOOT,
         SHOOT,
         FINISHED,
@@ -78,13 +78,24 @@ public class FrontAuto extends OpMode {
     private double ball_line_offset;
     private double loop_times;
 
+
+
+
+    private double BallIntakePosition1 = 85;
+    private double BallIntakePosition2 = 58;
+    private double BallIntakePosition3 = 35.5;
+
+
+
+
+
     // -------- everything Poses ---------
 
 
 
     //public static Pose startPose = new Pose(Coordinates.START_X,Coordinates.START_Y,Math.toRadians(Coordinates.StartingRobotAngleDeg));
     public static Pose startPose;
-    private static Pose GoalLocationPose,GoalLocationPoseForDistance;
+    private static Pose GoalLocationPose,GoalLocationPoseForDistance, EmptyClassifierPos;
 
     //this is to track last pose recorded for TeleOp
     // it is start pose cuz if the code never starts then the last position is the start position :)
@@ -93,7 +104,7 @@ public class FrontAuto extends OpMode {
 
     // ------ these are for use only in this AUTO -------
     private static  Pose shootPos,intakeStart,intakeEnd,shootPosControlPoint;
-    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntake1ToShootPos;
+    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos,driveFromIntakeEndToClassifier,driveFromClassifierToShootPos;
 
 
 
@@ -157,13 +168,36 @@ public class FrontAuto extends OpMode {
                 if (!follower.isBusy() && isStateBusy ==true){
                     isStateBusy = false;
                     //intake.intakeOff();
+                    if (loop_times ==1){
+                        setPathState(PathState.CLEAR_CLASSIFIER);
+                    }
+                    else {
+                        setPathState(PathState.DRIVE_BACK_TO_SHOOT);
+                    }
+                }
+                break;
+
+            case CLEAR_CLASSIFIER:
+                if (isStateBusy == false &&!follower.isBusy()&&autoFunctions.isRobotInPosition(intakeEnd,follower)){
+
+                    follower.followPath(driveFromIntakeEndToClassifier, 1,true);
+                    isStateBusy = true;
+                }
+
+                if (!follower.isBusy() && isStateBusy ==true){
+                    isStateBusy = false;
                     setPathState(PathState.DRIVE_BACK_TO_SHOOT);
                 }
                 break;
 
+
             case DRIVE_BACK_TO_SHOOT:
                 if(isStateBusy == false && !follower.isBusy()){
-                    follower.followPath(driveFromIntake1ToShootPos, true);
+                    if (loop_times == 1){
+                        follower.followPath(driveFromClassifierToShootPos, true);
+                    }
+                    else{follower.followPath(driveFromIntakeToShootPos, true);}
+
                     //intake.intakeOn(1,1);
                     isStateBusy = true;
                 }
@@ -193,7 +227,12 @@ public class FrontAuto extends OpMode {
                     else{
 //                        if (ball_line_offset==0) {//if first time running
 //                        }
-                        ball_line_offset+=BALL_LINE_DIFFERENCE;
+                        if (loop_times == 1){
+                            ball_line_offset=BallIntakePosition2;
+                        }
+                        if (loop_times == 2){
+                            ball_line_offset=BallIntakePosition3;
+                        }
 
                         buildPoses();
                         buildPaths();
@@ -262,7 +301,7 @@ public class FrontAuto extends OpMode {
         //resseting variables
         isStateBusy=false;
         AutoParkTriggered = false;
-        ball_line_offset=0;
+        ball_line_offset=BallIntakePosition1;
         loop_times = 0;
 
 
@@ -373,22 +412,46 @@ public class FrontAuto extends OpMode {
                 .setLinearHeadingInterpolation(intakeStart.getHeading(), intakeEnd.getHeading())
                 .build();
 
-        driveFromIntake1ToShootPos = follower.pathBuilder()
+        driveFromIntakeToShootPos = follower.pathBuilder()
                 .addPath(new BezierLine(intakeEnd, shootPos))
                 .setLinearHeadingInterpolation(intakeEnd.getHeading(), shootPos.getHeading())
+                .build();
+
+        driveFromClassifierToShootPos = follower.pathBuilder()
+                .addPath(new BezierLine(EmptyClassifierPos, shootPos))
+                .setLinearHeadingInterpolation(EmptyClassifierPos.getHeading(), shootPos.getHeading())
+                .build();
+
+        driveFromIntakeEndToClassifier = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        intakeEnd,
+                        new Pose(Cords.xFlip(24.25,IsRed), ball_line_offset-5),
+                        EmptyClassifierPos
+                ))
+
+                .setLinearHeadingInterpolation(intakeEnd.getHeading(), EmptyClassifierPos.getHeading())
                 .build();
     }
 
     private void buildPoses(){
+
+
+
         startPose = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
         shootPos = new Pose(Cords.xFlip(52, IsRed), 89, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootPosControlPoint = new Pose(Cords.xFlip(44.28000884955753, IsRed), 109.20315297092289);
         //shootPos180 = new Pose(shootPos.getX(), shootPos.getY(), Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeStart = new Pose(Cords.xFlip(51, IsRed), 85+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd = new Pose(Cords.xFlip(17, IsRed),  85+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeStart = new Pose(Cords.xFlip(51, IsRed), ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(17, IsRed),  ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
+
+        EmptyClassifierPos = new Pose(Cords.xFlip(16.046776232616928, IsRed), 76.4740834386852, Math.toRadians(Cords.angleFlip(90, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
+
+
+
+
     }
 
 
