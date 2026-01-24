@@ -2,8 +2,7 @@
  -------- High Priority -------
 
 - make repositioning button to re-calibrate position in case it gets messed up.
-- emtpy classifier button in teleop
-- emtpy classifier choice, either in first row of balls or second.
+- make emptying classifier more effective with time on how much to stay on lever.
 
 ----------- Medium Priority ----------
 - emtpy classifier in FrontAuto

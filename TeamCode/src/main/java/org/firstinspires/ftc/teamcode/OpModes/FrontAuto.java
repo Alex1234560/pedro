@@ -33,7 +33,7 @@ public class FrontAuto extends OpMode {
 
     //1 == true, 0 == false
     public static boolean IsRed = false;
-    public static double WAIT_TO_SHOOT_TIME = .6;
+    //public static double WAIT_TO_SHOOT_TIME = .6;
 
     //public static boolean DidAutoGoToEnd;
 
@@ -53,6 +53,7 @@ public class FrontAuto extends OpMode {
     private FunctionsAndValues FAndV = new FunctionsAndValues();
 
     private boolean shotsTriggered=false;
+    private boolean EmptyClassifierOnFirstLine =true;
 
 
     public enum PathState{
@@ -74,7 +75,7 @@ public class FrontAuto extends OpMode {
 
     //BallLines
 
-    private final double BALL_LINE_DIFFERENCE = -24;
+    //private final double BALL_LINE_DIFFERENCE = -24;
     private double ball_line_offset;
     private double loop_times;
 
@@ -95,7 +96,7 @@ public class FrontAuto extends OpMode {
 
     //public static Pose startPose = new Pose(Coordinates.START_X,Coordinates.START_Y,Math.toRadians(Coordinates.StartingRobotAngleDeg));
     public static Pose startPose;
-    private static Pose GoalLocationPose,GoalLocationPoseForDistance, EmptyClassifierPos;
+    private static Pose GoalLocationPose,GoalLocationPoseForDistance, EmptyClassifierPos,EmptyClassifierControlPoint;
 
     //this is to track last pose recorded for TeleOp
     // it is start pose cuz if the code never starts then the last position is the start position :)
@@ -168,7 +169,10 @@ public class FrontAuto extends OpMode {
                 if (!follower.isBusy() && isStateBusy ==true){
                     isStateBusy = false;
                     //intake.intakeOff();
-                    if (loop_times ==1){
+                    if (loop_times ==1 && EmptyClassifierOnFirstLine){
+                        setPathState(PathState.CLEAR_CLASSIFIER);
+                    }
+                    if (loop_times ==2 && !EmptyClassifierOnFirstLine){
                         setPathState(PathState.CLEAR_CLASSIFIER);
                     }
                     else {
@@ -193,7 +197,10 @@ public class FrontAuto extends OpMode {
 
             case DRIVE_BACK_TO_SHOOT:
                 if(isStateBusy == false && !follower.isBusy()){
-                    if (loop_times == 1){
+                    if (loop_times == 1 && EmptyClassifierOnFirstLine){
+                        follower.followPath(driveFromClassifierToShootPos, true);
+                    }
+                    else if (loop_times == 2 && !EmptyClassifierOnFirstLine){
                         follower.followPath(driveFromClassifierToShootPos, true);
                     }
                     else{follower.followPath(driveFromIntakeToShootPos, true);}
@@ -337,6 +344,20 @@ public class FrontAuto extends OpMode {
         if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
         if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
 
+        telemetry.addData("Ball Line Classifier Activation", "Y to switch");
+
+        if (gamepad1.yWasPressed() || gamepad2.yWasPressed()){EmptyClassifierOnFirstLine=!EmptyClassifierOnFirstLine;}
+        if (EmptyClassifierOnFirstLine == false) {
+            telemetry.addData("Emptying classifier on line 2", "");
+        }
+        if (EmptyClassifierOnFirstLine == true) {
+            telemetry.addData("Emptying classifier on line 1", "");
+        }
+
+
+        if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
+        if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
+
         telemetry.update();
 
 
@@ -419,13 +440,13 @@ public class FrontAuto extends OpMode {
 
         driveFromClassifierToShootPos = follower.pathBuilder()
                 .addPath(new BezierLine(EmptyClassifierPos, shootPos))
-                .setLinearHeadingInterpolation(EmptyClassifierPos.getHeading(), shootPos.getHeading())
+                .setLinearHeadingInterpolation(EmptyClassifierPos.getHeading(), EmptyClassifierPos.getHeading())
                 .build();
 
         driveFromIntakeEndToClassifier = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         intakeEnd,
-                        new Pose(Cords.xFlip(24.25,IsRed), ball_line_offset-5),
+                        EmptyClassifierControlPoint,
                         EmptyClassifierPos
                 ))
 
@@ -444,7 +465,15 @@ public class FrontAuto extends OpMode {
         intakeStart = new Pose(Cords.xFlip(51, IsRed), ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeEnd = new Pose(Cords.xFlip(17, IsRed),  ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
-        EmptyClassifierPos = new Pose(Cords.xFlip(16.046776232616928, IsRed), 76.4740834386852, Math.toRadians(Cords.angleFlip(90, IsRed)));
+        if (EmptyClassifierOnFirstLine){
+            EmptyClassifierPos = new Pose(Cords.xFlip(16.046776232616928, IsRed), 76.4740834386852, Math.toRadians(Cords.angleFlip(90, IsRed)));
+            EmptyClassifierControlPoint = new Pose(Cords.xFlip(24.25,IsRed), 80);
+        }
+        else{
+            EmptyClassifierPos = new Pose(Cords.xFlip(16.046776232616928, IsRed), 76.4740834386852, Math.toRadians(Cords.angleFlip(270, IsRed)));
+            EmptyClassifierControlPoint = new Pose(Cords.xFlip(22.611567635903917,IsRed), 60.82806573957017);
+        }
+
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));

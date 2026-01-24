@@ -58,4 +58,8 @@ public class Coordinates {
 
   }
 
+    public double roundToNearest90(double angleDeg) {
+        return Math.round(angleDeg / 90.0) * 90.0;
+    }
+
 }

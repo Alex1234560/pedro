@@ -89,7 +89,7 @@ public class CleanTeleop extends OpMode {
     private boolean ManuallyAdjustableValues = false;
 
 
-    Pose shootFrontPos, parkPos, shootBackPos;
+    Pose shootFrontPos, parkPos, shootBackPos, TriggerClassifierPos;
 
     Pose lastPoseTriggered;
 
@@ -119,7 +119,7 @@ public class CleanTeleop extends OpMode {
         shootFrontPos = new Pose(Cords.xFlip(57, IsRed), 95, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootBackPos = new Pose(Cords.xFlip(57, !IsRed), 18, Math.toRadians(Cords.angleFlip(0, IsRed)));
         parkPos = new Pose(Cords.xFlip(38.71049304677624, !IsRed), 33.29329962073322, Math.toRadians(Cords.angleFlip(180, IsRed)));
-
+        TriggerClassifierPos = new Pose(Cords.xFlip(16.5, IsRed), 70, Math.toRadians(Cords.angleFlip(90, IsRed)));
 
 
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
@@ -470,7 +470,24 @@ public class CleanTeleop extends OpMode {
             automatedDrive = true;
 
             lastPoseTriggered = shootBackPos;
+        }
+        if (gamepad1.dpadLeftWasPressed()){
+            double FinalAngle = Cords.roundToNearest90(follower.getHeading());
+            if (!IsRed&&FinalAngle == 180){
+                FinalAngle+=90;
+            }
+            else if (IsRed&&FinalAngle == 0){
+                FinalAngle+=90;
+            }
 
+            PathChain TriggerClassifierPath = follower.pathBuilder()
+                    .addPath(new BezierLine(follower.getPose(), TriggerClassifierPos))
+                    .setLinearHeadingInterpolation(follower.getHeading(),Math.toRadians(FinalAngle))
+                    .build();
+            follower.followPath(TriggerClassifierPath,1,true);
+            automatedDrive = true;
+
+            lastPoseTriggered = TriggerClassifierPos;
         }
 
 
@@ -480,7 +497,7 @@ public class CleanTeleop extends OpMode {
             BreakPaths = true;
         }
 
-        if (automatedDrive && (BreakPaths || autoFunctions.isRobotInPositionCustomAmounts(lastPoseTriggered,follower,14,.2))) {
+        if (automatedDrive && (BreakPaths || autoFunctions.isRobotInPositionCustomAmounts(lastPoseTriggered,follower,0,0))) {
             follower.startTeleopDrive();
             automatedDrive = false;
         }
