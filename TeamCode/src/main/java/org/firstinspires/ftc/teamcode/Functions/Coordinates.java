@@ -20,8 +20,10 @@ public class Coordinates {
     public static final double FRONT_START_X = 17.914;
     public static final double FRONT_START_Y = 121.168;
 
-    public static final double RESTART_X = 9.7;
-    public static final double RESTART_Y = 9.3;
+//    public static final double RESTART_X = 9.8;
+//    public static final double RESTART_Y = 9.4;
+    public static final double RESTART_X = 134;
+    public static final double RESTART_Y = 9.4;
 
 
     public double xFlip(double oPos, boolean Red){

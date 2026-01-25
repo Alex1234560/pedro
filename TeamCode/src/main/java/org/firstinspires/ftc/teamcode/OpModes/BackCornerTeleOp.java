@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 @TeleOp
-public class CleanTeleop extends OpMode {
+public class BackCornerTeleOp extends OpMode {
     // Hardware Setup Variables
     //private Servo ServoShooter1;
     //private Servo ReadyToShootServo;
@@ -128,7 +128,7 @@ public class CleanTeleop extends OpMode {
         restartPos = new Pose(Cords.xFlip(Coordinates.RESTART_X,IsRed), Coordinates.RESTART_Y, Math.toRadians(90));
 
         if (start_program_witouth_auto_first){
-            StartingPosition = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
+            StartingPosition = new Pose(Cords.xFlip(134, IsRed), 9.5, Math.toRadians(90));
         }
         else{
             StartingPosition = AutoFunctions.LastPoseRecorded;
@@ -183,7 +183,7 @@ public class CleanTeleop extends OpMode {
         shooter.update();
 
         if (true){
-        camera.update();}
+            camera.update();}
 
         if (gamepad2.dpadLeftWasPressed()){
             tuningTelemetry=!tuningTelemetry;
@@ -246,7 +246,7 @@ public class CleanTeleop extends OpMode {
             follower.setPose(restartPos);
         }
         if ( gamepad1.back&&gamepad1.bWasPressed()){
-           IsRed = true;
+            IsRed = true;
         }
         if (gamepad1.back&&gamepad1.xWasPressed()){
             IsRed = false;
@@ -286,7 +286,7 @@ public class CleanTeleop extends OpMode {
         telemetryM.addData("Hood Angle", hood.getPosition());
         telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
         if (IsRed){
-        telemetryM.addData("RED SIDE OF THE FIELD" ,shooter.GetFlywheelSpeed());}
+            telemetryM.addData("RED SIDE OF THE FIELD" ,shooter.GetFlywheelSpeed());}
         if (!IsRed){
             telemetryM.addData("BLUE SIDE OF THE FIELD" ,shooter.GetFlywheelSpeed());}
 

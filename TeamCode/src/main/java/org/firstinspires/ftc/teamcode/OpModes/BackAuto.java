@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Autonomous
 public class BackAuto extends OpMode {
 
-   private Follower follower;
+    private Follower follower;
 
     //Overarching auto timer
     Timer autoTimer = new Timer();
@@ -179,7 +179,7 @@ public class BackAuto extends OpMode {
                 else if (isStateBusy == true && !follower.isBusy()){
                     isStateBusy = false;
                     if (loop_times<1){
-                    loop_times+=1;}
+                        loop_times+=1;}
                     setPathState(PathState.SHOOT);
                 }
 
@@ -231,7 +231,6 @@ public class BackAuto extends OpMode {
     public void setPathState(PathState newState){
         pathState = newState;
         pathTimer.resetTimer();
-
         shotsTriggered=false;
     }
 
@@ -244,9 +243,6 @@ public class BackAuto extends OpMode {
         AutoParkTriggered = false;
         ball_line_offset=0;
 
-
-
-
         pathState = PathState.DRIVE_TO_SHOOT_POS_FROM_START;
         pathTimer = new Timer();
         opModeTimer = new Timer();
@@ -258,10 +254,7 @@ public class BackAuto extends OpMode {
         turretRotation.init(hardwareMap);
         hood.init(hardwareMap);
         //camera = new AprilTagVision(hardwareMap);
-
         //intake = new Intake(hardwareMap);
-
-
 
     }
 
@@ -274,8 +267,6 @@ public class BackAuto extends OpMode {
         if (IsRed == true) {
             telemetry.addData("Color: RED ", "");
         }
-
-
 
 
 

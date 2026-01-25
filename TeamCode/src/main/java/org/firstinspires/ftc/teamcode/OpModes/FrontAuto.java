@@ -5,6 +5,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -20,19 +21,18 @@ import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
-
-
 @Configurable
 @Autonomous
 public class FrontAuto extends OpMode {
 
-   private Follower follower;
+    private Follower follower;
 
     //Overarching auto timer
     Timer autoTimer = new Timer();
 
     //1 == true, 0 == false
     public static boolean IsRed = false;
+    private static boolean OutakeBallsOnShoot = false;
     //public static double WAIT_TO_SHOOT_TIME = .6;
 
     //public static boolean DidAutoGoToEnd;
@@ -121,10 +121,15 @@ public class FrontAuto extends OpMode {
     }
 
     public void statePathUpdate() {
-        if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER && !AutoParkTriggered){
+        boolean HasTimeElapsed= autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER;
+        if (HasTimeElapsed&& !AutoParkTriggered){
             AutoPark();
         }
-        if (autoTimer.getElapsedTimeSeconds() < PARK_TIME_TRIGGER) {
+
+        if (!HasTimeElapsed && pathState==PathState.SHOOT && OutakeBallsOnShoot) {
+            intake.intakeOn(-1,1);
+        }
+        else if (!HasTimeElapsed) {
             intake.intakeOn(1,1);
         }
         else{intake.intakeOff();}
@@ -137,7 +142,7 @@ public class FrontAuto extends OpMode {
                 }
 
                 if (isStateBusy &&!follower.isBusy()) {
-                     // to cycle balls to shooter
+                    // to cycle balls to shooter
                     shooter.fireShots(3); //change to three
                     isStateBusy = false;
                     setPathState(PathState.DRIVE_TO_INTAKE_POS);
@@ -148,9 +153,9 @@ public class FrontAuto extends OpMode {
             case DRIVE_TO_INTAKE_POS:
 
                 if (!shooter.isBusy()){
-                        //intake.intakeOff();// to stop cycling balls to shooter.
-                        follower.followPath(driveShootPosToIntake, true);
-                        setPathState(PathState.INTAKE_BALLS);
+                    //intake.intakeOff();// to stop cycling balls to shooter.
+                    follower.followPath(driveShootPosToIntake, true);
+                    setPathState(PathState.INTAKE_BALLS);
                 }
                 break;
 
@@ -209,7 +214,7 @@ public class FrontAuto extends OpMode {
                     isStateBusy = true;
                 }
 
-                if (isStateBusy ==true&&!follower.isBusy()){
+                if (isStateBusy ==true&&!follower.isBusy()&&autoFunctions.isRobotInPosition(shootPos,follower)){
                     isStateBusy =false;
                     setPathState(PathState.SHOOT);
                 }
@@ -219,13 +224,13 @@ public class FrontAuto extends OpMode {
             case SHOOT:
                 if (isStateBusy==true){}//intake.intakeOn(1,1);}
 
-                if(isStateBusy == false&&autoFunctions.isRobotInPosition(shootPos,follower)&&!follower.isBusy()){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
+                if(isStateBusy == false&&(autoFunctions.isRobotInPosition(shootPos,follower)||pathTimer.getElapsedTimeSeconds()>4)&&!follower.isBusy()){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
                     //intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;
                 }
 
-                else if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>2){
+                else if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>1){
                     isStateBusy =false;
 
                     if (loop_times >= 3) {
@@ -312,7 +317,6 @@ public class FrontAuto extends OpMode {
         loop_times = 0;
 
 
-
         pathState = PathState.DRIVE_TO_SHOOT_POS;
         pathTimer = new Timer();
         opModeTimer = new Timer();
@@ -354,9 +358,15 @@ public class FrontAuto extends OpMode {
             telemetry.addData("Emptying classifier on line 1", "");
         }
 
+        telemetry.addData("Outake When Shooting?", "A to switch");
 
-        if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
-        if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
+        if (gamepad1.aWasPressed() || gamepad2.aWasPressed()){OutakeBallsOnShoot=!OutakeBallsOnShoot;}
+
+        telemetry.addData("Outake balls On Shoot: ", OutakeBallsOnShoot);
+
+
+
+
 
         telemetry.update();
 
@@ -388,7 +398,7 @@ public class FrontAuto extends OpMode {
         //camera.update();
         follower.update();
 
-        boolean IsTurretReady = autoFunctions.isRobotInPosition(shootPos,follower) && turretRotation.isTurretFinishedRotating();
+        boolean IsTurretReady = turretRotation.isTurretFinishedRotating();//autoFunctions.isRobotInPosition(shootPos,follower) &&
         shooter.updateWithStateMachine(IsTurretReady);
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(), GoalLocationPose, startPose,IsRed);;
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
