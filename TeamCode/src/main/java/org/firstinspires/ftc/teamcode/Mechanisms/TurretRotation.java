@@ -24,8 +24,8 @@ public class TurretRotation {
     private DcMotorEx TurretRotatorMotor = null;
 
 
-    public static double CAMERA_MULTIPLIER_FOR_TURRET_CHANGE = .09;
-    public static double CAMERA_STARTING_CHANGE = .003;
+    public static double CAMERA_MULTIPLIER_FOR_TURRET_CHANGE = .2;
+    public static double CAMERA_STARTING_CHANGE = .005;
 
     public static double TURRET_AIMING_ALLOWED_ERROR = 2.5;
     //public static double LARGE_VALUE_TO_CHANGE = 1;
@@ -55,6 +55,8 @@ public class TurretRotation {
     public static double turret_offset = 0;
 
     private boolean is_turret_being_centered;
+    private boolean is_turret_being_manually_controlled;
+    private double manual_control_offset;
 
     public static boolean COMPENSATE_FOR_TURRET_OFFSET = true;
     //public static double[] TurretOffsetINCHESXY = {2.85244094,-2.536};
@@ -92,7 +94,7 @@ public class TurretRotation {
         //added line to see if i thelps
         //turret_offset=0;
 
-
+        is_turret_being_manually_controlled=false;
         is_turret_being_centered=false;
         TurretRotatorMotor = hardwareMap.get(DcMotorEx.class, "TurretRotator");
         TurretRotatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -135,9 +137,17 @@ public class TurretRotation {
 
             angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), turret_x, turret_y, IsRed);
 
-            if (TRACK_GOAL){
+            if (TRACK_GOAL && !is_turret_being_manually_controlled){
                 actual_target_angle += angle_calculated_for_tracking_goal;
+                manual_control_offset=angle_calculated_for_tracking_goal;
             }
+
+            if (is_turret_being_manually_controlled){
+                //manual_control_offset-=camera_bearing_offset;
+                actual_target_angle+=manual_control_offset;
+            }
+
+
 
 
             boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
@@ -219,6 +229,14 @@ public class TurretRotation {
         else{
             return false;
         }
+    }
+
+    public void ManualTurretControl(boolean bool){
+        is_turret_being_manually_controlled = bool;
+
+    }
+    public void updateManualOffset(double offset){
+        manual_control_offset+=offset;
     }
 
     public void TurretTo0Deg(boolean bool){

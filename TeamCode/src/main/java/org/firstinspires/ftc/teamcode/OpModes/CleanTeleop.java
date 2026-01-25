@@ -24,7 +24,6 @@ import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-// NOTE BALL COUNTING ISNT AMAZING IN THIS OP MODE BEACUSE OF CAMERA LOOP DELAY////
 
 @Configurable
 @TeleOp
@@ -67,6 +66,7 @@ public class CleanTeleop extends OpMode {
 
     private boolean IsRed = false;
     private boolean SlowMode = false;
+    private boolean FastMode = true;
 
     private Pose GoalLocationPose, StartingPosition, GoalLocationPoseForDistance, restartPos;
 
@@ -84,7 +84,7 @@ public class CleanTeleop extends OpMode {
 
     private TurretRotation turretRotation = new TurretRotation();
 
-    private double FlywheelSpeedForTuning = 1000;
+    private double FlywheelSpeedForTuning;
 
     private boolean ManuallyAdjustableValues = false;
 
@@ -96,7 +96,9 @@ public class CleanTeleop extends OpMode {
 
     @Override
     public void init(){
-
+        // makes it easier in game, less buttons to click so taht u can start right up
+        start_program_witouth_auto_first = AutoFunctions.DidAutoGoToEnd;
+        AutoFunctions.DidAutoGoToEnd=false;
 
         camera = new AprilTagVision(hardwareMap);
         hood.init(hardwareMap);
@@ -148,24 +150,21 @@ public class CleanTeleop extends OpMode {
     }
     @Override
     public void init_loop(){
-        telemetry.addData("Status", "Initialized");
 
         // in case you're starting teleop from fresh just for practice
-        telemetry.addData("press 'back' to toggle the start program witouth running auto first.", start_program_witouth_auto_first);
+        //telemetry.addData("press 'back' to toggle the start program witouth running auto first.", start_program_witouth_auto_first);
         if (gamepad1.backWasPressed()){
             start_program_witouth_auto_first = !start_program_witouth_auto_first;}
+        if (!start_program_witouth_auto_first){telemetry.addData("AFTER AUTO ( 'back' to toggle )", "");}
+        if (start_program_witouth_auto_first){telemetry.addData("WITOUTH AUTO FIRST ( 'back' to toggle )", "");}
 
         if (start_program_witouth_auto_first) {
-            telemetry.addData("Alliance Selection", "X for BLUE, B for RED");
-            if (IsRed == false) {
-                telemetry.addData("Color: BLUE ", "");
-            }
-            if (IsRed == true) {
-                telemetry.addData("Color: RED ", "");
-            }
+            //telemetry.addData("Alliance Selection", "X for BLUE, B for RED");
+            if (IsRed == false) {telemetry.addData("Color: BLUE (b to switch ) ", "");}
+            if (IsRed == true) {telemetry.addData("Color: RED (x to switch )", "");}
 
-            if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
-            if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
+            if ((gamepad1.x || gamepad2.x)&&!gamepad1.start) {IsRed = false;} // blue
+            if ((gamepad1.b || gamepad2.b)&&!gamepad1.start) {IsRed = true;} //red
         }
 
         else{
@@ -174,66 +173,19 @@ public class CleanTeleop extends OpMode {
 
         telemetry.update();
     }
+
     @Override
     public void loop(){
 
         turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition, IsRed);
-
         follower.update();
         shooter.update();
+        camera.update();
 
-        if (true){
-        camera.update();}
-
-        if (gamepad2.dpadLeftWasPressed()){
-            tuningTelemetry=!tuningTelemetry;
-        }
-
-
-
-        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance );
-
-        // ----- everything below for manually adjustable values -----
-        if (gamepad2.start && gamepad2.dpadUpWasPressed() || gamepad2.start && gamepad2.dpadDownWasPressed()){
-            ManuallyAdjustableValues=!ManuallyAdjustableValues;
-            HoodAngle = hood.getPosition();
-            FlywheelSpeedForTuning = ShooterLogic.TARGET_FLYWHEEL_TPS;
-        }
-
-        if (ManuallyAdjustableValues){
-            HoodAngle -= gamepad2.left_stick_y / 22;
-            hood.SetPosition(HoodAngle);
-
-            if (gamepad2.dpadUpWasPressed()){
-                FlywheelSpeedForTuning+=50;
-            }
-            if (gamepad2.dpadDownWasPressed()){
-                FlywheelSpeedForTuning-=50;
-            }
-            shooter.setFlywheelTPS(FlywheelSpeedForTuning);
-        }
-        // --------------------------------------------------- /
-
-        else if (UseOdosForSpeedAndDistance){
-            double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);// remove -4 in the future
-            hood.SetPosition(turretGoals[0]);
-            shooter.setFlywheelTPS(turretGoals[1]);
-        }
-        else if (camera.getRange()!=-1){
-            double[] turretGoals = FAndV.handleShootingRanges(camera.getRange());// remove -4 in the future
-            hood.SetPosition(turretGoals[0]);
-            shooter.setFlywheelTPS(turretGoals[1]);
-
-        }
+        if (gamepad2.dpadLeftWasPressed()){tuningTelemetry=!tuningTelemetry;}
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
 
-//        if (gamepad2.bWasPressed()) {
-//            UseOdosForSpeedAndDistance = true;
-//        }
-//        if (gamepad2.aWasPressed()) {
-//            UseOdosForSpeedAndDistance = false;}
-
-
+        HandleAimingRanges();
         handleDriving();
         handleIntakeAndShootingButtons();
         handleResetPositionFunction();
@@ -242,29 +194,31 @@ public class CleanTeleop extends OpMode {
     }
 
     private void handleResetPositionFunction(){
-        if (gamepad1.start&&gamepad1.rightBumperWasPressed()){
+        if (gamepad1.start && gamepad1.rightBumperWasPressed()) {
             follower.setPose(restartPos);
         }
-        if ( gamepad1.back&&gamepad1.bWasPressed()){
-           IsRed = true;
+        if (gamepad1.back && gamepad1.bWasPressed()) {
+            IsRed = true;
         }
-        if (gamepad1.back&&gamepad1.xWasPressed()){
+        if (gamepad1.back && gamepad1.xWasPressed()) {
             IsRed = false;
         }
 
-        if (gamepad1.leftStickButtonWasPressed()&&gamepad1.start){
-            turretRotation.TurretTo0Deg(false);
+        //in case everything goes wrong
+        if (gamepad2.rightBumperWasPressed()&&gamepad2.start){
+            //turretRotation.TurretTo0Deg(false);
             UseOdosForSpeedAndDistance = true;
+            turretRotation.ManualTurretControl(false);
         }
-        if (gamepad1.rightStickButtonWasPressed()&&gamepad1.start){
-            turretRotation.TurretTo0Deg(true);
+        else if (gamepad2.leftBumperWasPressed()&&gamepad2.start){
+            //turretRotation.TurretTo0Deg(true);
+
+            turretRotation.ManualTurretControl(true);
             UseOdosForSpeedAndDistance = false;
             fieldCentricDrive=false;
         }
-
-
+        turretRotation.updateManualOffset(gamepad2.right_stick_x*5);
     }
-
     private void TelemetryStatements(){
         if (tuningTelemetry) {
             telemetryM.addData("Turret Finished Rotating?:  ", turretRotation.isTurretFinishedRotating());
@@ -378,53 +332,72 @@ public class CleanTeleop extends OpMode {
         else{shooter.SpinBallFeeder(0);}
 
     }
+    private void HandleAimingRanges(){
 
+    double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance );
+
+    // ----- everything below for manually adjustable values -----
+    if (gamepad2.start && gamepad2.dpadUpWasPressed() || gamepad2.start && gamepad2.dpadDownWasPressed()){
+        ManuallyAdjustableValues=!ManuallyAdjustableValues;
+        HoodAngle = hood.getPosition();
+        FlywheelSpeedForTuning = ShooterLogic.TARGET_FLYWHEEL_TPS;
+    }
+
+    if (ManuallyAdjustableValues){
+        HoodAngle -= gamepad2.left_stick_y / 22;
+        hood.SetPosition(HoodAngle);
+
+        if (gamepad2.dpadUpWasPressed()){
+            FlywheelSpeedForTuning+=25;
+        }
+        if (gamepad2.dpadDownWasPressed()){
+            FlywheelSpeedForTuning-=25;
+        }
+        shooter.setFlywheelTPS(FlywheelSpeedForTuning);
+    }
+    // --------------------------------------------------- /
+
+    else if (UseOdosForSpeedAndDistance){
+        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
+        hood.SetPosition(turretGoals[0]);
+        shooter.setFlywheelTPS(turretGoals[1]);
+    }
+    else if (camera.getRange()!=-1){
+        double[] turretGoals = FAndV.handleShootingRanges(camera.getRange());
+        hood.SetPosition(turretGoals[0]);
+        shooter.setFlywheelTPS(turretGoals[1]);
+
+    }
+}
     private void handleDriving() {
-        double speed = .5; //
-        //if (gamepad1.right_trigger ==1){speed = 1;}
+        double speed =1; //
         double speedModifier = gamepad1.right_trigger / 2;
-        speed += speedModifier; // trigger makes it slower
 
         if (SlowMode){speed=.1+speedModifier/1.5;}
-        if (gamepad1.leftStickButtonWasPressed()&&gamepad1.start){SlowMode=!SlowMode;}
+        else if (FastMode){speed -= speedModifier*1.5;}
 
+        if (gamepad1.aWasPressed()&&!gamepad1.start) {
+            FastMode=true;
+            SlowMode=false;
+        }
+        if (gamepad1.bWasPressed()&&!gamepad1.start) {
+            FastMode=false;
+            SlowMode=true;
+        }
 
         double axial = -gamepad1.left_stick_y * speed;
         double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
         double yaw = -gamepad1.right_stick_x * speed;
 
+
+
         if (!automatedDrive) {
-            //follower.startTeleopDrive();
 
-            //parking precisly
-//            double baseValue = 0.05;
-//
-//            if (gamepad1.dpad_right) {
-//                lateral = -baseValue + speed / 3;
+//            if (gamepad1.xWasPressed()) {
+//                fieldCentricDrive = true;
 //            }
-//            if (gamepad1.dpad_left) {
-//                lateral = +baseValue - speed / 3;
-//            }
-//            if (gamepad1.dpad_up) {
-//                axial = +baseValue + speed / 3;
-//            }
-//            if (gamepad1.dpad_down) {
-//                axial = -baseValue - speed / 3;
-//            }
-//            if (gamepad1.x) {
-//                yaw = -baseValue - speed / 3;
-//            }
-//            if (gamepad1.b) {
-//                yaw = +baseValue + speed / 3;
-//            }
-
-            //field centric
-
             if (gamepad1.xWasPressed()) {
-                fieldCentricDrive = true;
-            }
-            if (gamepad1.bWasPressed()) {
-                fieldCentricDrive = false;
+                fieldCentricDrive = !fieldCentricDrive;
             }
 
             //send commands to pedro.
@@ -457,7 +430,7 @@ public class CleanTeleop extends OpMode {
         }
 
         // ----- automated Driving ---
-        if (gamepad1.backWasPressed()){
+        if (gamepad1.backWasPressed()&&gamepad1.start){
 
             PathChain GoToParkPos = follower.pathBuilder()
                     .addPath(new BezierLine(follower.getPose(), parkPos))
@@ -470,64 +443,64 @@ public class CleanTeleop extends OpMode {
 
         }
 
-        if (gamepad1.dpadUpWasPressed()){
+//        if (gamepad1.dpadUpWasPressed()){
+//
+//            PathChain GoToFrontShootPos = follower.pathBuilder()
+//                    .addPath(new BezierLine(follower.getPose(), shootFrontPos))
+//                    .setLinearHeadingInterpolation(follower.getHeading(), follower.getHeading())
+//                    .build();
+//            follower.followPath(GoToFrontShootPos,1,true);
+//            automatedDrive = true;
+//
+//            lastPoseTriggered = shootFrontPos;
+//
+//        }
 
-            PathChain GoToFrontShootPos = follower.pathBuilder()
-                    .addPath(new BezierLine(follower.getPose(), shootFrontPos))
-                    .setLinearHeadingInterpolation(follower.getHeading(), follower.getHeading())
-                    .build();
-            follower.followPath(GoToFrontShootPos,1,true);
-            automatedDrive = true;
-
-            lastPoseTriggered = shootFrontPos;
-
-        }
-
-        if (gamepad1.dpadDownWasPressed()){
-
-            PathChain GoToBackShootPos = follower.pathBuilder()
-                    .addPath(new BezierLine(follower.getPose(), shootBackPos))
-                    .setLinearHeadingInterpolation(follower.getHeading(),shootBackPos.getHeading())
-                    .build();
-            follower.followPath(GoToBackShootPos,1,true);
-            automatedDrive = true;
-
-            lastPoseTriggered = shootBackPos;
-        }
-        if (gamepad1.dpadLeftWasPressed()){
-            double FinalAngle = Cords.roundToNearest90(follower.getHeading());
-            if (!IsRed&&FinalAngle == 180){
-                FinalAngle+=90;
-            }
-            else if (IsRed&&FinalAngle == 0){
-                FinalAngle+=90;
-            }
-
-            PathChain TriggerClassifierPath = follower.pathBuilder()
-                    .addPath(new BezierLine(follower.getPose(), TriggerClassifierPos))
-                    .setLinearHeadingInterpolation(follower.getHeading(),Math.toRadians(FinalAngle))
-                    .build();
-            follower.followPath(TriggerClassifierPath,1,true);
-            automatedDrive = true;
-
-            lastPoseTriggered = TriggerClassifierPos;
-        }
+//        if (gamepad1.dpadDownWasPressed()){
+//
+//            PathChain GoToBackShootPos = follower.pathBuilder()
+//                    .addPath(new BezierLine(follower.getPose(), shootBackPos))
+//                    .setLinearHeadingInterpolation(follower.getHeading(),shootBackPos.getHeading())
+//                    .build();
+//            follower.followPath(GoToBackShootPos,1,true);
+//            automatedDrive = true;
+//
+//            lastPoseTriggered = shootBackPos;
+//        }
+//        if (gamepad1.dpadLeftWasPressed()){
+//            double FinalAngle = Cords.roundToNearest90(follower.getHeading());
+//            if (!IsRed&&FinalAngle == 180){
+//                FinalAngle+=90;
+//            }
+//            else if (IsRed&&FinalAngle == 0){
+//                FinalAngle+=90;
+//            }
+//
+//            PathChain TriggerClassifierPath = follower.pathBuilder()
+//                    .addPath(new BezierLine(follower.getPose(), TriggerClassifierPos))
+//                    .setLinearHeadingInterpolation(follower.getHeading(),Math.toRadians(FinalAngle))
+//                    .build();
+//            follower.followPath(TriggerClassifierPath,1,true);
+//            automatedDrive = true;
+//
+//            lastPoseTriggered = TriggerClassifierPos;
+//        }
 
 
         boolean BreakPaths = false;
-        double BreakTolerance=.04;
+        double BreakTolerance=.05;
         if (Math.abs(lateral)>BreakTolerance ||Math.abs(yaw)>BreakTolerance || Math.abs(axial)>BreakTolerance){
             BreakPaths = true;
         }
 
-        if (automatedDrive && (BreakPaths || autoFunctions.isRobotInPositionCustomAmounts(lastPoseTriggered,follower,0,0))) {
+        if (automatedDrive && (BreakPaths)) {
             follower.startTeleopDrive();
             automatedDrive = false;
         }
 
     }
     private void handleFlywheel(){
-        if (gamepad2.rightStickButtonWasPressed()) {shooter.On();}
-        if (gamepad2.leftStickButtonWasPressed()){shooter.Off();}
+        if (gamepad2.xWasPressed()) {shooter.On();}
+        if (gamepad2.bWasPressed()&&!gamepad2.start){shooter.Off();}
     }
 }
