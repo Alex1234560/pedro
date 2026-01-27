@@ -85,6 +85,8 @@ public class CleanTeleop extends OpMode {
     private TurretRotation turretRotation = new TurretRotation();
 
     private double FlywheelSpeedForTuning;
+    private double FlywheelSpeedForTuningOffset;
+    private double HoodAngleOffset;
 
     private boolean ManuallyAdjustableValues = false;
 
@@ -342,6 +344,8 @@ public class CleanTeleop extends OpMode {
         ManuallyAdjustableValues=!ManuallyAdjustableValues;
         HoodAngle = hood.getPosition();
         FlywheelSpeedForTuning = ShooterLogic.TARGET_FLYWHEEL_TPS;
+        FlywheelSpeedForTuningOffset = 0;
+        HoodAngleOffset = 0;
 
         turretRotation.ManualTurretControl(ManuallyAdjustableValues);
         UseOdosForSpeedAndDistance = !UseOdosForSpeedAndDistance;
@@ -351,16 +355,27 @@ public class CleanTeleop extends OpMode {
 
 
     if (ManuallyAdjustableValues){
-        HoodAngle -= gamepad2.left_stick_y / 22;
-        hood.SetPosition(HoodAngle);
+        if (gamepad2.leftStickButtonWasPressed()){HoodAngleOffset = 0;}
+        if (gamepad2.rightStickButtonWasPressed()){FlywheelSpeedForTuningOffset = 0;}
+        HoodAngleOffset -= gamepad2.left_stick_y / 30;
+
+        if (camera.getRange()!=-1){
+            double[] turretGoals = FAndV.handleShootingRanges(camera.getRange());
+            HoodAngle=turretGoals[0];
+            FlywheelSpeedForTuning=turretGoals[1];
+        }
+
+        HoodAngle=hood.normalize(HoodAngle);
+
+        hood.SetPosition(HoodAngle+HoodAngleOffset);
 
         if (gamepad2.dpadUpWasPressed()){
-            FlywheelSpeedForTuning+=25;
+            FlywheelSpeedForTuningOffset+=25;
         }
         if (gamepad2.dpadDownWasPressed()){
-            FlywheelSpeedForTuning-=25;
+            FlywheelSpeedForTuningOffset-=25;
         }
-        shooter.setFlywheelTPS(FlywheelSpeedForTuning);
+        shooter.setFlywheelTPS(FlywheelSpeedForTuning+FlywheelSpeedForTuningOffset);
 
         turretRotation.updateManualOffset(gamepad2.right_stick_x*5);
     }
@@ -375,7 +390,6 @@ public class CleanTeleop extends OpMode {
         double[] turretGoals = FAndV.handleShootingRanges(camera.getRange());
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
-
     }
 }
     private void handleDriving() {

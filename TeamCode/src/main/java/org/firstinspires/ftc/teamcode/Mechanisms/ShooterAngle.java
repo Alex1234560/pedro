@@ -12,7 +12,7 @@ public class ShooterAngle {
     public static double START_POINT = .15;
     public static double END_POINT = .9;//.7
 
-    private double normalize(double value){
+    public double normalize(double value){
         double newValue = value;
         if (value>END_POINT) {
             newValue = END_POINT;
