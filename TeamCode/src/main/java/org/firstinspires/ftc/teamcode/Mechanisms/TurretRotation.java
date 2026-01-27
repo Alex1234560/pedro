@@ -10,6 +10,7 @@ package org.firstinspires.ftc.teamcode.Mechanisms;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -29,6 +30,8 @@ public class TurretRotation {
     public static double CAMERA_STARTING_CHANGE = .005;
 
     public static double TURRET_AIMING_ALLOWED_ERROR = 2.5;
+
+    public static double TUNING_VALUE_FOR_ACCELERATION = .5;
     //public static double LARGE_VALUE_TO_CHANGE = 1;
 
 
@@ -41,7 +44,7 @@ public class TurretRotation {
     private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
 
     private boolean LIMIT_MAX_SPEED = true; // this is a cap on the motor speed so it doesn't skip gears
-    public static double MAX_MOTOR_POWER = 1; // for the var avobe
+    private static double MAX_MOTOR_POWER = 1; // for the var avobe
 
     public static double FULL_TURN = 1666;// ticks that make a full turn
 
@@ -53,7 +56,7 @@ public class TurretRotation {
     private double actual_target_angle = 0;// these is the variable used to tell the turret what angle we want.
     private double angle_calculated_for_tracking_goal = 0;// this angle comes from the function getAngleFromTwoPoints
     private double camera_bearing_offset = 0;
-    public static double turret_offset = 0;
+    private static double turret_offset = 0;
 
     private boolean is_turret_being_centered;
     private boolean is_turret_being_manually_controlled;
@@ -113,8 +116,6 @@ public class TurretRotation {
             double current_position = GetCurrentPosTicks();// telemetry
             double current_velocity = GetCurrentVel();// telemetry
 
-
-
             actual_target_angle = 0;
 
             actual_target_angle+=turret_offset;
@@ -127,8 +128,9 @@ public class TurretRotation {
                 actual_target_angle+= camera_bearing_offset;
             }
 
-            turret_x = robotPose.getX();
-            turret_y = robotPose.getY();
+            Vector acceleration = follower.getAcceleration();
+            turret_x = robotPose.getX() + (acceleration.getXComponent() * TUNING_VALUE_FOR_ACCELERATION);
+            turret_y = robotPose.getY() +  (acceleration.getYComponent() * TUNING_VALUE_FOR_ACCELERATION);
 
             if (COMPENSATE_FOR_TURRET_OFFSET) {
 
