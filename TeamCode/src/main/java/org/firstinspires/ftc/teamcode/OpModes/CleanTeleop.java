@@ -177,7 +177,8 @@ public class CleanTeleop extends OpMode {
     @Override
     public void loop(){
 
-        turretRotation.update(Math.toDegrees(follower.getTotalHeading()),follower.getPose(),GoalLocationPose, StartingPosition, IsRed);
+
+        turretRotation.update(follower,GoalLocationPose, StartingPosition, IsRed);
         follower.update();
         shooter.update();
         camera.update();
@@ -197,27 +198,27 @@ public class CleanTeleop extends OpMode {
         if (gamepad1.start && gamepad1.rightBumperWasPressed()) {
             follower.setPose(restartPos);
         }
-        if (gamepad1.back && gamepad1.bWasPressed()) {
-            IsRed = true;
-        }
-        if (gamepad1.back && gamepad1.xWasPressed()) {
-            IsRed = false;
-        }
+//        if (gamepad1.back && gamepad1.bWasPressed()) {
+//            IsRed = true;
+//        }
+//        if (gamepad1.back && gamepad1.xWasPressed()) {
+//            IsRed = false;
+//        }
 
-        //in case everything goes wrong
-        if (gamepad2.rightBumperWasPressed()&&gamepad2.start){
-            //turretRotation.TurretTo0Deg(false);
-            UseOdosForSpeedAndDistance = true;
-            turretRotation.ManualTurretControl(false);
-        }
-        else if (gamepad2.leftBumperWasPressed()&&gamepad2.start){
-            //turretRotation.TurretTo0Deg(true);
+//        //in case everything goes wrong
+//        if (gamepad2.rightBumperWasPressed()&&gamepad2.start){
+//            //turretRotation.TurretTo0Deg(false);
+//            UseOdosForSpeedAndDistance = true;
+//            turretRotation.ManualTurretControl(false);
+//        }
+//        else if (gamepad2.leftBumperWasPressed()&&gamepad2.start){
+//            //turretRotation.TurretTo0Deg(true);
+//
+//            turretRotation.ManualTurretControl(true);
+//            UseOdosForSpeedAndDistance = false;
+//            fieldCentricDrive=false;
+//        }
 
-            turretRotation.ManualTurretControl(true);
-            UseOdosForSpeedAndDistance = false;
-            fieldCentricDrive=false;
-        }
-        turretRotation.updateManualOffset(gamepad2.right_stick_x*5);
     }
     private void TelemetryStatements(){
         if (tuningTelemetry) {
@@ -336,12 +337,18 @@ public class CleanTeleop extends OpMode {
 
     double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance );
 
-    // ----- everything below for manually adjustable values -----
-    if (gamepad2.start && gamepad2.dpadUpWasPressed() || gamepad2.start && gamepad2.dpadDownWasPressed()){
+    // ----- everything below for manually adjustable values ----- including turret.
+    if (gamepad2.start && gamepad2.xWasPressed()){
         ManuallyAdjustableValues=!ManuallyAdjustableValues;
         HoodAngle = hood.getPosition();
         FlywheelSpeedForTuning = ShooterLogic.TARGET_FLYWHEEL_TPS;
+
+        turretRotation.ManualTurretControl(ManuallyAdjustableValues);
+        UseOdosForSpeedAndDistance = !UseOdosForSpeedAndDistance;
+        fieldCentricDrive=!fieldCentricDrive;
     }
+
+
 
     if (ManuallyAdjustableValues){
         HoodAngle -= gamepad2.left_stick_y / 22;
@@ -354,6 +361,8 @@ public class CleanTeleop extends OpMode {
             FlywheelSpeedForTuning-=25;
         }
         shooter.setFlywheelTPS(FlywheelSpeedForTuning);
+
+        turretRotation.updateManualOffset(gamepad2.right_stick_x*5);
     }
     // --------------------------------------------------- /
 
@@ -373,17 +382,17 @@ public class CleanTeleop extends OpMode {
         double speed =1; //
         double speedModifier = gamepad1.right_trigger / 2;
 
-        if (SlowMode){speed=.1+speedModifier/1.5;}
-        else if (FastMode){speed -= speedModifier*1.5;}
+        //if (SlowMode){speed=.1+speedModifier/1.5;}
+        if (FastMode){speed -= speedModifier*1.9;}
 
-        if (gamepad1.aWasPressed()&&!gamepad1.start) {
-            FastMode=true;
-            SlowMode=false;
-        }
-        if (gamepad1.bWasPressed()&&!gamepad1.start) {
-            FastMode=false;
-            SlowMode=true;
-        }
+//        if (gamepad1.aWasPressed()&&!gamepad1.start) {
+//            FastMode=true;
+//            SlowMode=false;
+//        }
+//        if (gamepad1.bWasPressed()&&!gamepad1.start) {
+//            FastMode=false;
+//            SlowMode=true;
+//        }
 
         double axial = -gamepad1.left_stick_y * speed;
         double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value
@@ -500,7 +509,7 @@ public class CleanTeleop extends OpMode {
 
     }
     private void handleFlywheel(){
-        if (gamepad2.xWasPressed()) {shooter.On();}
+        if (gamepad2.aWasPressed()) {shooter.On();}
         if (gamepad2.bWasPressed()&&!gamepad2.start){shooter.Off();}
     }
 }

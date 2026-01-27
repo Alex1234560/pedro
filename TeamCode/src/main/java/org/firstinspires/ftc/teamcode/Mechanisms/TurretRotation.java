@@ -8,6 +8,7 @@ package org.firstinspires.ftc.teamcode.Mechanisms;
 
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -101,13 +102,18 @@ public class TurretRotation {
         //TurretRotatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void update(double TotalRotation, Pose robotPose, Pose goalPose, Pose initPose, boolean IsRed){
+    public void update(Follower follower, Pose goalPose, Pose initPose, boolean IsRed){
+            //getting valeus from follower.
+            Pose robotPose = follower.getPose();
+            double TotalRotation = Math.toDegrees(follower.getTotalHeading());
 
 
             double_robot_angle_deg =  TotalRotation + Math.toDegrees(initPose.getHeading());
 
             double current_position = GetCurrentPosTicks();// telemetry
             double current_velocity = GetCurrentVel();// telemetry
+
+
 
             actual_target_angle = 0;
 
