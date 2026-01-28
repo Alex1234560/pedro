@@ -25,20 +25,20 @@ public class TurretRotation {
 
     private DcMotorEx TurretRotatorMotor = null;
 
-
     public static double CAMERA_MULTIPLIER_FOR_TURRET_CHANGE = .2;
     public static double CAMERA_STARTING_CHANGE = .005;
 
     public static double TURRET_AIMING_ALLOWED_ERROR = 2.5;
 
-    public static double TUNING_VALUE_FOR_ACCELERATION = 0;
-    //public static double LARGE_VALUE_TO_CHANGE = 1;
+    public static double BASE_FOR_VELOCITY = .003;
+    public static double MULTIPLIER_FOR_VELOCITY = 0.012;
 
 
-    public static boolean AUTO_ROTATE = true; // this is for counter rotating the turret with the heading variable
-    public static boolean TRACK_GOAL = true; // this is for activating the trig math that handles aiming at the correct spot
-    public static boolean USE_CAMERA_BEARING = true;
-    public static boolean MOTOR_ACTIVE = true;// this is for activating the motor, inc ase u want to test something witouth the motor active
+
+    private static boolean AUTO_ROTATE = true; // this is for counter rotating the turret with the heading variable
+    private static boolean TRACK_GOAL = true; // this is for activating the trig math that handles aiming at the correct spot
+    private static boolean USE_CAMERA_BEARING = true;
+    private static boolean MOTOR_ACTIVE = true;// this is for activating the motor, inc ase u want to test something witouth the motor active
 
     private static boolean LIMIT_VELOCITY_SWITCHES = false; // this is a prototype function that limits when the motor can switch directions due to speed, it wont be needed in the future
     private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
@@ -46,11 +46,11 @@ public class TurretRotation {
     private boolean LIMIT_MAX_SPEED = true; // this is a cap on the motor speed so it doesn't skip gears
     private static double MAX_MOTOR_POWER = 1; // for the var avobe
 
-    public static double FULL_TURN = 1666;// ticks that make a full turn
+    private static double FULL_TURN = 1666;// ticks that make a full turn
 
     // ----- this are the limits that makes teh turret rotate in the opposite direction to not cross any cables -----
-    public static double SWITCH_ANGLE_POS = 10;
-    public static double SWITCH_ANGLE_NEG = -360;
+    private static double SWITCH_ANGLE_POS = 10;
+    private static double SWITCH_ANGLE_NEG = -360;
 
     private double double_robot_angle_deg;
     private double actual_target_angle = 0;// these is the variable used to tell the turret what angle we want.
@@ -62,9 +62,9 @@ public class TurretRotation {
     private boolean is_turret_being_manually_controlled;
     private double manual_control_offset;
 
-    public static boolean COMPENSATE_FOR_TURRET_OFFSET = true;
+    private static boolean COMPENSATE_FOR_TURRET_OFFSET = true;
     //public static double[] TurretOffsetINCHESXY = {2.85244094,-2.536};
-    public static double[] TurretOffsetINCHESXY = {-2.85244094,2.536};
+    private static double[] TurretOffsetINCHESXY = {-2.85244094,2.536};
     private static double SIGN_MULTIPLIER_ROBOT_ANGLE_OFFSET = 1;
 
     private double turret_x;
@@ -132,7 +132,7 @@ public class TurretRotation {
                 actual_target_angle+= camera_bearing_offset;
             }
 
-            Vector acceleration = follower.getAcceleration();
+            Vector velocity = follower.getVelocity();
             turret_x = robotPose.getX();// +acceleration.getXComponent() * TUNING_VALUE_FOR_ACCELERATION;
             turret_y = robotPose.getY();// +  acceleration.getYComponent() * TUNING_VALUE_FOR_ACCELERATION;
 
@@ -149,8 +149,11 @@ public class TurretRotation {
 
             //moving goal now?, maybe itll work better.
 
-            double goal_x=goalPose.getX()+(acceleration.getXComponent() * TUNING_VALUE_FOR_ACCELERATION);
-            double goal_y=goalPose.getY()+(acceleration.getYComponent() * TUNING_VALUE_FOR_ACCELERATION);
+            double distance = GetDistanceFromGoal(IsRed);
+            double multiplyValue = BASE_FOR_VELOCITY + (MULTIPLIER_FOR_VELOCITY*distance);
+
+            double goal_x=goalPose.getX()-(velocity.getXComponent() * multiplyValue);
+            double goal_y=goalPose.getY()-(velocity.getYComponent() * multiplyValue);
 
             angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goal_x,goal_y, turret_x, turret_y, IsRed);
 

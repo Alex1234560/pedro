@@ -250,6 +250,8 @@ public class CleanTeleop extends OpMode {
         if (!IsRed){
             telemetryM.addData("BLUE SIDE OF THE FIELD" ,shooter.GetFlywheelSpeed());}
 
+
+
         telemetryM.debug("x Velocity:" + Math.round(follower.getVelocity().getXComponent()));
         telemetryM.debug("y Velocity:" + Math.round(follower.getVelocity().getYComponent()));
         telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
