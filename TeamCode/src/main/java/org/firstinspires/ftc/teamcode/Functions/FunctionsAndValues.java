@@ -15,7 +15,7 @@ public class FunctionsAndValues {
 
     private static double BackRangeStart = 100;
     private static double FrontRangeStart = 15;
-    public static double OffsetForShootingAlgorithmRemoveLater=0;
+
 
     //public static double After90ChangeInAngle = 0; // was -3
 
@@ -46,6 +46,10 @@ public class FunctionsAndValues {
     public static double kP = 0.005;
     public static double kI = 0;
     public static double kD = 0;
+//    public static double kF = .0008;
+//    public static double kP = 0.001;
+//    public static double kI = 0;
+//    public static double kD = 0;
 
     SimplePIDF flywheelPIDF = new SimplePIDF(
             kP,  // kP  (start small)

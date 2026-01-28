@@ -8,7 +8,6 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
@@ -397,6 +396,6 @@ public class BackAuto extends OpMode {
         intakeSpikeMarkEnd = new Pose(Cords.xFlip(13.530973451327434, IsRed),  35, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
-        GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
+        GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_CAMERA,IsRed), Coordinates.GOAL_Y_FOR_CAMERA, Math.toRadians(0));
     }
 }

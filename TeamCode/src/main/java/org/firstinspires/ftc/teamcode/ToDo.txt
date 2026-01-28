@@ -1,47 +1,25 @@
 
  -------- High Priority -------
+- remeasure the currrent shooting ranges, witouth using the offset that is in the file TurretRotation
+in the function called "GetTurretGoals"
 
 - make repositioning button to re-calibrate position in case it gets messed up.
 - make emptying classifier more effective with time on how much to stay on lever.
 
 ----------- Medium Priority ----------
-- emtpy classifier in FrontAuto
-- get levis code integrated into the turret code.
-- make camera offseting good.
 - make flywheel PIDF better
-- make a shoot button instead of a shoot trigger.
-- base distance off of camera when possible.
-
--------- tips for making auto faster --------
-- Shoot while moving ( need to implement just time or smh like that, since when moving shoot detection doesnt work.
-- to shoot while moving we could also just make the path slower
 
 ------- Things to test ----------
-- test autos ( blue and red ) with transition between auto and teleop.
-- try turret motor with Breaking behaviour at power 0.
+- try turret motor with Breaking behaviour at power 0;
 
 -------- Low Priority ---------
 - switch processing for turret from degrees to radians for more precise measurements.
 - try using integrated PIDF instead of costum, makes code cleaner
-- also rn the code is assuming the turret is in the middle which it is not, needs to be fixed
 - adjust PIDF so that correction back to the right place is more aggresive and works better ( Driving ).
 - Adjust PIDF for shooter if neccesary.
-- In Every auto add a timer that when it runs out it triggers a park function out of the launch zone.
-- Make parking button for teleop.
-- Make Back auto that shoots and then moves out of the way
 
 - add encoder so that u cant go back and forth and ruin the gears in the intake.
 
---------- only do if done with everything else -----------
-- Make Back Auto detect balls.
-
-------—-------IDEA-------------
-based on the april tag angle rhat its being seen from
-( not the bearing ) , u can add more angle to the bearing 
-so that the turret points to the goal and not to
-the tag
 
  ------ BEFORE COMP -------
-- test auto - teleop transition
- - BUG CHECK
  - Take photos of configuration in case it gets deleted

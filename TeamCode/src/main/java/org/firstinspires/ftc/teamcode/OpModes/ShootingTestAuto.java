@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
-import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
@@ -380,7 +379,7 @@ public class ShootingTestAuto extends OpMode {
         intakeEnd = new Pose(Cords.xFlip(17, IsRed),  85+ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
-        GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
+        GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_CAMERA,IsRed), Coordinates.GOAL_Y_FOR_CAMERA, Math.toRadians(0));
     }
 
 

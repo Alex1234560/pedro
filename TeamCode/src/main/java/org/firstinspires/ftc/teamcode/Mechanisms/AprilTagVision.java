@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.Mechanisms; // Make sure this matches you
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Functions.Coordinates;
+import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -24,9 +26,12 @@ import java.util.List;
 public class AprilTagVision {
     public static int myExposure = 8;//20;
     public static int myGain = 100;//100;//150;
+    private double distance_difference_odo_and_camera;
 
+    private Coordinates Cords = new Coordinates();
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
+    private FunctionsAndValues FAndV = new FunctionsAndValues();
 
     // Optional: A variable to hold the most recent detection to avoid calling getDetections() multiple times.
     private AprilTagDetection latestDetection = null;
@@ -62,6 +67,18 @@ public class AprilTagVision {
         // Build the Vision Portal.
         visionPortal = builder.build();
 
+        setManualExposure(myExposure,myGain);
+
+        //no need to flip cords since, it doesnt meatter for this use case.
+
+        double CameraGoalX =Coordinates.GOAL_X_FOR_CAMERA;
+        double CameraGoalY = Coordinates.GOAL_Y_FOR_CAMERA;
+        double ActualGoalX = Coordinates.GOAL_X;
+        double ActualGoalY = Coordinates.GOAL_Y;
+
+        distance_difference_odo_and_camera = FAndV.distance(CameraGoalX,CameraGoalY,ActualGoalX,ActualGoalY);
+
+
 
     }
 
@@ -74,7 +91,7 @@ public class AprilTagVision {
      */
     public AprilTagDetection update() {
 
-        setManualExposure(myExposure,myGain);
+
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
 
@@ -108,7 +125,15 @@ public class AprilTagVision {
 //        }
 //        return -1; // Return an invalid value if no tag is seen
 //    }
-    public double getRange() {
+    public double getRangeEquivalentToOdoRange() {
+        // Check if a tag is detected AND if its pose data is available
+        if (latestDetection != null && latestDetection.ftcPose != null) {
+            return latestDetection.ftcPose.range+distance_difference_odo_and_camera;
+        }
+        return -1; // Return an invalid/safe value if no tag or pose data is seen
+    }
+
+    public double getRawRange() {
         // Check if a tag is detected AND if its pose data is available
         if (latestDetection != null && latestDetection.ftcPose != null) {
             return latestDetection.ftcPose.range;

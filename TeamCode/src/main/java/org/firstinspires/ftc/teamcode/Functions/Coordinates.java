@@ -11,11 +11,11 @@ public class Coordinates {
 //    public static final double GOAL_X = 8;
 //    public static final double GOAL_Y = 136;
 
-    public static final double GOAL_X = 8;
-    public static final double GOAL_Y = 136;
+    public static final double GOAL_X = 0;
+    public static final double GOAL_Y = 138;
 
-    public static final double GOAL_X_FOR_DISTANCE = 16;
-    public static final double GOAL_Y_FOR_DISTANCE = 131;
+    public static final double GOAL_X_FOR_CAMERA = 16;
+    public static final double GOAL_Y_FOR_CAMERA = 131;
 
     public static final double FRONT_START_X = 17.914;
     public static final double FRONT_START_Y = 121.168;
