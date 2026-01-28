@@ -224,7 +224,8 @@ public class FrontAuto extends OpMode {
             case SHOOT:
                 if (isStateBusy==true){}//intake.intakeOn(1,1);}
 
-                if(isStateBusy == false&&(autoFunctions.isRobotInPosition(shootPos,follower)||pathTimer.getElapsedTimeSeconds()>4)&&!follower.isBusy()){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
+                //if(isStateBusy == false&&(autoFunctions.isRobotInPosition(shootPos,follower)||pathTimer.getElapsedTimeSeconds()>4)&&!follower.isBusy()){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
+                if(isStateBusy == false&&!follower.isBusy()){
                     //intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;
@@ -391,8 +392,6 @@ public class FrontAuto extends OpMode {
     public void loop(){
         AutoFunctions.LastPoseRecorded = follower.getPose();
 
-        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance);
-
         //distanceSensor.update();
         //shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
         //camera.update();
@@ -404,7 +403,7 @@ public class FrontAuto extends OpMode {
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
-        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
+        double[] turretGoals = turretRotation.GetTurretGoals(IsRed);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
 

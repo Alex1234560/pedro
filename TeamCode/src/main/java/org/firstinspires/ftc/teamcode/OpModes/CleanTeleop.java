@@ -99,7 +99,7 @@ public class CleanTeleop extends OpMode {
     @Override
     public void init(){
         // makes it easier in game, less buttons to click so taht u can start right up
-        start_program_witouth_auto_first = AutoFunctions.DidAutoGoToEnd;
+        start_program_witouth_auto_first = AutoFunctions.LastPoseRecorded==null;
         AutoFunctions.DidAutoGoToEnd=false;
 
         camera = new AprilTagVision(hardwareMap);
@@ -129,7 +129,7 @@ public class CleanTeleop extends OpMode {
         GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed), Coordinates.GOAL_Y_FOR_DISTANCE, Math.toRadians(0));
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
 
-        restartPos = new Pose(Cords.xFlip(Coordinates.RESTART_X,IsRed), Coordinates.RESTART_Y, Math.toRadians(90));
+        restartPos = new Pose(Cords.xFlip(Coordinates.RESTART_X,IsRed), Coordinates.RESTART_Y, Math.toRadians(Cords.angleFlip(0, IsRed)));
 
         if (start_program_witouth_auto_first){
             StartingPosition = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
@@ -142,12 +142,9 @@ public class CleanTeleop extends OpMode {
             turretRotation.CalibrateTurretToCenter();
         }
 
-
         follower.setStartingPose(StartingPosition);
-
         follower.startTeleopDrive();
         runtime.reset();
-
 
     }
     @Override
@@ -183,7 +180,8 @@ public class CleanTeleop extends OpMode {
         turretRotation.update(follower,GoalLocationPose, StartingPosition, IsRed);
         follower.update();
         shooter.update();
-        camera.update();
+        if (ManuallyAdjustableValues){
+        camera.update();}
 
         if (gamepad2.dpadLeftWasPressed()){tuningTelemetry=!tuningTelemetry;}
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
@@ -198,7 +196,11 @@ public class CleanTeleop extends OpMode {
 
     private void handleResetPositionFunction(){
         if (gamepad1.start && gamepad1.rightBumperWasPressed()) {
+            //turretRotation.resetTotalHeadingForRobotAndTurret(follower.getTotalHeading());
             follower.setPose(restartPos);
+            follower.setStartingPose(restartPos);
+
+
         }
 //        if (gamepad1.back && gamepad1.bWasPressed()) {
 //            IsRed = true;
@@ -236,10 +238,11 @@ public class CleanTeleop extends OpMode {
             telemetryM.addData("Distance (camera) " ,camera.getRange());
 
         }
+
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("shooter Goal Speed ", ShooterLogic.TARGET_FLYWHEEL_TPS);
         telemetryM.addData("Is flywheel up to speed?:  ", shooter.IsFlywheelUpToSpeed());
-        telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance));
+        telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(IsRed));
         telemetryM.addData("Hood Angle", hood.getPosition());
         telemetryM.addData("Flywheel Speed" ,shooter.GetFlywheelSpeed());
         if (IsRed){
@@ -247,6 +250,8 @@ public class CleanTeleop extends OpMode {
         if (!IsRed){
             telemetryM.addData("BLUE SIDE OF THE FIELD" ,shooter.GetFlywheelSpeed());}
 
+        telemetryM.debug("x Velocity:" + Math.round(follower.getVelocity().getXComponent()));
+        telemetryM.debug("y Velocity:" + Math.round(follower.getVelocity().getYComponent()));
         telemetryM.debug("x:" + Math.round(follower.getPose().getX()));
         telemetryM.debug("y:" + Math.round(follower.getPose().getY()));
         telemetryM.debug("heading:" + Math.round(Math.toDegrees(follower.getPose().getHeading())));
@@ -337,8 +342,6 @@ public class CleanTeleop extends OpMode {
     }
     private void HandleAimingRanges(){
 
-    double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance );
-
     // ----- everything below for manually adjustable values ----- including turret.
     if (gamepad2.start && gamepad2.xWasPressed()){
         ManuallyAdjustableValues=!ManuallyAdjustableValues;
@@ -382,7 +385,7 @@ public class CleanTeleop extends OpMode {
     // --------------------------------------------------- /
 
     else if (UseOdosForSpeedAndDistance){
-        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
+        double[] turretGoals = turretRotation.GetTurretGoals(IsRed);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
     }
@@ -397,16 +400,7 @@ public class CleanTeleop extends OpMode {
         double speedModifier = gamepad1.right_trigger / 2;
 
         //if (SlowMode){speed=.1+speedModifier/1.5;}
-        if (FastMode){speed -= speedModifier*1.9;}
-
-//        if (gamepad1.aWasPressed()&&!gamepad1.start) {
-//            FastMode=true;
-//            SlowMode=false;
-//        }
-//        if (gamepad1.bWasPressed()&&!gamepad1.start) {
-//            FastMode=false;
-//            SlowMode=true;
-//        }
+        if (FastMode){speed -= speedModifier*1.75;}
 
         double axial = -gamepad1.left_stick_y * speed;
         double lateral = -gamepad1.left_stick_x * speed; // Note: pushing stick forward gives negative value

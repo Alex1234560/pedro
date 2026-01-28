@@ -31,7 +31,7 @@ public class TurretRotation {
 
     public static double TURRET_AIMING_ALLOWED_ERROR = 2.5;
 
-    public static double TUNING_VALUE_FOR_ACCELERATION = .5;
+    public static double TUNING_VALUE_FOR_ACCELERATION = 0;
     //public static double LARGE_VALUE_TO_CHANGE = 1;
 
 
@@ -65,10 +65,12 @@ public class TurretRotation {
     public static boolean COMPENSATE_FOR_TURRET_OFFSET = true;
     //public static double[] TurretOffsetINCHESXY = {2.85244094,-2.536};
     public static double[] TurretOffsetINCHESXY = {-2.85244094,2.536};
-    public static double SIGN_MULTIPLIER_ROBOT_ANGLE_OFFSET = 1;
+    private static double SIGN_MULTIPLIER_ROBOT_ANGLE_OFFSET = 1;
 
     private double turret_x;
     private double turret_y;
+
+    //private double Turret_Offset_For_When_Heading_Is_Reset;
 
 
 
@@ -97,6 +99,7 @@ public class TurretRotation {
 
         //added line to see if i thelps
         //turret_offset=0;
+        //Turret_Offset_For_When_Heading_Is_Reset=0;
 
         is_turret_being_manually_controlled=false;
         is_turret_being_centered=false;
@@ -108,7 +111,8 @@ public class TurretRotation {
     public void update(Follower follower, Pose goalPose, Pose initPose, boolean IsRed){
             //getting valeus from follower.
             Pose robotPose = follower.getPose();
-            double TotalRotation = Math.toDegrees(follower.getTotalHeading());
+            //double TotalRotation = Math.toDegrees(follower.getHeading());
+            double TotalRotation = Math.toDegrees(follower.getTotalHeading()); //- Turret_Offset_For_When_Heading_Is_Reset;
 
 
             double_robot_angle_deg =  TotalRotation + Math.toDegrees(initPose.getHeading());
@@ -129,8 +133,8 @@ public class TurretRotation {
             }
 
             Vector acceleration = follower.getAcceleration();
-            turret_x = robotPose.getX() + (acceleration.getXComponent() * TUNING_VALUE_FOR_ACCELERATION);
-            turret_y = robotPose.getY() +  (acceleration.getYComponent() * TUNING_VALUE_FOR_ACCELERATION);
+            turret_x = robotPose.getX();// +acceleration.getXComponent() * TUNING_VALUE_FOR_ACCELERATION;
+            turret_y = robotPose.getY();// +  acceleration.getYComponent() * TUNING_VALUE_FOR_ACCELERATION;
 
             if (COMPENSATE_FOR_TURRET_OFFSET) {
 
@@ -143,7 +147,12 @@ public class TurretRotation {
                 turret_y = RotatedCords[1];
             }
 
-            angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goalPose.getX(), goalPose.getY(), turret_x, turret_y, IsRed);
+            //moving goal now?, maybe itll work better.
+
+            double goal_x=goalPose.getX()+(acceleration.getXComponent() * TUNING_VALUE_FOR_ACCELERATION);
+            double goal_y=goalPose.getY()+(acceleration.getYComponent() * TUNING_VALUE_FOR_ACCELERATION);
+
+            angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goal_x,goal_y, turret_x, turret_y, IsRed);
 
             if (TRACK_GOAL && !is_turret_being_manually_controlled){
                 actual_target_angle += angle_calculated_for_tracking_goal;
@@ -218,6 +227,10 @@ public class TurretRotation {
 
     // -------------- complicated functions ------------------
 
+//    public void resetTotalHeadingForRobotAndTurret(double totalHeadingInRad){
+//        Turret_Offset_For_When_Heading_Is_Reset = Math.toDegrees(totalHeadingInRad);
+//    }
+
     public boolean isTurretFinishedRotating(){
         double difference = Math.abs(Math.abs(GetCurrentPosDeg())-Math.abs(actual_target_angle));
         return difference < TURRET_AIMING_ALLOWED_ERROR;
@@ -281,8 +294,14 @@ public class TurretRotation {
             }
     }
 
-    public double GetDistanceFromGoal(Pose goalPose){
-        return FAndV.distance(turret_x, turret_y, goalPose.getX(), goalPose.getY());
+    public double GetDistanceFromGoal(boolean IsRed){
+        return FAndV.distance(turret_x, turret_y, (Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed)), Coordinates.GOAL_Y_FOR_DISTANCE);
+    }
+
+    public double[] GetTurretGoals(boolean IsRed){
+        double DistanceFromGoal = GetDistanceFromGoal(IsRed);
+        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
+        return turretGoals;
     }
 
     public void CalibrateTurretToCenter(){

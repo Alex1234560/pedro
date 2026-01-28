@@ -315,7 +315,6 @@ public class ShootingTestAuto extends OpMode {
     public void loop(){
         AutoFunctions.LastPoseRecorded = follower.getPose();
 
-        double DistanceFromGoal = turretRotation.GetDistanceFromGoal(GoalLocationPoseForDistance);
 
         //distanceSensor.update();
         //shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
@@ -328,7 +327,7 @@ public class ShootingTestAuto extends OpMode {
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
-        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal- FunctionsAndValues.OffsetForShootingAlgorithmRemoveLater);
+        double[] turretGoals = turretRotation.GetTurretGoals(IsRed);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
 
