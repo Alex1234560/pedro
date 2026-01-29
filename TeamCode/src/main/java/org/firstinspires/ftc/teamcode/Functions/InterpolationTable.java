@@ -5,11 +5,17 @@ package org.firstinspires.ftc.teamcode.Functions; // Make sure this matches your
 
 public class InterpolationTable {
     private static final Point[] TABLE = {
-            new Point(10, 0.3,  900),
-            new Point(15, 0.2, 1000),
-            new Point(20, 0.5, 1100),
-            new Point(25, 0.7, 1200),
-            new Point(30, 0.9, 1300),
+            //front
+            new Point(16.7, .15, 828 ),
+            new Point(31.7, .15,  927),
+            new Point(56.7, .41047, 1092 ),
+            new Point(86.7, .67767,  1291),
+            new Point(96.7, .76674,  1375.5),
+            //back
+            new Point(107.7, .9,  1400),
+            new Point(143.7, .9,  1620),
+            new Point(154.7, 0.9,  1690)
+
     };
 
 

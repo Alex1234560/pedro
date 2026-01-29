@@ -1,7 +1,7 @@
 
  -------- High Priority -------
 - test interpolation.
-- make repositioning button to re-calibrate position in case it gets messed up.
+- test repositioning button to re-calibrate position in case it gets messed up.
 - make emptying classifier more effective with time on how much to stay on lever.
 
 ----------- Medium Priority ----------
@@ -13,10 +13,7 @@
 -------- Low Priority ---------
 - switch processing for turret from degrees to radians for more precise measurements.
 - try using integrated PIDF instead of costum, makes code cleaner
-- adjust PIDF so that correction back to the right place is more aggresive and works better ( Driving ).
 - Adjust PIDF for shooter if neccesary.
-
-- add encoder so that u cant go back and forth and ruin the gears in the intake.
 
 
  ------ BEFORE COMP -------

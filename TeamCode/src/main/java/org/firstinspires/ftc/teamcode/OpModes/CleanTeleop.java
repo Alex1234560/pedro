@@ -45,6 +45,7 @@ public class CleanTeleop extends OpMode {
     private Follower follower;
     private TelemetryManager telemetryM;
 
+    //other
     private double FlywheelSpeedForTuning;
     private double FlywheelSpeedForTuningOffset;
     private double HoodAngleOffset;
@@ -59,6 +60,10 @@ public class CleanTeleop extends OpMode {
     private boolean FastMode = true;
     private boolean start_program_witouth_auto_first = true;
 
+    //buttons
+    private boolean reset_position_button_pressed = false;
+
+    //poses
     Pose shootFrontPos, parkPos, shootBackPos, TriggerClassifierPos, lastPoseTriggered;
     private Pose GoalLocationPose, StartingPosition, restartPos;
 
@@ -85,16 +90,7 @@ public class CleanTeleop extends OpMode {
 
     @Override
     public void start(){
-        shootFrontPos = new Pose(Cords.xFlip(57, IsRed), 95, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        shootBackPos = new Pose(Cords.xFlip(57, !IsRed), 18, Math.toRadians(Cords.angleFlip(0, IsRed)));
-        parkPos = new Pose(Cords.xFlip(38.71049304677624, !IsRed), 33.29329962073322, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        TriggerClassifierPos = new Pose(Cords.xFlip(16.5, IsRed), 70, Math.toRadians(Cords.angleFlip(90, IsRed)));
-
-
-        //GoalLocationPoseForDistance = new Pose(Cords.xFlip(Coordinates.GOAL_X_FOR_CAMERA,IsRed), Coordinates.GOAL_Y_FOR_CAMERA, Math.toRadians(0));
-        GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
-
-        restartPos = new Pose(Cords.xFlip(Coordinates.RESTART_X,IsRed), Coordinates.RESTART_Y, Math.toRadians(Cords.angleFlip(0, IsRed)));
+        buildPoses();
 
         if (start_program_witouth_auto_first){
             StartingPosition = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
@@ -114,27 +110,7 @@ public class CleanTeleop extends OpMode {
     }
     @Override
     public void init_loop(){
-
-        // in case you're starting teleop from fresh just for practice
-        //telemetry.addData("press 'back' to toggle the start program witouth running auto first.", start_program_witouth_auto_first);
-        if (gamepad1.backWasPressed()){
-            start_program_witouth_auto_first = !start_program_witouth_auto_first;}
-        if (!start_program_witouth_auto_first){telemetry.addData("AFTER AUTO ( 'back' to toggle )", "");}
-        if (start_program_witouth_auto_first){telemetry.addData("WITOUTH AUTO FIRST ( 'back' to toggle )", "");}
-
-        if (start_program_witouth_auto_first) {
-            //telemetry.addData("Alliance Selection", "X for BLUE, B for RED");
-            if (IsRed == false) {telemetry.addData("Color: BLUE (b to switch ) ", "");}
-            if (IsRed == true) {telemetry.addData("Color: RED (x to switch )", "");}
-
-            if ((gamepad1.x || gamepad2.x)&&!gamepad1.start) {IsRed = false;} // blue
-            if ((gamepad1.b || gamepad2.b)&&!gamepad1.start) {IsRed = true;} //red
-        }
-
-        else{
-            IsRed = AutoFunctions.IsRed;
-        }
-
+        HandleColorChooser();
         telemetry.update();
     }
 
@@ -154,13 +130,26 @@ public class CleanTeleop extends OpMode {
         handleFlywheel();
     }
 
-    private void handleResetPositionFunction(){
-        if (gamepad1.start && gamepad1.rightBumperWasPressed()&&gamepad1.left_bumper) {
-            turretRotation.resetTotalHeadingForRobotAndTurret(follower.getTotalHeading());
-            follower.setPose(restartPos);
-            //follower.setStartingPose(restartPos);
-        }
+    private void buildPoses(){
+        shootFrontPos = new Pose(Cords.xFlip(57, IsRed), 95, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootBackPos = new Pose(Cords.xFlip(57, !IsRed), 18, Math.toRadians(Cords.angleFlip(0, IsRed)));
+        parkPos = new Pose(Cords.xFlip(38.71049304677624, !IsRed), 33.29329962073322, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        TriggerClassifierPos = new Pose(Cords.xFlip(16.5, IsRed), 70, Math.toRadians(Cords.angleFlip(90, IsRed)));
+        restartPos = new Pose(Cords.xFlip(Coordinates.RESTART_X,IsRed), Coordinates.RESTART_Y, Math.toRadians(Cords.angleFlip(0, IsRed)));
 
+        GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
+    }
+    private void handleResetPositionFunction(){
+        reset_position_button_pressed = gamepad1.right_bumper;
+
+        if (reset_position_button_pressed&&(gamepad1.xWasPressed()||gamepad1.bWasPressed())) {
+            if (gamepad1.xWasPressed()) {IsRed = false;} // blue
+            if (gamepad1.bWasPressed()) {IsRed = true;} //red
+            //turretRotation.resetTotalHeadingForRobotAndTurret(follower.getTotalHeading());
+            buildPoses();
+            StartingPosition=restartPos;
+            follower.setPose(restartPos);
+        }
     }
     private void TelemetryStatements(){
         if (gamepad2.dpadLeftWasPressed()){tuningTelemetry=!tuningTelemetry;}
@@ -354,7 +343,7 @@ public class CleanTeleop extends OpMode {
 //            if (gamepad1.xWasPressed()) {
 //                fieldCentricDrive = true;
 //            }
-            if (gamepad1.xWasPressed()) {
+            if (gamepad1.xWasPressed()&&!reset_position_button_pressed) {
                 fieldCentricDrive = !fieldCentricDrive;
             }
 
@@ -460,5 +449,27 @@ public class CleanTeleop extends OpMode {
     private void handleFlywheel(){
         if (gamepad2.aWasPressed()) {shooter.On();}
         if (gamepad2.bWasPressed()&&!gamepad2.start){shooter.Off();}
+    }
+    private void HandleColorChooser(){
+
+        // in case you're starting teleop from fresh just for practice
+        //telemetry.addData("press 'back' to toggle the start program witouth running auto first.", start_program_witouth_auto_first);
+        if (gamepad1.backWasPressed()){
+            start_program_witouth_auto_first = !start_program_witouth_auto_first;}
+        if (!start_program_witouth_auto_first){telemetry.addData("AFTER AUTO ( 'back' to toggle )", "");}
+        if (start_program_witouth_auto_first){telemetry.addData("WITOUTH AUTO FIRST ( 'back' to toggle )", "");}
+
+        if (start_program_witouth_auto_first) {
+            //telemetry.addData("Alliance Selection", "X for BLUE, B for RED");
+            if (IsRed == false) {telemetry.addData("Color: BLUE (b to switch ) ", "");}
+            if (IsRed == true) {telemetry.addData("Color: RED (x to switch )", "");}
+
+            if ((gamepad1.x || gamepad2.x)&&!gamepad1.start) {IsRed = false;} // blue
+            if ((gamepad1.b || gamepad2.b)&&!gamepad1.start) {IsRed = true;} //red
+        }
+        else{
+            IsRed = AutoFunctions.IsRed;
+        }
+
     }
 }
