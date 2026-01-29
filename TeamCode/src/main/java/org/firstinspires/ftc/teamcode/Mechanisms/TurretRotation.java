@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
+import org.firstinspires.ftc.teamcode.Functions.InterpolationTable;
 
 @Configurable
 public class TurretRotation {
@@ -304,17 +305,10 @@ public class TurretRotation {
     }
 
     public double[] GetTurretGoals(boolean IsRed){
-        //remove later all things below until line wiht "-------------"
-        double CameraGoalX =Coordinates.GOAL_X_FOR_CAMERA;
-        double CameraGoalY = Coordinates.GOAL_Y_FOR_CAMERA;
-        double ActualGoalX = Coordinates.GOAL_X;
-        double ActualGoalY = Coordinates.GOAL_Y;
 
-        double OffsetForNowToNormalizeToCurrentShootingRanges = FAndV.distance(CameraGoalX,CameraGoalY,ActualGoalX,ActualGoalY);
-        // -----------------
-
-        double DistanceFromGoal = GetDistanceFromGoal(IsRed) - OffsetForNowToNormalizeToCurrentShootingRanges;
-        double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
+        double DistanceFromGoal = GetDistanceFromGoal(IsRed) ;//- OffsetForNowToNormalizeToCurrentShootingRanges;
+        //double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
+        double[] turretGoals= InterpolationTable.get(DistanceFromGoal);
         return turretGoals;
     }
 

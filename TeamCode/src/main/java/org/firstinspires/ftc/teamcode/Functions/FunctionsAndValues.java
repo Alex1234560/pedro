@@ -73,7 +73,7 @@ public class FunctionsAndValues {
         double targAngle = 0;
         double targSpeed = 0;
 
-        //double targAngle = (0.00493055 * range) + 0.243814;
+        range= range+16.7;
 
 
         if (range<BackRangeStart) {
