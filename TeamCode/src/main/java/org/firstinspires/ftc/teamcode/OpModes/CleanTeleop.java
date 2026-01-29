@@ -149,6 +149,11 @@ public class CleanTeleop extends OpMode {
             buildPoses();
             StartingPosition=restartPos;
             follower.setPose(restartPos);
+
+            ManuallyAdjustableValues=false;
+            turretRotation.ManualTurretControl(false);
+            UseOdosForSpeedAndDistance = true;
+            fieldCentricDrive=true;
         }
     }
     private void TelemetryStatements(){
@@ -290,7 +295,7 @@ public class CleanTeleop extends OpMode {
     if (ManuallyAdjustableValues){
         if (gamepad2.leftStickButtonWasPressed()){HoodAngleOffset = 0;}
         if (gamepad2.rightStickButtonWasPressed()){FlywheelSpeedForTuningOffset = 0;}
-        HoodAngleOffset -= gamepad2.left_stick_y / 30;
+        HoodAngleOffset -= gamepad2.left_stick_y / 40;
 
         if (camera.getRangeEquivalentToOdoRange()!=-1){
             double[] turretGoals = FAndV.handleShootingRanges(camera.getRangeEquivalentToOdoRange());
