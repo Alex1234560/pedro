@@ -19,9 +19,9 @@ import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 import org.firstinspires.ftc.teamcode.Functions.InterpolationTable;
 import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
+import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelAndFeederLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
+import org.firstinspires.ftc.teamcode.Mechanisms.HoodAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -37,8 +37,8 @@ public class CleanTeleop extends OpMode {
     private Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
-    private ShooterLogic shooter = new ShooterLogic();
-    private ShooterAngle hood = new ShooterAngle();
+    private FlywheelAndFeederLogic shooter = new FlywheelAndFeederLogic();
+    private HoodAngle hood = new HoodAngle();
     private AprilTagVision camera;
     private TurretRotation turretRotation = new TurretRotation();
 
@@ -50,11 +50,11 @@ public class CleanTeleop extends OpMode {
     private double FlywheelSpeedForTuning;
     private double FlywheelSpeedForTuningOffset;
     private double HoodAngleOffset;
-    private double HoodAngle = ShooterAngle.START_POINT;
+    private double HoodAngle = org.firstinspires.ftc.teamcode.Mechanisms.HoodAngle.START_POINT;
 
     private boolean ManuallyAdjustableValues = false;
     private boolean fieldCentricDrive = true;
-    private boolean UseOdosForSpeedAndDistance = true;
+    //private boolean UseOdosForSpeedAndDistance = true;
     private boolean automatedDrive = false;
     private boolean tuningTelemetry = false;
     private boolean IsRed = false;
@@ -158,7 +158,7 @@ public class CleanTeleop extends OpMode {
 
             ManuallyAdjustableValues=false;
             turretRotation.ManualTurretControl(false);
-            UseOdosForSpeedAndDistance = true;
+            //UseOdosForSpeedAndDistance = true;
             fieldCentricDrive=true;
         }
     }
@@ -179,7 +179,7 @@ public class CleanTeleop extends OpMode {
         }
 
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
-        telemetryM.addData("shooter Goal Speed ", ShooterLogic.TARGET_FLYWHEEL_TPS);
+        telemetryM.addData("shooter Goal Speed ", FlywheelAndFeederLogic.TARGET_FLYWHEEL_TPS);
         telemetryM.addData("Is flywheel up to speed?:  ", shooter.IsFlywheelUpToSpeed());
         telemetryM.addData("Distance From Goal ", turretRotation.GetDistanceFromGoal(IsRed));
         telemetryM.addData("Hood Angle", hood.getPosition());
@@ -287,18 +287,19 @@ public class CleanTeleop extends OpMode {
     if (gamepad2.start && gamepad2.dpadUpWasPressed()){
         ManuallyAdjustableValues=!ManuallyAdjustableValues;
         HoodAngle = hood.getPosition();
-        FlywheelSpeedForTuning = ShooterLogic.TARGET_FLYWHEEL_TPS;
+        FlywheelSpeedForTuning = FlywheelAndFeederLogic.TARGET_FLYWHEEL_TPS;
         FlywheelSpeedForTuningOffset = 0;
         HoodAngleOffset = 0;
 
         turretRotation.ManualTurretControl(ManuallyAdjustableValues);
-        UseOdosForSpeedAndDistance = !UseOdosForSpeedAndDistance;
+        //UseOdosForSpeedAndDistance = !UseOdosForSpeedAndDistance;
         fieldCentricDrive=!fieldCentricDrive;
     }
 
 
 
     if (ManuallyAdjustableValues){
+        FAndV.setSpeedTolerance(FunctionsAndValues.SPEED_TOLERANCE_TO_SHOOT_FRONT);
         if (gamepad2.leftStickButtonWasPressed()){HoodAngleOffset = 0;}
         if (gamepad2.rightStickButtonWasPressed()){FlywheelSpeedForTuningOffset = 0;}
         HoodAngleOffset -= gamepad2.left_stick_y / 40;
@@ -325,13 +326,10 @@ public class CleanTeleop extends OpMode {
     }
     // --------------------------------------------------- /
 
-    else if (UseOdosForSpeedAndDistance){
-        double[] turretGoals = turretRotation.GetTurretGoals(IsRed);
-        hood.SetPosition(turretGoals[0]);
-        shooter.setFlywheelTPS(turretGoals[1]);
-    }
-    else if (camera.getRangeEquivalentToOdoRange()!=-1){
-        double[] turretGoals = InterpolationTable.get(camera.getRangeEquivalentToOdoRange());
+    else {
+
+        double distance = turretRotation.GetDistanceFromGoal(IsRed);
+        double[] turretGoals = InterpolationTable.get(distance);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
     }

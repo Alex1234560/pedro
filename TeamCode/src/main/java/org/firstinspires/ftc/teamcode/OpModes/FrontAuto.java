@@ -13,9 +13,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
+import org.firstinspires.ftc.teamcode.Functions.InterpolationTable;
+import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelAndFeederLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
+import org.firstinspires.ftc.teamcode.Mechanisms.HoodAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -43,10 +44,10 @@ public class FrontAuto extends OpMode {
     //private DistanceSensorClass distanceSensor = new DistanceSensorClass();
     private Coordinates Cords = new Coordinates();
     private AutoFunctions autoFunctions = new AutoFunctions();
-    private ShooterLogic shooter = new ShooterLogic();
+    private FlywheelAndFeederLogic shooter = new FlywheelAndFeederLogic();
     private Intake intake = new Intake();
     private TurretRotation turretRotation = new TurretRotation();
-    private ShooterAngle hood = new ShooterAngle();
+    private HoodAngle hood = new HoodAngle();
     //private AprilTagVision camera;
 
     private FunctionsAndValues FAndV = new FunctionsAndValues();
@@ -402,7 +403,7 @@ public class FrontAuto extends OpMode {
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
-        double[] turretGoals = turretRotation.GetTurretGoals(IsRed);
+        double[] turretGoals = InterpolationTable.get(turretRotation.GetDistanceFromGoal(IsRed));
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
 
@@ -413,7 +414,7 @@ public class FrontAuto extends OpMode {
         telemetry.addData("Is Shooter Busy?", shooter.isBusy());
         telemetry.addData("Balls Shot", shooter.GetBallsShotCount());
         telemetry.addData("Path State", pathState.toString());
-        telemetry.addData("Shooter Path State", ShooterLogic.flywheelState);
+        telemetry.addData("Shooter Path State", FlywheelAndFeederLogic.flywheelState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("total heading", Math.toDegrees(follower.getTotalHeading()));

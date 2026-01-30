@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 
 @Configurable
-public class ShooterLogic {
+public class FlywheelAndFeederLogic {
     private FunctionsAndValues FAndV;
     private DcMotorEx ShooterMotor = null;
     private DcMotorEx ShooterMotor2 = null;

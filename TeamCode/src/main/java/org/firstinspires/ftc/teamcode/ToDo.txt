@@ -3,20 +3,14 @@
 - Check interpolation code for bugs.
 
  -------- High Priority -------
-- check interpolation for any bug that could be present
-- make tuning button harder to press by accident.
--make ball throughput better
+- make ball throughput better
 - make interpolation table for the values for velocity comepnsation
-- driving braking behaviour
------------ Medium Priority ----------
 - make flywheel PIDF better
-- make a way so that if the wrong color is chosen, the teleop won’t be ruint
+
+----------- Medium Priority ----------
+- driving braking behaviour
+- make autos better.
 - Make teleop also store turret rotation and pose location in case we need to rerun teleop
-
-make it so that u have to click joistick to activate function, during manual adjustmeent tho it might be too much of a hastle.
-
-------- Things to test ----------
-- try turret motor with Breaking behaviour at power 0;
 
 -------- Low Priority ---------
 - switch processing for turret from degrees to radians for more precise measurements.

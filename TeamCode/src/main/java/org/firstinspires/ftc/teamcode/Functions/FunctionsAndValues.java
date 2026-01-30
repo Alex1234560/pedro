@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Functions; // Make sure this matches your
 //import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
-
 /**
  * This class encapsulates all the logic for initializing and using the AprilTag processor.
  * It simplifies OpModes by hiding the complex setup of the VisionPortal and providing
@@ -13,15 +11,16 @@ import org.firstinspires.ftc.teamcode.Mechanisms.ShooterAngle;
 @Configurable
 public class FunctionsAndValues {
 
-    private static double BackRangeStart = 100;
-    private static double FrontRangeStart = 15;
+
 
 
     //public static double After90ChangeInAngle = 0; // was -3
 
     // swiched it from 60 to 300 cuz i believe the time it takes for the ball to reach flywheeel it goes up to speed enough to be accurate
+    public static double BACK_RANGE_START = 100;
+
     public static double SPEED_TOLERANCE_TO_SHOOT_BACK = 20;
-    public static double SPEED_TOLERANCE_TO_SHOOT_FRONT = 50;
+    public static double SPEED_TOLERANCE_TO_SHOOT_FRONT = 80;
     public static double SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;
 
 
@@ -62,48 +61,61 @@ public class FunctionsAndValues {
 
     }
 
+    public void setSpeedTolerance(double distance) {
+        SpeedToleranceToStartShooting = distance;
+    }
+
+    public void updateSpeedTolerance(double distance) {
+        if (distance>BACK_RANGE_START){
+            setSpeedTolerance(SPEED_TOLERANCE_TO_SHOOT_BACK);
+        }
+        else{
+            setSpeedTolerance(SPEED_TOLERANCE_TO_SHOOT_FRONT);
+        }
+    }
+
     public double distance(double x1, double y1, double x2, double y2) {
         double dx = x2 - x1;
         double dy = y2 - y1;
         return Math.hypot(dx, dy);   // safer and avoids overflow
     }
 
-    public double[] handleShootingRanges(double range) {
-        double[] turretGoals = new double[2];
-        double targAngle = 0;
-        double targSpeed = 0;
-
-        range= range+16.7;
-
-
-        if (range<BackRangeStart) {
-            //targAngle = (0.00779122 * range) + .121448;
-            //targSpeed = (5.64501 * range) + 925.3;
-            targAngle = (.00890654 * range) + .0542134;
-            targSpeed = (6.62105 * range) + 827.79659;
-
-            SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_FRONT;
-        }
-        else{
-            targAngle=.9;
-            //targSpeed = 11.12353*range+288.91;
-            targSpeed = 4.07072*range+1077.60987;
-            //targSpeed = 4.78571*range+1009.28571; // Alexs house measurement
-            //targSpeed = (6.15554*range)+839.5422; One used in odometry pod class before.
-            SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;
-        }
-
-        if (range<FrontRangeStart){targAngle = ShooterAngle.START_POINT;}
-
-        //normalize
-        if (targSpeed>2500){targSpeed=2500;}
-        if (targSpeed<0){targSpeed=0;}
-
-
-        turretGoals[0] = targAngle;
-        turretGoals[1] = targSpeed;
-        return turretGoals;
-    }
+//    public double[] handleShootingRanges(double range) {
+//        double[] turretGoals = new double[2];
+//        double targAngle = 0;
+//        double targSpeed = 0;
+//
+//        range= range+16.7;
+//
+//
+//        if (range<BackRangeStart) {
+//            //targAngle = (0.00779122 * range) + .121448;
+//            //targSpeed = (5.64501 * range) + 925.3;
+//            targAngle = (.00890654 * range) + .0542134;
+//            targSpeed = (6.62105 * range) + 827.79659;
+//
+//            SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_FRONT;
+//        }
+//        else{
+//            targAngle=.9;
+//            //targSpeed = 11.12353*range+288.91;
+//            targSpeed = 4.07072*range+1077.60987;
+//            //targSpeed = 4.78571*range+1009.28571; // Alexs house measurement
+//            //targSpeed = (6.15554*range)+839.5422; One used in odometry pod class before.
+//            SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;
+//        }
+//
+//        if (range<FrontRangeStart){targAngle = ShooterAngle.START_POINT;}
+//
+//        //normalize
+//        if (targSpeed>2500){targSpeed=2500;}
+//        if (targSpeed<0){targSpeed=0;}
+//
+//
+//        turretGoals[0] = targAngle;
+//        turretGoals[1] = targSpeed;
+//        return turretGoals;
+//    }
 
     public static class SimplePIDF {
         public double kP, kI, kD,kF;

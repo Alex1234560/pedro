@@ -240,6 +240,7 @@ public class TurretRotation {
         double difference = Math.abs(Math.abs(GetCurrentPosDeg())-Math.abs(actual_target_angle));
         return difference < TURRET_AIMING_ALLOWED_ERROR;
     }
+
     public boolean IsTurretPastAnglePos(){
         if (actual_target_angle>SWITCH_ANGLE_POS){
             return true;
@@ -301,16 +302,14 @@ public class TurretRotation {
 
     public double GetDistanceFromGoal(boolean IsRed){
         //return FAndV.distance(turret_x, turret_y, (Cords.xFlip(Coordinates.GOAL_X_FOR_DISTANCE,IsRed)), Coordinates.GOAL_Y_FOR_DISTANCE);
-        return FAndV.distance(turret_x, turret_y, goal_x, goal_y);
+        double distance = FAndV.distance(turret_x, turret_y, goal_x, goal_y);
+        if (!is_turret_being_manually_controlled) {
+            FAndV.updateSpeedTolerance(distance);
+        }
+        return distance;
     }
 
-    public double[] GetTurretGoals(boolean IsRed){
 
-        double DistanceFromGoal = GetDistanceFromGoal(IsRed) ;//- OffsetForNowToNormalizeToCurrentShootingRanges;
-        //double[] turretGoals = FAndV.handleShootingRanges(DistanceFromGoal);
-        double[] turretGoals= InterpolationTable.get(DistanceFromGoal);
-        return turretGoals;
-    }
 
     public void resetTotalHeadingForRobotAndTurret(double TotalRotationRad){
         Turret_Offset_For_When_Heading_Is_Reset = Math.toDegrees(TotalRotationRad);

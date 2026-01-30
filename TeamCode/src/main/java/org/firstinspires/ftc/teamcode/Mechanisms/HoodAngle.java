@@ -1,0 +1,41 @@
+package org.firstinspires.ftc.teamcode.Mechanisms;
+
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
+//@Configurable
+
+public class HoodAngle {
+    private Servo ServoShooter1;
+    //private static double ShooterAngle = FunctionsAndValues.startPoint;
+
+    public static double START_POINT = .15;
+    public static double END_POINT = .9;//.7
+
+    public double normalize(double value){
+        double newValue = value;
+        if (value>END_POINT) {
+            newValue = END_POINT;
+        }
+        if (value<START_POINT) {
+            newValue = START_POINT;
+        }
+        return newValue;
+    }
+
+    public void init(HardwareMap hardwareMap){
+        ServoShooter1 = hardwareMap.get(Servo.class, "ServoShooter1");
+    }
+
+    public void SetPosition(double position){
+        position = normalize(position);
+        ServoShooter1.setPosition(position);
+    }
+
+    public double getPosition(){
+        //give position so that when moving manually it can start from the current place.
+        return ServoShooter1.getPosition();//position
+    }
+
+
+}
