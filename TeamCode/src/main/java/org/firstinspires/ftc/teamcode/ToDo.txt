@@ -1,4 +1,7 @@
 
+------ for levi -------
+- Check interpolation code for bugs.
+
  -------- High Priority -------
 - check interpolation for any bug that could be present
 - make tuning button harder to press by accident.
