@@ -18,7 +18,6 @@ public class InterpolationTable {
 
     };
 
-
     private InterpolationTable() {}
 
     private static final class Point {

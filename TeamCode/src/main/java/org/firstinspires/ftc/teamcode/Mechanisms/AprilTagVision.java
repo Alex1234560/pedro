@@ -76,9 +76,7 @@ public class AprilTagVision {
         double ActualGoalX = Coordinates.GOAL_X;
         double ActualGoalY = Coordinates.GOAL_Y;
 
-        distance_difference_odo_and_camera = FAndV.distance(CameraGoalX,CameraGoalY,ActualGoalX,ActualGoalY);
-
-
+        distance_difference_odo_and_camera = FAndV.distance(CameraGoalX,CameraGoalY,ActualGoalX,ActualGoalY)-3;
 
     }
 

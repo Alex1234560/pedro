@@ -12,7 +12,7 @@ public class Coordinates {
 //    public static final double GOAL_Y = 136;
 
     public static final double GOAL_X = 0;
-    public static final double GOAL_Y = 139;
+    public static final double GOAL_Y = 137;
 
     public static final double GOAL_X_FOR_CAMERA = 16;
     public static final double GOAL_Y_FOR_CAMERA = 131;

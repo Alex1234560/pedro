@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
+import org.firstinspires.ftc.teamcode.Functions.InterpolationTable;
 import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
@@ -62,6 +63,7 @@ public class CleanTeleop extends OpMode {
 
     //buttons
     private boolean reset_position_button_pressed = false;
+    private boolean WasXPressed;
 
     //poses
     Pose shootFrontPos, parkPos, shootBackPos, TriggerClassifierPos, lastPoseTriggered;
@@ -128,6 +130,8 @@ public class CleanTeleop extends OpMode {
         handleResetPositionFunction();
         TelemetryStatements();
         handleFlywheel();
+
+        WasXPressed=gamepad1.xWasPressed();
     }
 
     private void buildPoses(){
@@ -135,17 +139,19 @@ public class CleanTeleop extends OpMode {
         shootBackPos = new Pose(Cords.xFlip(57, !IsRed), 18, Math.toRadians(Cords.angleFlip(0, IsRed)));
         parkPos = new Pose(Cords.xFlip(38.71049304677624, !IsRed), 33.29329962073322, Math.toRadians(Cords.angleFlip(180, IsRed)));
         TriggerClassifierPos = new Pose(Cords.xFlip(16.5, IsRed), 70, Math.toRadians(Cords.angleFlip(90, IsRed)));
+
         restartPos = new Pose(Cords.xFlip(Coordinates.RESTART_X,IsRed), Coordinates.RESTART_Y, Math.toRadians(Cords.angleFlip(0, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
     }
     private void handleResetPositionFunction(){
-        reset_position_button_pressed = gamepad1.right_bumper;
+        //reset_position_button_pressed = gamepad1.right_bumper;
+        reset_position_button_pressed = gamepad1.right_bumper&&gamepad1.left_bumper;
 
-        if (reset_position_button_pressed&&(gamepad1.xWasPressed()||gamepad1.bWasPressed())) {
-            if (gamepad1.xWasPressed()) {IsRed = false;} // blue
-            if (gamepad1.bWasPressed()) {IsRed = true;} //red
-            //turretRotation.resetTotalHeadingForRobotAndTurret(follower.getTotalHeading());
+        if ((reset_position_button_pressed&&WasXPressed)||(reset_position_button_pressed&&gamepad1.bWasPressed())) {
+            if (gamepad1.x) {IsRed = false;} // blue
+            else if (gamepad1.b) {IsRed = true;} //red
+            turretRotation.resetTotalHeadingForRobotAndTurret(follower.getTotalHeading());
             buildPoses();
             StartingPosition=restartPos;
             follower.setPose(restartPos);
@@ -223,7 +229,7 @@ public class CleanTeleop extends OpMode {
     private void handleIntakeAndShootingButtons() {
         //BACK button reversing.
 
-        boolean IntakeReversing = gamepad2.left_bumper || gamepad1.left_bumper;
+        boolean IntakeReversing = gamepad2.left_bumper || (gamepad1.left_bumper&&!reset_position_button_pressed);
 
         //intaking
         boolean shootButton = false;
@@ -278,7 +284,7 @@ public class CleanTeleop extends OpMode {
     private void HandleAimingRanges(){
 
     // ----- everything below for manually adjustable values ----- including turret.
-    if (gamepad2.start && gamepad2.xWasPressed()){
+    if (gamepad2.start && gamepad2.dpadUpWasPressed()){
         ManuallyAdjustableValues=!ManuallyAdjustableValues;
         HoodAngle = hood.getPosition();
         FlywheelSpeedForTuning = ShooterLogic.TARGET_FLYWHEEL_TPS;
@@ -298,7 +304,7 @@ public class CleanTeleop extends OpMode {
         HoodAngleOffset -= gamepad2.left_stick_y / 40;
 
         if (camera.getRangeEquivalentToOdoRange()!=-1){
-            double[] turretGoals = FAndV.handleShootingRanges(camera.getRangeEquivalentToOdoRange());
+            double[] turretGoals = InterpolationTable.get(camera.getRangeEquivalentToOdoRange());
             HoodAngle=turretGoals[0];
             FlywheelSpeedForTuning=turretGoals[1];
         }
@@ -325,7 +331,7 @@ public class CleanTeleop extends OpMode {
         shooter.setFlywheelTPS(turretGoals[1]);
     }
     else if (camera.getRangeEquivalentToOdoRange()!=-1){
-        double[] turretGoals = FAndV.handleShootingRanges(camera.getRangeEquivalentToOdoRange());
+        double[] turretGoals = InterpolationTable.get(camera.getRangeEquivalentToOdoRange());
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
     }
@@ -345,10 +351,7 @@ public class CleanTeleop extends OpMode {
 
         if (!automatedDrive) {
 
-//            if (gamepad1.xWasPressed()) {
-//                fieldCentricDrive = true;
-//            }
-            if (gamepad1.xWasPressed()&&!reset_position_button_pressed) {
+            if (WasXPressed&&!reset_position_button_pressed) {
                 fieldCentricDrive = !fieldCentricDrive;
             }
 
