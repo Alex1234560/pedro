@@ -33,8 +33,7 @@ public class CleanTeleop extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     // Setup for classes
-    private AutoFunctions autoFunctions = new AutoFunctions();
-    private Coordinates Cords = new Coordinates();
+    private final Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
     private FlywheelAndFeederLogic shooter = new FlywheelAndFeederLogic();

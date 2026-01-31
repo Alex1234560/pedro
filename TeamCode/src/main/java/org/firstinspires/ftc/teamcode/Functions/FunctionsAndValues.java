@@ -58,7 +58,6 @@ public class FunctionsAndValues {
     );
 
     public FunctionsAndValues() {
-
     }
 
     public void setSpeedTolerance(double distance) {
@@ -74,7 +73,7 @@ public class FunctionsAndValues {
         }
     }
 
-    public double distance(double x1, double y1, double x2, double y2) {
+    public static double distance(double x1, double y1, double x2, double y2) {
         double dx = x2 - x1;
         double dy = y2 - y1;
         return Math.hypot(dx, dy);   // safer and avoids overflow
@@ -162,63 +161,63 @@ public class FunctionsAndValues {
         return newPower;
 
     }
+//    public double[] getGoalOffset(double parallelx, double parallely, double perpx, double perpy){
+//
+//        double StrafeOffset = 0.5;
+//        double RangeOffset = 0.5;
+//
+//        double StrafeoffsetX = perpx * StrafeOffset;
+//        double StrafeoffsetY = perpy * StrafeOffset;
+//
+//        double RangeoffsetX = parallelx * RangeOffset;
+//        double RangeoffsetY = parallely * RangeOffset;
+//
+//
+//        return new double[]{StrafeoffsetX, StrafeoffsetY, RangeoffsetX, RangeoffsetY};
+//    }
+//
+//
+//    public static double getDotProduct(double ax, double ay, double bx, double by) {
+//        return (ax * bx) + (ay * by);
+//    }
+//    public double[] GetTempGoalPos(double goalPoseX, double goalPoseY, double velocityVectorX, double velocityVectorY, double robotPoseX, double robotPoseY){
+//
+//        // Returns parallel x,y and perp x, y
+//        // Parallel is the forward and back
+//        // Perp is the left and right
+//
+//        // Solving for parallel: ((velx * goalx + vely * goaly) / (goalx * goalx + goaly * goaly)) * goal
+//        // In end it will be parallelx = goalx * scalar, y is same but Y, just needs 2 components
+//
+//
+//        // Solving for perpendicular: v - vparallel
+//        // Repeat the perpendicular for both x and y to get the vector
+//
+//
+//        //Gets Distances to goal
+//        double goalVectorX = goalPoseX - robotPoseX;
+//        double goalVectorY = goalPoseY - robotPoseY;
+//
+//        //Gets dot product
+//        double dotProduct = getDotProduct(velocityVectorX, velocityVectorY, goalVectorX, goalVectorY);
+//
+//
+//        double squaredMagnitude = (goalVectorX * goalVectorX) + (goalVectorY * goalVectorY);
+//
+//        double scalar = dotProduct / squaredMagnitude;
+//
+//        double parallelX = goalVectorX * scalar;
+//        double parallelY = goalVectorY * scalar;
+//
+//        double perpendicularX = velocityVectorX - parallelX;
+//        double perpendicularY= velocityVectorY - parallelY;
+//
+//        return getGoalOffset(parallelX, parallelY, perpendicularX, perpendicularY);
+//    }
+//
 
-    public double[] getGoalOffset(double parallelx, double parallely, double perpx, double perpy){
     
-        double StrafeOffset = 0.5;
-        double RangeOffset = 0.5;
-        
-        double StrafeoffsetX = perpx * StrafeOffset;
-        double StrafeoffsetY = perpy * StrafeOffset;
-        
-        double RangeoffsetX = parallelx * RangeOffset;
-        double RangeoffsetY = parallely * RangeOffset;
-        
-
-        return new double[]{StrafeoffsetX, StrafeoffsetY, RangeoffsetX, RangeoffsetY};
-    }
-
-
-    public static double getDotProduct(double ax, double ay, double bx, double by) {
-        return (ax * bx) + (ay * by);
-    }
-    public double[] GetTempGoalPos(double goalPoseX, double goalPoseY, double velocityVectorX, double velocityVectorY, double robotPoseX, double robotPoseY){
-
-        // Returns parallel x,y and perp x, y
-        // Parallel is the forward and back
-        // Perp is the left and right
-
-        // Solving for parallel: ((velx * goalx + vely * goaly) / (goalx * goalx + goaly * goaly)) * goal
-        // In end it will be parallelx = goalx * scalar, y is same but Y, just needs 2 components
-
-
-        // Solving for perpendicular: v - vparallel
-        // Repeat the perpendicular for both x and y to get the vector
-
-
-        //Gets Distances to goal
-        double goalVectorX = goalPoseX - robotPoseX;
-        double goalVectorY = goalPoseY - robotPoseY;
-
-        //Gets dot product
-        double dotProduct = getDotProduct(velocityVectorX, velocityVectorY, goalVectorX, goalVectorY);
-
-
-        double squaredMagnitude = (goalVectorX * goalVectorX) + (goalVectorY * goalVectorY);
-
-        double scalar = dotProduct / squaredMagnitude;
-
-        double parallelX = goalVectorX * scalar;
-        double parallelY = goalVectorY * scalar;
-
-        double perpendicularX = velocityVectorX - parallelX;
-        double perpendicularY= velocityVectorY - parallelY;
-        
-        return getGoalOffset(parallelX, parallelY, perpendicularX, perpendicularY);
-    }
-
-    
-    public double GetSpeedAvgFromTwoMotors(double Motor1Speed, double Motor2Speed ){
+    public static double GetSpeedAvgFromTwoMotors(double Motor1Speed, double Motor2Speed ){
         double Speed;
         double Motor1Vel = Math.abs(Motor1Speed);
         double Motor2Vel = Math.abs(Motor2Speed);

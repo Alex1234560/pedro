@@ -26,7 +26,7 @@ public class Coordinates {
     public static final double RESTART_Y = 9.4;
 
 
-    public double xFlip(double oPos, boolean Red){
+    public static double xFlip(double oPos, boolean Red){
         double switcher;
         if (Red){switcher=144;
             return switcher-oPos; // Alex
@@ -37,7 +37,7 @@ public class Coordinates {
 
     }
 
-    public double angleFlip(double oAng, boolean Red) {
+    public static double angleFlip(double oAng, boolean Red) {
         double flipVal;
         if (Red){flipVal = 180;
             return flipVal-oAng;}
@@ -46,7 +46,7 @@ public class Coordinates {
         }
     }
 
-    public double[] rotatePoint(double px, double py, double pivotX, double pivotY, double angleRadians) {
+    public static double[] rotatePoint(double px, double py, double pivotX, double pivotY, double angleRadians) {
         double dx = px - pivotX;
         double dy = py - pivotY;
 
@@ -60,8 +60,8 @@ public class Coordinates {
 
   }
 
-    public double roundToNearest90(double angleDeg) {
-        return Math.round(angleDeg / 90.0) * 90.0;
-    }
+//    public double roundToNearest90(double angleDeg) {
+//        return Math.round(angleDeg / 90.0) * 90.0;
+//    }
 
 }

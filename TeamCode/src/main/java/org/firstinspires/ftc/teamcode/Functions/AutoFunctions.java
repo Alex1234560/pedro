@@ -18,10 +18,10 @@ public class AutoFunctions {
     private static double ALLOWED_ERROR_POSITION = 6;
     private static double ALLOWED_ERROR_VELOCITY = 15;
 
-    public boolean isRobotInPosition(Pose GoalPose, Follower follower) {
+    public static boolean isRobotInPosition(Pose GoalPose, Follower follower) {
         return isRobotInPositionCustomAmounts(GoalPose,follower,ALLOWED_ERROR_VELOCITY,ALLOWED_ERROR_POSITION);
     }
-    public boolean isRobotInPositionCustomAmounts(Pose GoalPose, Follower follower,double ALLOWED_ERROR_VEL, double ALLOWED_ERROR_POS) {
+    public static boolean isRobotInPositionCustomAmounts(Pose GoalPose, Follower follower,double ALLOWED_ERROR_VEL, double ALLOWED_ERROR_POS) {
         Vector VelocityVector = follower.getVelocity();
         double vX = VelocityVector.getXComponent();
         double vY = VelocityVector.getYComponent();

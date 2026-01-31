@@ -10,7 +10,9 @@
  - Tune VelocityInterpolation values.
 
 
- -------- High Priority -------\
+ -------- High Priority -------
+ -bug check
+ - make controllers simple, and during manual control prevent accidental clicks for changing speed or angle.
 
 ----------- Medium Priority ----------
 - make flywheel PIDF better

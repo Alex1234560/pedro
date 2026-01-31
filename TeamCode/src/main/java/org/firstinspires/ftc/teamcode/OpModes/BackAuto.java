@@ -131,7 +131,7 @@ public class BackAuto extends OpMode {
                 break;
 
             case SHOOT:
-                if(isStateBusy == false&&autoFunctions.isRobotInPosition(shootPos,follower) ){
+                if(isStateBusy == false&&AutoFunctions.isRobotInPosition(shootPos,follower) ){
                     //intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;
@@ -309,7 +309,7 @@ public class BackAuto extends OpMode {
         //shooter.updateDistanceSensorValueForAuto(distanceSensor.IsBallDetected());
         //camera.update();
         follower.update();
-        boolean IsTurretReady = autoFunctions.isRobotInPosition(shootPos,follower) && turretRotation.isTurretFinishedRotating();
+        boolean IsTurretReady = AutoFunctions.isRobotInPosition(shootPos,follower) && turretRotation.isTurretFinishedRotating();
         shooter.updateWithStateMachine(IsTurretReady);
         turretRotation.update(follower, startPose,IsRed);;
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
