@@ -218,6 +218,8 @@ public class TurretRotation {
             // ----- getting the power the motor needs----
             double newPower = RotationalPIDF.calculate(goal_tick_pos, current_position);
 
+            TurretRotatorMotor.setPower(newPower);
+
 
         }
 

@@ -121,7 +121,7 @@ public class CleanTeleop extends OpMode {
 
         follower.update();
         shooter.update();
-        camera.update();//if (ManuallyAdjustableValues){camera.update();}
+        if (ManuallyAdjustableValues){camera.update();}//camera.update();//
         turretRotation.update(follower, StartingPosition, IsRed);
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
 
@@ -199,32 +199,6 @@ public class CleanTeleop extends OpMode {
         telemetryM.debug("y:" + Math.round(follower.getPose().getY()));
         telemetryM.debug("heading:" + Math.round(Math.toDegrees(follower.getPose().getHeading())));
 
-
-
-
-
-
-        //telemetryM.addData("turret rotation goal degree ", Math.round(turretRotation.GetGoalTrackingAngle()));
-
-
-
-
-
-        //telemetryM.addData("Turret Rotation Deg ", Math.round(turretRotation.GetCurrentPosDeg()));
-        //telemetryM.addData("Turret Offset: ", Math.round(TurretRotation.turret_offset));
-
-        //telemetryM.addData("Heading", Math.toDegrees(follower.getTotalHeading()));
-
-        //telemetryM.addData("Power Of Ball Feeder" ,shooter.GetBallFeederPowerForDebugging()*100);
-        //telemetryM.addData("Debugging angle Compensation" ,Math.round(turretRotation.DebugGetAngleCompensation()));
-
-        //telemetryM.addData("IsRed?" ,IsRed);
-        //for tuning purposes for auto
-        //telemetryM.addData("Is Turret Finished Rotating " ,turretRotation.isTurretFinishedRotating());
-
-        //telemetryM.addData("bearing used in Turret", turretRotation.GetCameraBearingUsedInFile());
-
-        //telemetryM.debug("total heading:" + Math.round(Math.toDegrees(follower.getTotalHeading())));
         telemetryM.update(telemetry);
 
     }
@@ -276,8 +250,8 @@ public class CleanTeleop extends OpMode {
         }
 
         //so that any button that intakes can spin ball feeder
-        else if (IntakePowerValue>0 && !shooter.IsBallDetected()){
-            shooter.SpinBallFeeder(FunctionsAndValues.PowerValueForPreloading); // power less so that it doesnt pass the point it needs to go to and get shot
+        else if (IntakePowerValue>0 ){//&& !shooter.IsBallDetected()){ //&& !shooter.IsBallTooFarIn() ){
+            shooter.SpinBallFeeder(shooter.ReturnValueForPreload());
         }
 
         else{shooter.SpinBallFeeder(0);}

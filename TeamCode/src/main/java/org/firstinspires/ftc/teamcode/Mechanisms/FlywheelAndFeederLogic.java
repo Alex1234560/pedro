@@ -51,9 +51,6 @@ public class FlywheelAndFeederLogic {
     public static double TARGET_FLYWHEEL_TPS = 1300;
     public static double FLYWHEEL_MAX_SPINUP_TIME = 6;
 
-    private boolean IsBallDetectedAutoBool = true;
-
-
     public void init(HardwareMap hardwareMap) {
 
         FAndV = new FunctionsAndValues();
@@ -167,8 +164,12 @@ public class FlywheelAndFeederLogic {
 
 
         //preee feeding balls.
-        if (ball_feeder_servo_power==0 && !IsBallDetectedAutoBool){
-            ball_feeder_servo_power=FunctionsAndValues.PowerValueForPreloading;
+        if (ball_feeder_servo_power==0 ){//&& ! distanceSensor.IsBallDetected()){
+            ball_feeder_servo_power= distanceSensor.ReturnValueForPreload();
+        }
+
+        if (flywheelState!=FlywheelState.LAUNCH_BALLS && distanceSensor.IsBallTooFarIn()){
+            ball_feeder_servo_power=FunctionsAndValues.PowerValueForPreloadingBack;
         }
 
         SpinBallFeeder(ball_feeder_servo_power);
@@ -178,7 +179,6 @@ public class FlywheelAndFeederLogic {
         if(flywheel_on){SetMotorPowerToTarget();}
         else{TurnFlywheelOff();}
 
-        IsBallDetectedAutoBool = distanceSensor.IsBallDetected();
         flywheelVelocity = FAndV.GetSpeedAvgFromTwoMotors(ShooterMotor.getVelocity(), ShooterMotor2.getVelocity());
         distanceSensor.update();
     }
@@ -216,8 +216,13 @@ public class FlywheelAndFeederLogic {
     public double GetDistance(){
         return distanceSensor.GetDistance();
     }
-    public boolean IsBallDetected(){
-        return distanceSensor.IsBallDetected();
+    public boolean IsBallDetected(){return distanceSensor.IsBallDetected();}
+    public boolean IsBallTooFarIn(){
+        return distanceSensor.IsBallTooFarIn();
+    }
+
+    public double ReturnValueForPreload(){
+        return distanceSensor.ReturnValueForPreload();
     }
 
 }

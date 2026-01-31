@@ -20,11 +20,12 @@ public class FunctionsAndValues {
     public static double BACK_RANGE_START = 100;
 
     public static double SPEED_TOLERANCE_TO_SHOOT_BACK = 20;
-    public static double SPEED_TOLERANCE_TO_SHOOT_FRONT = 80;
+    public static double SPEED_TOLERANCE_TO_SHOOT_FRONT = 100;
     public static double SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;
 
 
-    public static double PowerValueForPreloading = 0.12;
+    public static double PowerValueForPreloading = .15;
+    public static double PowerValueForPreloadingBack = .12;
 
 
     //public static double AngleToleranceToStartShooting = 2;
