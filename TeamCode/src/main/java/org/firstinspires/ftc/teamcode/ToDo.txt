@@ -15,7 +15,6 @@
 ----------- Medium Priority ----------
 - make flywheel PIDF better
 - make ball throughput better
-- driving braking behaviour
 - make autos better.
 - Make teleop also store turret rotation and pose location in case we need to rerun teleop
 
