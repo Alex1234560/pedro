@@ -8,17 +8,18 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Mechanisms.ParkingServos;
 
 
-@Configurable
+//@Configurable
 @TeleOp
 public class ParkingTryTeleop extends OpMode
 {
 
     ParkingServos parkingServos = new ParkingServos();
-    //private double position;
-
+    private double position;
+    public static double change_amount=.005;
 
     @Override
     public void init() {
+        position=ParkingServos.START_POINT;
         parkingServos.init(hardwareMap);
 
     }
@@ -43,7 +44,17 @@ public class ParkingTryTeleop extends OpMode
      */
     @Override
     public void loop() {
-        parkingServos.SetPosition(gamepad1.left_trigger);
+        double parkingServosGoal = gamepad1.left_trigger;
+        if (parkingServosGoal>position){
+            position+=change_amount;
+
+        }
+        if (parkingServosGoal<position){
+            position-=change_amount;
+
+        }
+
+        //parkingServos.SetPosition(position);
         telemetry.addData("Position", parkingServos.getPosition());
         telemetry.update();
 

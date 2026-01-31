@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelAndFeederLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.HoodAngle;
+import org.firstinspires.ftc.teamcode.Mechanisms.ParkingServos;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -36,6 +37,7 @@ public class CleanTeleop extends OpMode {
     private final Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
     private Intake intake = new Intake();
+    private ParkingServos parkingServos = new ParkingServos();
     private FlywheelAndFeederLogic shooter = new FlywheelAndFeederLogic();
     private HoodAngle hood = new HoodAngle();
     private AprilTagVision camera;
@@ -76,6 +78,7 @@ public class CleanTeleop extends OpMode {
 
         camera = new AprilTagVision(hardwareMap);
         hood.init(hardwareMap);
+        parkingServos.init(hardwareMap);
         shooter.init(hardwareMap);
         turretRotation.init(hardwareMap);
         intake.init(hardwareMap);
@@ -118,7 +121,7 @@ public class CleanTeleop extends OpMode {
     @Override
     public void loop(){
         AutoFunctions.LastPoseRecorded = follower.getPose();
-
+        handleParking();
         follower.update();
         shooter.update();
         if (ManuallyAdjustableValues){camera.update();}//camera.update();//
@@ -144,6 +147,16 @@ public class CleanTeleop extends OpMode {
         restartPos = new Pose(Cords.xFlip(Coordinates.RESTART_X,IsRed), Coordinates.RESTART_Y, Math.toRadians(Cords.angleFlip(0, IsRed)));
 
         GoalLocationPose = new Pose(Cords.xFlip(Coordinates.GOAL_X,IsRed), Coordinates.GOAL_Y, Math.toRadians(0));
+    }
+
+    private void handleParking(){
+        if (gamepad1.dpad_up){
+            parkingServos.setToMaxPosition();
+        }
+        else{
+            parkingServos.setToMinPosition();
+        }
+        parkingServos.update();
     }
     private void handleResetPositionFunction(){
         //reset_position_button_pressed = gamepad1.right_bumper;
@@ -454,4 +467,5 @@ public class CleanTeleop extends OpMode {
         }
 
     }
+
 }
