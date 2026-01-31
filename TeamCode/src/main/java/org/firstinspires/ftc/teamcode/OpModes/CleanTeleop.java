@@ -118,6 +118,8 @@ public class CleanTeleop extends OpMode {
 
     @Override
     public void loop(){
+        AutoFunctions.LastPoseRecorded = follower.getPose();
+
         follower.update();
         shooter.update();
         camera.update();//if (ManuallyAdjustableValues){camera.update();}
