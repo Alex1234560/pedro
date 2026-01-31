@@ -64,7 +64,7 @@ public class DistanceSensorClass
     }
 
     public double ReturnValueForPreload(){
-        double power=0;
+        double power=-0.07;
        if (distance>CHANGE_POINT){
            power = FunctionsAndValues.PowerValueForPreloading;
 

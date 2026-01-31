@@ -8,6 +8,7 @@ public class VelocityInterpolation {
             //front
             new Point(0, .003),
             new Point(15, .183 ),
+            new Point(118, .4 ),
             new Point(200, 2.403),
 
 
