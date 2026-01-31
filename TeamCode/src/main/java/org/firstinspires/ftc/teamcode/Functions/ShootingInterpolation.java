@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Functions; // Make sure this matches your
 //import com.acmerobotics.dashboard.config.Config;
 
 
-public class InterpolationTable {
+public class ShootingInterpolation {
     private static final Point[] TABLE = {
             //front
             new Point(16.7, .15, 828 ),
@@ -18,7 +18,21 @@ public class InterpolationTable {
 
     };
 
-    private InterpolationTable() {}
+    // safety checks
+    static {
+
+        if (TABLE.length < 2) {
+            throw new IllegalStateException("ShootingInterpolation arrays must have >= 2 points.");
+        }
+
+        for (int i = 1; i < TABLE.length; i++) {
+            if (TABLE[i].dist <= TABLE[i - 1].dist) {
+                throw new IllegalStateException("ShootingInterpolation table must be sorted by distance.");
+            }
+        }
+    }
+
+    private ShootingInterpolation() {}
 
     private static final class Point {
         final double dist;
@@ -37,14 +51,14 @@ public class InterpolationTable {
         return a + (b - a) * t;
     }
 
-    public static double[] get(double distance){
-        int n = TABLE.length;
-        if (n < 2) {
-            throw new IllegalStateException("ShotTable arrays must have >= 2 points.");
-            //return new double[]{0,0};
-        }
+        public static double[] get(double distance){
 
-        else {
+
+
+        int n = TABLE.length;
+
+
+
             if (distance <= TABLE[0].dist) {
                 return new double[]{TABLE[0].angle, TABLE[0].tps};
             }
@@ -72,7 +86,7 @@ public class InterpolationTable {
             double tps   = lerp(a.tps,   b.tps,   t);
 
             return new double[]{angle, tps};
-        }
+
     }
 }
 

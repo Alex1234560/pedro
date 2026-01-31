@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
-import org.firstinspires.ftc.teamcode.Functions.InterpolationTable;
+import org.firstinspires.ftc.teamcode.Functions.ShootingInterpolation;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelAndFeederLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.HoodAngle;
@@ -327,7 +327,7 @@ public class ShootingTestAuto extends OpMode {
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
-        double[] turretGoals = InterpolationTable.get(turretRotation.GetDistanceFromGoal(IsRed));
+        double[] turretGoals = ShootingInterpolation.get(turretRotation.GetDistanceFromGoal(IsRed));
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
 

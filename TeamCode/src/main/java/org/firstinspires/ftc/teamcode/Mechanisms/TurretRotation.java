@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
+import org.firstinspires.ftc.teamcode.Functions.VelocityInterpolation;
 
 @Configurable
 public class TurretRotation {
@@ -30,8 +31,8 @@ public class TurretRotation {
 
     public static double TURRET_AIMING_ALLOWED_ERROR = 2.5;
 
-    public static double BASE_FOR_VELOCITY = .003;
-    public static double MULTIPLIER_FOR_VELOCITY = 0.012;
+//    public static double BASE_FOR_VELOCITY = .003;
+//    public static double MULTIPLIER_FOR_VELOCITY = 0.012;
     public static boolean IS_TUNING_VELOCITY_MODE_ON;
     public static double TUNABLE_VELOCITY_VALUE =0;
 
@@ -143,9 +144,6 @@ public class TurretRotation {
 
             //moving goal now?, maybe itll work better.
 
-
-
-
             goal_x=Cords.xFlip(Coordinates.GOAL_X,IsRed);
             goal_y=Coordinates.GOAL_Y;
 
@@ -162,11 +160,6 @@ public class TurretRotation {
 
                 goal_y=Coordinates.GOAL_Y-(difference*progression);
             }
-//
-//            if (turret_y>= Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING){
-//                goal_y=Coordinates.GOAL_Y_AT_TOP_OF_FIELD;
-//            }
-
 
             /// ---------
 
@@ -178,7 +171,10 @@ public class TurretRotation {
             double multiplyValue;
             //changed this so it can be tuned with a computer with panels
             if (IS_TUNING_VELOCITY_MODE_ON){multiplyValue=TUNABLE_VELOCITY_VALUE;}
-            else{ multiplyValue = BASE_FOR_VELOCITY + (MULTIPLIER_FOR_VELOCITY*distance);}
+            else{
+                //multiplyValue = BASE_FOR_VELOCITY + (MULTIPLIER_FOR_VELOCITY*distance);
+                multiplyValue= VelocityInterpolation.get(distance);
+            }
 
             goal_x-=(velocity.getXComponent() * multiplyValue);
             goal_y-=(velocity.getYComponent() * multiplyValue);
@@ -232,7 +228,7 @@ public class TurretRotation {
     public double GetCameraBearingUsedInFile(){return camera_bearing_offset;}
     public double GetCurrentPosTicks(){return TurretRotatorMotor.getCurrentPosition();}
     public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
-    public double ReturnGoalY(){return goal_y;}
+    //public double ReturnGoalY(){return goal_y;}
 
     // -------------- complicated functions ------------------
 

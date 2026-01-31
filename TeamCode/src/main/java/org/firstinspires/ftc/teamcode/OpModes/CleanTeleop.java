@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
-import org.firstinspires.ftc.teamcode.Functions.InterpolationTable;
+import org.firstinspires.ftc.teamcode.Functions.ShootingInterpolation;
 import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelAndFeederLogic;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
@@ -178,7 +178,7 @@ public class CleanTeleop extends OpMode {
 
         }
 
-        telemetryM.addData("GOAL_Y FOR DEBUGGING ", turretRotation.ReturnGoalY());
+        //telemetryM.addData("GOAL_Y FOR DEBUGGING ", turretRotation.ReturnGoalY());
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("shooter Goal Speed ", FlywheelAndFeederLogic.TARGET_FLYWHEEL_TPS);
         telemetryM.addData("Is flywheel up to speed?:  ", shooter.IsFlywheelUpToSpeed());
@@ -306,7 +306,7 @@ public class CleanTeleop extends OpMode {
         HoodAngleOffset -= gamepad2.left_stick_y / 40;
 
         if (camera.getRangeEquivalentToOdoRange()!=-1){
-            double[] turretGoals = InterpolationTable.get(camera.getRangeEquivalentToOdoRange());
+            double[] turretGoals = ShootingInterpolation.get(camera.getRangeEquivalentToOdoRange());
             HoodAngle=turretGoals[0];
             FlywheelSpeedForTuning=turretGoals[1];
         }
@@ -330,7 +330,7 @@ public class CleanTeleop extends OpMode {
     else {
 
         double distance = turretRotation.GetDistanceFromGoal(IsRed);
-        double[] turretGoals = InterpolationTable.get(distance);
+        double[] turretGoals = ShootingInterpolation.get(distance);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
     }

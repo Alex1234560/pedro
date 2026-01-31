@@ -7,9 +7,10 @@
  - Tune back range start which determines the flywheel error that is allowed when shooting from the back vs the front.
  - also tune the allowed error of the flywheel for the front and back.
  - tune aiming switching at a certain y point, it is implemented but needs to be tuned.
+ - Tune VelocityInterpolation values.
+
 
  -------- High Priority -------\
-- make interpolation table for the values for velocity comepnsation
 
 ----------- Medium Priority ----------
 - make flywheel PIDF better
@@ -19,6 +20,7 @@
 - Make teleop also store turret rotation and pose location in case we need to rerun teleop
 
 -------- Low Priority ---------
+- if robot isn't moving in teleop, use follower.holdPoint(lastTargetPose); to keep it where it is.
 - switch processing for turret from degrees to radians for more precise measurements.
 - try using integrated PIDF instead of costum, makes code cleaner
 - Adjust PIDF for shooter if neccesary.
