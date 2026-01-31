@@ -32,10 +32,8 @@ public class TurretRotation {
 
     public static double BASE_FOR_VELOCITY = .003;
     public static double MULTIPLIER_FOR_VELOCITY = 0.012;
-
-
-
-
+    public static boolean IS_TUNING_VELOCITY_MODE_ON;
+    public static double TUNABLE_VELOCITY_VALUE =0;
 
 
     private static boolean AUTO_ROTATE = true; // this is for counter rotating the turret with the heading variable
@@ -91,6 +89,8 @@ public class TurretRotation {
 
 
     public void init(HardwareMap hardwareMap){
+        IS_TUNING_VELOCITY_MODE_ON = false;
+
 
         //added line to see if i thelps
         //turret_offset=0;
@@ -175,7 +175,10 @@ public class TurretRotation {
             Vector velocity = follower.getVelocity();
 
             double distance = GetDistanceFromGoal(IsRed);
-            double multiplyValue = BASE_FOR_VELOCITY + (MULTIPLIER_FOR_VELOCITY*distance);
+            double multiplyValue;
+            //changed this so it can be tuned with a computer with panels
+            if (IS_TUNING_VELOCITY_MODE_ON){multiplyValue=TUNABLE_VELOCITY_VALUE;}
+            else{ multiplyValue = BASE_FOR_VELOCITY + (MULTIPLIER_FOR_VELOCITY*distance);}
 
             goal_x-=(velocity.getXComponent() * multiplyValue);
             goal_y-=(velocity.getYComponent() * multiplyValue);

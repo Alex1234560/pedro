@@ -4,13 +4,12 @@
 
  -------- When on field -------
  - tune shooting ranges
- - Tune back range start which determines the flywheel error that is allowed when shooting.
- - also tune the allowed error of the flywheel
+ - Tune back range start which determines the flywheel error that is allowed when shooting from the back vs the front.
+ - also tune the allowed error of the flywheel for the front and back.
+ - tune aiming switching at a certain y point, it is implemented but needs to be tuned.
 
- -------- High Priority -------
-
+ -------- High Priority -------\
 - make interpolation table for the values for velocity comepnsation
-- switch aiming position depending on how high on the field u are. rn I integrated it but it needs to be smoothed.
 
 ----------- Medium Priority ----------
 - make flywheel PIDF better
