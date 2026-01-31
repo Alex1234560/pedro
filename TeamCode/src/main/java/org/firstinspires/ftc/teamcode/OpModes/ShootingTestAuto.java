@@ -323,7 +323,7 @@ public class ShootingTestAuto extends OpMode {
 
 
         shooter.updateWithStateMachine(turretRotation.isTurretFinishedRotating());
-        turretRotation.update(follower, GoalLocationPose, startPose,IsRed);;
+        turretRotation.update(follower, startPose,IsRed);;
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 

@@ -311,7 +311,7 @@ public class BackAuto extends OpMode {
         follower.update();
         boolean IsTurretReady = autoFunctions.isRobotInPosition(shootPos,follower) && turretRotation.isTurretFinishedRotating();
         shooter.updateWithStateMachine(IsTurretReady);
-        turretRotation.update(follower, GoalLocationPose, startPose,IsRed);;
+        turretRotation.update(follower, startPose,IsRed);;
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 

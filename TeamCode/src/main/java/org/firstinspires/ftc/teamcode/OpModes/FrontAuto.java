@@ -399,7 +399,7 @@ public class FrontAuto extends OpMode {
 
         boolean IsTurretReady = turretRotation.isTurretFinishedRotating();//autoFunctions.isRobotInPosition(shootPos,follower) &&
         shooter.updateWithStateMachine(IsTurretReady);
-        turretRotation.update(follower, GoalLocationPose, startPose,IsRed);;
+        turretRotation.update(follower, startPose,IsRed);;
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 

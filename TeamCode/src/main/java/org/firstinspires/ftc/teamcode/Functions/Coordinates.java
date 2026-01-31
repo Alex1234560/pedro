@@ -8,11 +8,13 @@ public class Coordinates {
 
     // BLUE POSES ARE DEFAULT, THESE ARE BLUE side POSES
     public static final double StartingRobotAngleDeg = 144;
-//    public static final double GOAL_X = 8;
-//    public static final double GOAL_Y = 136;
 
     public static final double GOAL_X = 0;
-    public static final double GOAL_Y = 137;
+    public static final double GOAL_Y = 144;
+
+    public static final double GOAL_Y_WHEN_AT_TOP_OF_FIELD = 137;
+
+    public static double Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING = 130;
 
     public static final double GOAL_X_FOR_CAMERA = 16;
     public static final double GOAL_Y_FOR_CAMERA = 131;
@@ -20,8 +22,6 @@ public class Coordinates {
     public static final double FRONT_START_X = 17.914;
     public static final double FRONT_START_Y = 121.168;
 
-//    public static final double RESTART_X = 9.8;
-//    public static final double RESTART_Y = 9.4;
     public static final double RESTART_X = 134;
     public static final double RESTART_Y = 9.4;
 

@@ -17,7 +17,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
-import org.firstinspires.ftc.teamcode.Functions.InterpolationTable;
 
 @Configurable
 public class TurretRotation {
@@ -36,16 +35,12 @@ public class TurretRotation {
 
 
 
+
+
+
     private static boolean AUTO_ROTATE = true; // this is for counter rotating the turret with the heading variable
     private static boolean TRACK_GOAL = true; // this is for activating the trig math that handles aiming at the correct spot
     private static boolean USE_CAMERA_BEARING = true;
-    private static boolean MOTOR_ACTIVE = true;// this is for activating the motor, inc ase u want to test something witouth the motor active
-
-    private static boolean LIMIT_VELOCITY_SWITCHES = false; // this is a prototype function that limits when the motor can switch directions due to speed, it wont be needed in the future
-    private static double DONT_SWITCH_VALUE = 800;// this is for the var on top
-
-    private boolean LIMIT_MAX_SPEED = true; // this is a cap on the motor speed so it doesn't skip gears
-    private static double MAX_MOTOR_POWER = 1; // for the var avobe
 
     private static double FULL_TURN = 1666;// ticks that make a full turn
 
@@ -74,8 +69,6 @@ public class TurretRotation {
     private double goal_y=0;
 
     private double Turret_Offset_For_When_Heading_Is_Reset;
-
-
 
 
 
@@ -110,7 +103,7 @@ public class TurretRotation {
         //TurretRotatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void update(Follower follower, Pose goalPose, Pose initPose, boolean IsRed){
+    public void update(Follower follower, Pose initPose, boolean IsRed){
             //getting valeus from follower.
             Pose robotPose = follower.getPose();
             //double TotalRotation = Math.toDegrees(follower.getHeading());
@@ -149,13 +142,45 @@ public class TurretRotation {
             }
 
             //moving goal now?, maybe itll work better.
+
+
+
+
+            goal_x=Cords.xFlip(Coordinates.GOAL_X,IsRed);
+            goal_y=Coordinates.GOAL_Y;
+
+            /// for changing goal position dinamically
+
+            double difference = Math.abs(Coordinates.GOAL_Y-Coordinates.GOAL_Y_WHEN_AT_TOP_OF_FIELD);
+            double transition = 2;
+
+
+            if (turret_y>= (Coordinates.Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING-transition)){
+                double progression = (turret_y-(Coordinates.Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING-transition))/transition;
+                if (progression>1){progression=1;}
+                if (progression<0){progression=0;}
+
+                goal_y=Coordinates.GOAL_Y-(difference*progression);
+            }
+//
+//            if (turret_y>= Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING){
+//                goal_y=Coordinates.GOAL_Y_AT_TOP_OF_FIELD;
+//            }
+
+
+            /// ---------
+
+            /// Accounting for velocity when aiming
+
             Vector velocity = follower.getVelocity();
 
             double distance = GetDistanceFromGoal(IsRed);
             double multiplyValue = BASE_FOR_VELOCITY + (MULTIPLIER_FOR_VELOCITY*distance);
 
-            goal_x=goalPose.getX()-(velocity.getXComponent() * multiplyValue);
-            goal_y=goalPose.getY()-(velocity.getYComponent() * multiplyValue);
+            goal_x-=(velocity.getXComponent() * multiplyValue);
+            goal_y-=(velocity.getYComponent() * multiplyValue);
+
+            /// ------------------
 
             angle_calculated_for_tracking_goal = getAngleFromTwoPoints(goal_x,goal_y, turret_x, turret_y, IsRed);
 
@@ -168,8 +193,6 @@ public class TurretRotation {
                 //manual_control_offset-=camera_bearing_offset;
                 actual_target_angle+=manual_control_offset;
             }
-
-
 
 
             boolean is_turret_past_angle_pos = IsTurretPastAnglePos();
@@ -196,28 +219,6 @@ public class TurretRotation {
             // ----- getting the power the motor needs----
             double newPower = RotationalPIDF.calculate(goal_tick_pos, current_position);
 
-            // -------------- LOGIC FOR NO SUDDEN DIRECTION CHANGE -------------------  -----
-
-            double TurretLastPower = TurretRotatorMotor.getPower();
-
-            if (LIMIT_VELOCITY_SWITCHES){
-
-                double sign = 0;
-                if (newPower != 0) {sign = newPower / Math.abs(newPower);}
-                double lastSign = 0;
-                if (TurretLastPower != 0) {lastSign = TurretLastPower / Math.abs(TurretLastPower);}
-
-                if (Math.abs(current_velocity) > DONT_SWITCH_VALUE) {if (sign != lastSign && sign != 0) {newPower = 0;}}
-            }
-
-            if (LIMIT_MAX_SPEED){
-                if (Math.abs(newPower)>MAX_MOTOR_POWER)
-                    newPower = MAX_MOTOR_POWER * Math.signum(newPower);
-            }
-
-            // ---------- setting power to motor -----------
-            if (MOTOR_ACTIVE) {TurretRotatorMotor.setPower(newPower);}
-            else{TurretRotatorMotor.setPower(0);}
 
         }
 
@@ -228,7 +229,7 @@ public class TurretRotation {
     public double GetCameraBearingUsedInFile(){return camera_bearing_offset;}
     public double GetCurrentPosTicks(){return TurretRotatorMotor.getCurrentPosition();}
     public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
-    public double GetGoalTrackingAngle(){return angle_calculated_for_tracking_goal;}
+    public double ReturnGoalY(){return goal_y;}
 
     // -------------- complicated functions ------------------
 

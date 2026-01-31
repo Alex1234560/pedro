@@ -121,7 +121,7 @@ public class CleanTeleop extends OpMode {
         follower.update();
         shooter.update();
         camera.update();//if (ManuallyAdjustableValues){camera.update();}
-        turretRotation.update(follower,GoalLocationPose, StartingPosition, IsRed);
+        turretRotation.update(follower, StartingPosition, IsRed);
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
 
         HandleAimingRanges();
@@ -178,6 +178,7 @@ public class CleanTeleop extends OpMode {
 
         }
 
+        telemetryM.addData("GOAL_Y FOR DEBUGGING ", turretRotation.ReturnGoalY());
         telemetryM.addData("FieldCentricDrive?: ", fieldCentricDrive);
         telemetryM.addData("shooter Goal Speed ", FlywheelAndFeederLogic.TARGET_FLYWHEEL_TPS);
         telemetryM.addData("Is flywheel up to speed?:  ", shooter.IsFlywheelUpToSpeed());
