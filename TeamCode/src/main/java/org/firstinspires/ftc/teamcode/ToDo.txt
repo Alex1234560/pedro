@@ -11,13 +11,15 @@
 
 
  -------- High Priority -------
- -bug check
+ - bug check
+ - preloading into shooter at auto isn't working
  - make controllers simple, and during manual control prevent accidental clicks for changing speed or angle.
  - implement the shooterblocker into auto, maybe u can make a better shooter class along the way
  - blocker needs to be much better integrated, it doesnt turn off when going backwards for example.
 
 ----------- Medium Priority ----------
-- make flywheel PIDF better
+
+- make flywheel PIDF better, one optioon is to modify f on the fly, so next tijme u spin up the flywheel in game itll be more accurate.
 - make ball throughput better
 - make autos better.
 - Make teleop also store turret rotation and pose location in case we need to rerun teleop

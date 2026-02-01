@@ -278,8 +278,8 @@ public class CleanTeleop extends OpMode {
         }
 
 
-        if (!block_shooter){shooter.unblock();}
-        else{shooter.block();}
+        if (!block_shooter){shooter.Unblock();}
+        else{shooter.Block();}
 
 
 

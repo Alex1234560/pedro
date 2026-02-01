@@ -125,9 +125,9 @@ public class ShootingTestAuto extends OpMode {
 
                 if (isStateBusy &&!follower.isBusy()) {
                     // to cycle balls to shooter
-                    shooter.fireShots(3); //change to three
+                    shooter.fireShots(3);
                     isStateBusy = false;
-                    setPathState(PathState.DRIVE_TO_INTAKE_POS);
+                    setPathState(PathState.FINISHED);
                 }
 
                 break;
@@ -313,6 +313,12 @@ public class ShootingTestAuto extends OpMode {
 
     @Override
     public void loop(){
+        if (!shooter.isBusy()){
+            shooter.Off();
+        }
+        else{
+            shooter.On();
+        }
         AutoFunctions.LastPoseRecorded = follower.getPose();
 
 
