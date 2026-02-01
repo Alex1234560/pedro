@@ -1,26 +1,24 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Mechanisms.ParkingServos;
+import org.firstinspires.ftc.teamcode.Mechanisms.ShooterBlocker;
 
-
+@Disabled
 //@Configurable
 @TeleOp
-public class ParkingTryTeleop extends OpMode
+public class BlockerShooterTryTeleop extends OpMode
 {
 
-    ParkingServos parkingServos = new ParkingServos();
-    private double position;
-    public static double change_amount=.005;
+    ShooterBlocker shooterBlocker = new ShooterBlocker();
+//    private double position;
+//    public static double change_amount=.005;
 
     @Override
     public void init() {
-        position=ParkingServos.START_POINT;
-        parkingServos.init(hardwareMap);
+        shooterBlocker.init(hardwareMap);
 
     }
 
@@ -44,18 +42,18 @@ public class ParkingTryTeleop extends OpMode
      */
     @Override
     public void loop() {
-        double parkingServosGoal = gamepad1.left_trigger;
-        if (parkingServosGoal>position){
-            position+=change_amount;
 
-        }
-        if (parkingServosGoal<position){
-            position-=change_amount;
 
+        if (gamepad1.aWasPressed()){
+            shooterBlocker.Unblock();
         }
+        if (gamepad1.bWasPressed()){
+            shooterBlocker.Unblock();
+        }
+
 
         //parkingServos.SetPosition(position);
-        telemetry.addData("Position", parkingServos.getPosition());
+        telemetry.addData("Position", shooterBlocker.getPosition());
         telemetry.update();
 
     }

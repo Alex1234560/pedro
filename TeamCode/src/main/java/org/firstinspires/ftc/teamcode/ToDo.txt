@@ -13,7 +13,7 @@
  -------- High Priority -------
  -bug check
  - make controllers simple, and during manual control prevent accidental clicks for changing speed or angle.
- - implement the thing that backpedals the intake into the auto, if u can make them both use the same function even better.
+ - implement the shooterblocker into auto, maybe u can make a better shooter class along the way
 
 ----------- Medium Priority ----------
 - make flywheel PIDF better

@@ -24,7 +24,7 @@ public class FunctionsAndValues {
     public static double SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;
 
 
-    public static double PowerValueForPreloading = .15;
+    public static double PowerValueForPreloading = .5;
     public static double PowerValueForPreloadingBack = .12;
 
 

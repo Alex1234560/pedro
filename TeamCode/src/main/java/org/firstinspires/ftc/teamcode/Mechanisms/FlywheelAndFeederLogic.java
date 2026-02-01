@@ -32,6 +32,7 @@ public class FlywheelAndFeederLogic {
 
     public static FlywheelState flywheelState;
     private DistanceSensorClass distanceSensor = new DistanceSensorClass();
+    private ShooterBlocker shooterBlocker = new ShooterBlocker();
 
     // ----------- FEEDER CONSTANTS -------------
     //public static double MAX_SHOOT_BALL_TIME = 7;
@@ -55,6 +56,7 @@ public class FlywheelAndFeederLogic {
 
         FAndV = new FunctionsAndValues();
         distanceSensor.init(hardwareMap);
+        shooterBlocker.init(hardwareMap);
 
         BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
         BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");
@@ -217,12 +219,11 @@ public class FlywheelAndFeederLogic {
         return distanceSensor.GetDistance();
     }
     public boolean IsBallDetected(){return distanceSensor.IsBallDetected();}
-    public boolean IsBallTooFarIn(){
-        return distanceSensor.IsBallTooFarIn();
-    }
 
     public double ReturnValueForPreload(){
         return distanceSensor.ReturnValueForPreload();
     }
+    public void block(){shooterBlocker.block();}
+    public void unblock(){shooterBlocker.Unblock();}
 
 }

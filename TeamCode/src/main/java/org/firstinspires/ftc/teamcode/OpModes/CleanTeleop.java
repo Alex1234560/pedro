@@ -218,6 +218,8 @@ public class CleanTeleop extends OpMode {
     private void handleIntakeAndShootingButtons() {
         //BACK button reversing.
 
+
+
         boolean IntakeReversing = gamepad2.left_bumper || (gamepad1.left_bumper&&!reset_position_button_pressed);
 
         //intaking
@@ -263,11 +265,19 @@ public class CleanTeleop extends OpMode {
         }
 
         //so that any button that intakes can spin ball feeder
-        else if (IntakePowerValue>0 ){//&& !shooter.IsBallDetected()){ //&& !shooter.IsBallTooFarIn() ){
-            shooter.SpinBallFeeder(shooter.ReturnValueForPreload());
+        else if (IntakePowerValue>0 && !shooter.IsBallDetected()){//&& !shooter.IsBallDetected()){ //&& !shooter.IsBallTooFarIn() ){
+
+            shooter.SpinBallFeeder(FunctionsAndValues.PowerValueForPreloading);
+
         }
 
         else{shooter.SpinBallFeeder(0);}
+
+
+        if (Trigger){shooter.unblock();}
+        else{shooter.block();}
+
+
 
     }
     private void HandleAimingRanges(){

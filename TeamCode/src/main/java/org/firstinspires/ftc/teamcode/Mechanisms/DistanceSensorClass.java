@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 @Configurable
 public class DistanceSensorClass
 {
-    public static double CHANGE_POINT = .18;
+    public static double CHANGE_POINT = .12;
     public static double TOO_FAR = .15;
 
 
