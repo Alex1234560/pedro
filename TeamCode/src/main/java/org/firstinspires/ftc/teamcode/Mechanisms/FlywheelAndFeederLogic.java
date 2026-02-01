@@ -47,7 +47,7 @@ public class FlywheelAndFeederLogic {
     private boolean flywheel_on = true;
 
 
-    private double shotsRemaining = 0;
+    private double shotsToShoot = 0;
     private double flywheelVelocity = 0;
     public static double TARGET_FLYWHEEL_TPS = 1300;
     public static double FLYWHEEL_MAX_SPINUP_TIME = 6;
@@ -75,7 +75,7 @@ public class FlywheelAndFeederLogic {
         BallFeederServo.setPower(0);
         BallFeederServo2.setPower(0);
 
-        distanceSensor.SetBallsShotCount(3);
+        distanceSensor.SetBallsShotCount(100);
 
     }
 
@@ -138,7 +138,7 @@ public class FlywheelAndFeederLogic {
         switch (flywheelState) {
             case IDLE:
 
-                if (balls_shoot<3) {
+                if (balls_shoot<shotsToShoot) {
                     setShooterState( FlywheelState.SPIN_UP_FLYWHEEL);
                 }
                 break;
@@ -154,7 +154,7 @@ public class FlywheelAndFeederLogic {
 
                 if (distanceSensor.IsBallDetected()){shootTimer.reset();}
 
-                if (shootTimer.seconds() > MAX_SHOOT_TIME_WITOUTH_BALLS && stateTimer.seconds()>MIN_SHOOTING_TIME) { // change balls_shot to 3 eventually.
+                if (shootTimer.seconds() > MAX_SHOOT_TIME_WITOUTH_BALLS && stateTimer.seconds()>MIN_SHOOTING_TIME) {
                     setShooterState(FlywheelState.RESET);
                 }
                 break;
@@ -170,10 +170,6 @@ public class FlywheelAndFeederLogic {
             ball_feeder_servo_power= distanceSensor.ReturnValueForPreload();
         }
 
-        if (flywheelState!=FlywheelState.LAUNCH_BALLS && distanceSensor.IsBallTooFarIn()){
-            ball_feeder_servo_power=FunctionsAndValues.PowerValueForPreloadingBack;
-        }
-
         SpinBallFeeder(ball_feeder_servo_power);
     }
 
@@ -186,7 +182,7 @@ public class FlywheelAndFeederLogic {
     }
 
     public double GetShotsRemaining() {
-        return shotsRemaining;
+        return shotsToShoot;
     }
 
 
@@ -202,7 +198,7 @@ public class FlywheelAndFeederLogic {
 
     public void fireShots(int numberOfShots) {
         if (flywheelState == FlywheelState.IDLE) {
-            //shotsRemaining = numberOfShots;
+            shotsToShoot = numberOfShots;
             distanceSensor.SetBallsShotCount(0);
         }
     }

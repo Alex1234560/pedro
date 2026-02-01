@@ -11,7 +11,7 @@ public class ShooterBlocker {
 
     //private static double ShooterAngle = FunctionsAndValues.startPoint;
 
-    public static double UNBLOCK_POINT = 0.30;
+    public static double UNBLOCK_POINT = .2;
     public static double BLOCK_POINT = .1;//.7
 
 
