@@ -12,8 +12,10 @@ public class ParkingServos {
     private Servo BackParkingServo;
     //private static double ShooterAngle = FunctionsAndValues.startPoint;
 
-    public static double START_POINT = .29;
-    public static double END_POINT = .6;//.7
+    public static double START_POINT = .2;
+    public static double END_POINT = .55;//.7
+    public static double BACK_START_POINT = .2;
+    public static double BACK_END_POINT = .55;//.7
 
     private double position;
     private double goal_position;
@@ -54,7 +56,10 @@ public class ParkingServos {
         ParkingServo2.setPosition(position);
         ParkingServo1.setPosition(position);
 
-        BackParkingServo.setPosition(getPosition()-.1);
+        if (position==END_POINT){BackParkingServo.setPosition(BACK_END_POINT);}
+        if (position==START_POINT){BackParkingServo.setPosition(BACK_START_POINT);}
+
+
     }
 
     public void setToMaxPosition(){
