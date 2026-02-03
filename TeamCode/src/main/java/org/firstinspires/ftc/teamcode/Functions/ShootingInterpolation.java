@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Functions; // Make sure this matches your team's package name
 
-//import com.acmerobotics.dashboard.config.Config;
+// TO DO: Check interpolation for bugs, & make it run more efficiently.
 
 
 public class ShootingInterpolation {
@@ -11,11 +11,11 @@ public class ShootingInterpolation {
             new Point(56.7, .41047, 1092 ),
             new Point(86.7, .67767,  1291),
             new Point(96.7, .76674,  1375.5),
+            //new Point(96.7, ,  ),
             //back
             new Point(107.7, .9,  1400),
             new Point(143.7, .9,  1620),
-            new Point(154.7, 0.9,  1690)
-
+            new Point(154.7, .9,  1690)
     };
 
     // safety checks
@@ -37,7 +37,7 @@ public class ShootingInterpolation {
     private static final class Point {
         final double dist;
         final double angle;
-        final double tps;   // you called it TPS (ticks per second?) keep same meaning
+        final double tps;
 
         Point(double dist, double angle, double tps) {
             this.dist = dist;
