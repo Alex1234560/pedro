@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Disabled
+
 @Configurable
 @Autonomous
 public class SimpleAuto extends OpMode {
@@ -33,7 +33,7 @@ public class SimpleAuto extends OpMode {
 
 
     public static boolean IsRed = false;
-    private static boolean OutakeBallsOnShoot = false;
+    private static boolean OutakeBallsOnShoot;
     public static double PARK_TIME_TRIGGER = 27;
 
     private Timer pathTimer, opModeTimer;
@@ -83,7 +83,7 @@ public class SimpleAuto extends OpMode {
 
     // ------ these are for use only in this AUTO -------
     private static  Pose intakeStart,intakeEnd; //
-    private static  Pose shootPos,shootPosControlPoint, intakeFromClassifierPos;
+    private static  Pose shootPos,shootPosControlPoint, intakeFromClassifierPosStart,intakeFromClassifierPosEnd;
     private static  Pose intakeStart1,intakeEnd1,intakeStart2,intakeEnd2,intakeStart3,intakeEnd3;
     private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos;
 
@@ -152,7 +152,7 @@ public class SimpleAuto extends OpMode {
 
             case DRIVE_BACK_TO_SHOOT:
 
-                if (isStateBusy == false && !IsRobotBusy) {
+                if (isStateBusy == false && !IsRobotBusy && (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>4)) {
                     follower.followPath(driveFromIntakeToShootPos, true);
                     isStateBusy = true;
                 }
@@ -187,8 +187,8 @@ public class SimpleAuto extends OpMode {
                         //buildPoses();
                         buildPaths();
                         if (loop_times==1){
-                            intakeStart=intakeFromClassifierPos;
-                            intakeEnd=intakeFromClassifierPos;
+                            intakeStart=intakeFromClassifierPosStart;
+                            intakeEnd=intakeFromClassifierPosEnd;
                         }
                         if (loop_times==2){
                             intakeStart=intakeStart3;
@@ -254,7 +254,7 @@ public class SimpleAuto extends OpMode {
     @Override
     public void init(){
 
-
+        OutakeBallsOnShoot = true;
         isStateBusy=false;
         AutoParkTriggered = false;
         loop_times = 0;
@@ -384,7 +384,8 @@ public class SimpleAuto extends OpMode {
         //EmptyClassifierControlPoint = new Pose(Cords.xFlip(24.25,IsRed), 80);
 
 
-        intakeFromClassifierPos = new Pose(Cords.xFlip(12, IsRed), 60, Math.toRadians(Cords.angleFlip(151, IsRed)));
+        intakeFromClassifierPosStart = new Pose(Cords.xFlip(28, IsRed), 60, Math.toRadians(Cords.angleFlip(151, IsRed)));
+        intakeFromClassifierPosEnd = new Pose(Cords.xFlip(12, IsRed), 60, Math.toRadians(Cords.angleFlip(151, IsRed)));
 
 
 

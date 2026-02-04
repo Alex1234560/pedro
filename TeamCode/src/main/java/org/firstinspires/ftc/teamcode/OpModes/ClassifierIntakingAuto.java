@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.HoodAngle;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
+@Disabled
 @Configurable
 @Autonomous
 public class ClassifierIntakingAuto extends OpMode {
