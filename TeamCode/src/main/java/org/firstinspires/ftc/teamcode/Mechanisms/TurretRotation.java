@@ -68,6 +68,7 @@ public class TurretRotation {
     private double goal_y=0;
 
     private double Turret_Offset_For_When_Heading_Is_Reset;
+    private double velocityMultiplyValue;
 
 
 
@@ -168,16 +169,15 @@ public class TurretRotation {
             Vector velocity = follower.getVelocity();
 
             double distance = GetDistanceFromGoal(IsRed);
-            double multiplyValue;
             //changed this so it can be tuned with a computer with panels
-            if (IS_TUNING_VELOCITY_MODE_ON){multiplyValue=TUNABLE_VELOCITY_VALUE;}
+            if (IS_TUNING_VELOCITY_MODE_ON){velocityMultiplyValue=TUNABLE_VELOCITY_VALUE;}
             else{
                 //multiplyValue = BASE_FOR_VELOCITY + (MULTIPLIER_FOR_VELOCITY*distance);
-                multiplyValue= VelocityInterpolation.get(distance);
+                velocityMultiplyValue= VelocityInterpolation.get(distance);
             }
 
-            goal_x-=(velocity.getXComponent() * multiplyValue);
-            goal_y-=(velocity.getYComponent() * multiplyValue);
+            goal_x-=(velocity.getXComponent() * velocityMultiplyValue);
+            goal_y-=(velocity.getYComponent() * velocityMultiplyValue);
 
             /// ------------------
 
@@ -231,6 +231,9 @@ public class TurretRotation {
     public double GetCurrentPosTicks(){return TurretRotatorMotor.getCurrentPosition();}
     public double GetCurrentVel(){return TurretRotatorMotor.getVelocity();}
     //public double ReturnGoalY(){return goal_y;}
+    public double GetVelocityMultiplierValue(){
+        return velocityMultiplyValue;
+    }
 
     // -------------- complicated functions ------------------
 

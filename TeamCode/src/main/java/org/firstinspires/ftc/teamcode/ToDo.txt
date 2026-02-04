@@ -14,10 +14,9 @@
  - bug check
  - preloading into shooter at auto isn't working ideally.
  - make controllers simple, and during manual control prevent accidental clicks for changing speed or angle.
- - implement the shooterblocker into auto, maybe u can make a better shooter class along the way
 
 ----------- Medium Priority ----------
-
+- try using integrated PIDF instead of costum, makes code cleaner
 - make flywheel PIDF better, one optioon is to modify f on the fly, so next tijme u spin up the flywheel in game itll be more accurate.
 - make ball throughput better
 - make autos better.
@@ -26,7 +25,7 @@
 -------- Low Priority ---------
 - if robot isn't moving in teleop, use follower.holdPoint(lastTargetPose); to keep it where it is.
 - switch processing for turret from degrees to radians for more precise measurements.
-- try using integrated PIDF instead of costum, makes code cleaner
+
 - Adjust PIDF for shooter if neccesary.
 
 

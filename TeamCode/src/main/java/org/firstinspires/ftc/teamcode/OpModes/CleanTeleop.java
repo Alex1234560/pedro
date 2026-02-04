@@ -179,6 +179,7 @@ public class CleanTeleop extends OpMode {
     private void TelemetryStatements(){
         if (gamepad2.dpadLeftWasPressed()){tuningTelemetry=!tuningTelemetry;}
         if (tuningTelemetry) {
+            telemetryM.addData("Velocity Multiplier Value  ", turretRotation.GetVelocityMultiplierValue());
             telemetryM.addData("Turret Finished Rotating?:  ", turretRotation.isTurretFinishedRotating());
             telemetryM.addData("TuningMode?:  ", ManuallyAdjustableValues);
             telemetryM.addData("Ball Count Distance Sensor ", shooter.GetBallsShotCount());
@@ -303,9 +304,16 @@ public class CleanTeleop extends OpMode {
 
     if (ManuallyAdjustableValues){
         FAndV.setSpeedTolerance(FunctionsAndValues.SPEED_TOLERANCE_TO_SHOOT_FRONT);
-        if (gamepad2.leftStickButtonWasPressed()){HoodAngleOffset = 0;}
-        if (gamepad2.rightStickButtonWasPressed()){FlywheelSpeedForTuningOffset = 0;}
-        HoodAngleOffset -= gamepad2.left_stick_y / 40;
+
+        if (gamepad2.rightStickButtonWasPressed()){
+            FlywheelSpeedForTuningOffset = 0;
+            HoodAngleOffset = 0;
+        }
+
+        if (gamepad2.left_stick_button){
+            HoodAngleOffset -= gamepad2.left_stick_y / 40;
+        }
+
 
         if (camera.getRangeEquivalentToOdoRange()!=-1){
             double[] turretGoals = ShootingInterpolation.get(camera.getRangeEquivalentToOdoRange());
