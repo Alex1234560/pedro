@@ -22,6 +22,7 @@ public class FlywheelAndFeederLogic {
 
     private ElapsedTime stateTimer = new ElapsedTime();
     private ElapsedTime shootTimer = new ElapsedTime();
+    private ElapsedTime totalTimer = new ElapsedTime();
 
     private enum FlywheelState {
         IDLE,
@@ -37,7 +38,10 @@ public class FlywheelAndFeederLogic {
     // ----------- FEEDER CONSTANTS -------------
     //public static double MAX_SHOOT_BALL_TIME = 7;
     //public static double MAX_SHOOT_BALL_TIME = 2;
-    public static double MAX_SHOOT_TIME_WITOUTH_BALLS = .4;
+    public static double MAX_SHOOT_TIME_WITOUTH_BALLS = .5;
+    public static double MAX_SHOOT_TIME = 5;
+    public static double TIME_TO_GET_BALLS_UNSTUCK = 1.5;
+    public static double REVERSING_TIME = .2;
     public static double MIN_SHOOTING_TIME = 1;
 
     //------------- FLYWHEEL CONSTANTS ------------
@@ -138,6 +142,7 @@ public class FlywheelAndFeederLogic {
 
         switch (flywheelState) {
             case IDLE:
+                totalTimer.reset();
                 if (balls_shot <shotsToShoot) {
                     setShooterState( FlywheelState.SPIN_UP_FLYWHEEL);
                 }
@@ -149,8 +154,8 @@ public class FlywheelAndFeederLogic {
                 }
                 break;
             case LAUNCH_BALLS:
+                ball_feeder_servo_power=1;
                 if (IsFlywheelUpToSpeed()&& isRobotReadyToShoot){
-                    ball_feeder_servo_power=1;
                     block_shooter=false;
                 }
 
@@ -159,6 +164,15 @@ public class FlywheelAndFeederLogic {
                 if (shootTimer.seconds() > MAX_SHOOT_TIME_WITOUTH_BALLS && stateTimer.seconds()>MIN_SHOOTING_TIME) {
                     setShooterState(FlywheelState.RESET);
                 }
+                if (stateTimer.seconds()>MAX_SHOOT_TIME){
+                    setShooterState(FlywheelState.RESET);
+                }
+
+                //to get balls unstuck in case of a jam. isnt working rn.
+                if (stateTimer.seconds()>TIME_TO_GET_BALLS_UNSTUCK && stateTimer.seconds()<TIME_TO_GET_BALLS_UNSTUCK+REVERSING_TIME){
+                    ball_feeder_servo_power=  -1;
+                }
+
                 break;
 
             case RESET:
@@ -169,7 +183,7 @@ public class FlywheelAndFeederLogic {
 
 
         //preee feeding balls.
-        if (ball_feeder_servo_power==0 ){//&& ! distanceSensor.IsBallDetected()){
+        if (ball_feeder_servo_power==0 &&!IsBallDetected() ){
             ball_feeder_servo_power= FunctionsAndValues.PowerValueForPreloading;
 
         }

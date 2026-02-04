@@ -25,7 +25,7 @@ public class FunctionsAndValues {
 
 
     public static double PowerValueForPreloading = .5;
-    public static double PowerValueForPreloadingBack = .12;
+
 
 
     //public static double AngleToleranceToStartShooting = 2;

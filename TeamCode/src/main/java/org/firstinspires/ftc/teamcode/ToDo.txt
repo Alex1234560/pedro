@@ -12,10 +12,9 @@
 
  -------- High Priority -------
  - bug check
- - preloading into shooter at auto isn't working
+ - preloading into shooter at auto isn't working ideally.
  - make controllers simple, and during manual control prevent accidental clicks for changing speed or angle.
  - implement the shooterblocker into auto, maybe u can make a better shooter class along the way
- - blocker needs to be much better integrated, it doesnt turn off when going backwards for example.
 
 ----------- Medium Priority ----------
 
