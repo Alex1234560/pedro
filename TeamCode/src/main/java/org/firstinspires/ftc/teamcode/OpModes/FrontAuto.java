@@ -174,12 +174,14 @@ public class FrontAuto extends OpMode {
                 if (!follower.isBusy() && isStateBusy ==true){
                     isStateBusy = false;
                     //intake.intakeOff();
-                    if (loop_times ==1 && EmptyClassifierOnFirstLine){
-                        setPathState(PathState.CLEAR_CLASSIFIER);
-                    }
-                    if (loop_times ==2 && !EmptyClassifierOnFirstLine){
-                        setPathState(PathState.CLEAR_CLASSIFIER);
-                    }
+//                    if (loop_times ==1&& EmptyClassifierOnFirstLine){
+//                        setPathState(PathState.CLEAR_CLASSIFIER);
+//                    }
+//                    if (loop_times ==2 && !EmptyClassifierOnFirstLine){
+//                        setPathState(PathState.CLEAR_CLASSIFIER);
+//                    }
+                    if (loop_times==1 && EmptyClassifierOnFirstLine){setPathState(PathState.CLEAR_CLASSIFIER);}
+                    else if (loop_times==2 && !EmptyClassifierOnFirstLine){setPathState(PathState.CLEAR_CLASSIFIER);}
                     else {
                         setPathState(PathState.DRIVE_BACK_TO_SHOOT);
                     }
@@ -187,15 +189,17 @@ public class FrontAuto extends OpMode {
                 break;
 
             case CLEAR_CLASSIFIER:
-                if (isStateBusy == false &&!follower.isBusy()&&autoFunctions.isRobotInPosition(intakeEnd,follower)){
+                if (isStateBusy == false &&!follower.isBusy()){
 
                     follower.followPath(driveFromIntakeEndToClassifier, 1,true);
                     isStateBusy = true;
                 }
 
-                if (!follower.isBusy() && isStateBusy ==true){
+                if (pathTimer.getElapsedTimeSeconds()>2 && isStateBusy ==true ){
+
                     isStateBusy = false;
                     setPathState(PathState.DRIVE_BACK_TO_SHOOT);
+
                 }
                 break;
 
@@ -399,7 +403,7 @@ public class FrontAuto extends OpMode {
 
         boolean IsTurretReady = turretRotation.isTurretFinishedRotating();//autoFunctions.isRobotInPosition(shootPos,follower) &&
         shooter.updateWithStateMachine(IsTurretReady);
-        turretRotation.update(follower, startPose,IsRed);;
+        turretRotation.update(follower, startPose,IsRed);
         //turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
         statePathUpdate();
 
@@ -411,6 +415,7 @@ public class FrontAuto extends OpMode {
         //telemetry.addData("Turret Offset", TurretRotation.turret_offset);
 
         telemetry.addData("Is Robot In Shoot Position", autoFunctions.isRobotInPosition(shootPos,follower));
+        telemetry.addData("PathTimer", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("Is Shooter Busy?", shooter.isBusy());
         telemetry.addData("Balls Shot", shooter.GetBallsShotCount());
         telemetry.addData("Path State", pathState.toString());
@@ -475,11 +480,11 @@ public class FrontAuto extends OpMode {
         intakeEnd = new Pose(Cords.xFlip(17, IsRed),  ball_line_offset, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         if (EmptyClassifierOnFirstLine){
-            EmptyClassifierPos = new Pose(Cords.xFlip(16.046776232616928, IsRed), 76.4740834386852, Math.toRadians(Cords.angleFlip(90, IsRed)));
+            EmptyClassifierPos = new Pose(Cords.xFlip(15, IsRed), 76.4740834386852, Math.toRadians(Cords.angleFlip(90, IsRed)));
             EmptyClassifierControlPoint = new Pose(Cords.xFlip(24.25,IsRed), 80);
         }
         else{
-            EmptyClassifierPos = new Pose(Cords.xFlip(16.046776232616928, IsRed), 76.4740834386852, Math.toRadians(Cords.angleFlip(270, IsRed)));
+            EmptyClassifierPos = new Pose(Cords.xFlip(15, IsRed), 76.4740834386852, Math.toRadians(Cords.angleFlip(270, IsRed)));
             EmptyClassifierControlPoint = new Pose(Cords.xFlip(22.611567635903917,IsRed), 60.82806573957017);
         }
 

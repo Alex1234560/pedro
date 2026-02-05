@@ -124,7 +124,7 @@ public class CleanTeleop extends OpMode {
         handleParking();
         follower.update();
         shooter.update();
-        if (ManuallyAdjustableValues){camera.update();}//camera.update();//
+        if (true){camera.update();}//camera.update();//
         turretRotation.update(follower, StartingPosition, IsRed);
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
 

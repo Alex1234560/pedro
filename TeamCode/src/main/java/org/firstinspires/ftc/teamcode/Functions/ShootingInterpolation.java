@@ -8,14 +8,19 @@ public class ShootingInterpolation {
             //front
             new Point(16.7, .15, 828 ),
             new Point(31.7, .15,  927),
-            new Point(56.7, .41047, 1092 ),
-            new Point(86.7, .67767,  1291),
-            new Point(96.7, .76674,  1375.5),
-            //new Point(96.7, ,  ),
+            new Point(38, .2189,  970),
+            new Point(67, .5,  1061),
+            new Point(82.75, .68,  1249),
+            new Point(84.8, .673,  1186),
+            new Point(101.75, .9,  1340),
+
             //back
-            new Point(107.7, .9,  1400),
-            new Point(143.7, .9,  1620),
-            new Point(154.7, .9,  1690)
+            new Point(124.88, .9,  1442),
+            new Point(139.277, .9,  1493),
+            new Point(143.786, .9,  1520),
+            new Point(154.18, .9,  1586.4)
+
+
     };
 
     // safety checks

@@ -12,9 +12,9 @@
 
  -------- High Priority -------
  - bug check
- - preloading into shooter at auto isn't working ideally.
- - make controllers simple, and during manual control prevent accidental clicks for changing speed or angle.
-
+ - make aiming flawless, not shooting ranges but turret rotation.
+ - finish simple auto thing.
+- make auto for back to match with exsurgo
 ----------- Medium Priority ----------
 - try using integrated PIDF instead of costum, makes code cleaner
 - make flywheel PIDF better, one optioon is to modify f on the fly, so next tijme u spin up the flywheel in game itll be more accurate.

@@ -152,7 +152,7 @@ public class SimpleAuto extends OpMode {
 
             case DRIVE_BACK_TO_SHOOT:
 
-                if (isStateBusy == false && !IsRobotBusy && (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>4)) {
+                if (isStateBusy == false && !IsRobotBusy && (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>3)) {
                     follower.followPath(driveFromIntakeToShootPos, true);
                     isStateBusy = true;
                 }
@@ -160,7 +160,6 @@ public class SimpleAuto extends OpMode {
                 if (isStateBusy == true && !IsRobotBusy) {
                     isStateBusy = false;
                     setPathState(PathState.SHOOT);
-
                 }
 
                 break;
