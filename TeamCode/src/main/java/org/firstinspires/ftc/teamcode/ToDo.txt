@@ -15,6 +15,8 @@
  - make aiming flawless, not shooting ranges but turret rotation.
  - finish simple auto thing.
 - make auto for back to match with exsurgo
+- shooting while moving
+- back shooting consistency
 ----------- Medium Priority ----------
 - try using integrated PIDF instead of costum, makes code cleaner
 - make flywheel PIDF better, one optioon is to modify f on the fly, so next tijme u spin up the flywheel in game itll be more accurate.
