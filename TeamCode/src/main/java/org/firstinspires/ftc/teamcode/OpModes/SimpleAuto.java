@@ -181,8 +181,6 @@ public class SimpleAuto extends OpMode {
                         AutoPark();
                     }
                     else{
-
-
                         //buildPoses();
                         buildPaths();
                         if (loop_times==1){
@@ -197,10 +195,7 @@ public class SimpleAuto extends OpMode {
                             intakeStart=intakeStart1;
                             intakeEnd=intakeEnd1;
                         }
-
                         setPathState(PathState.DRIVE_TO_INTAKE_POS);
-
-
                     }
                 }
                 break;
@@ -235,7 +230,6 @@ public class SimpleAuto extends OpMode {
                         setPathState(PathState.FINISHED);
                     }
                 }
-
                 break;
 
             default:
@@ -252,7 +246,6 @@ public class SimpleAuto extends OpMode {
 
     @Override
     public void init(){
-
         OutakeBallsOnShoot = true;
         isStateBusy=false;
         AutoParkTriggered = false;
@@ -266,7 +259,6 @@ public class SimpleAuto extends OpMode {
         intake.init(hardwareMap);
         turretRotation.init(hardwareMap);
         hood.init(hardwareMap);
-
     }
 
     @Override

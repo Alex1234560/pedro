@@ -150,17 +150,45 @@ public class TurretRotation {
 
             /// for changing goal position dinamically
 
-            double difference = Math.abs(Coordinates.GOAL_Y-Coordinates.GOAL_Y_WHEN_AT_TOP_OF_FIELD);
-            double transition = 2;
+            double differenceTop = Math.abs(Coordinates.GOAL_Y-Coordinates.GOAL_Y_WHEN_AT_TOP_OF_FIELD);
+            double transitionTop = 2;
 
-
-            if (turret_y>= (Coordinates.Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING-transition)){
-                double progression = (turret_y-(Coordinates.Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING-transition))/transition;
+            if (turret_y>= (Coordinates.Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING-transitionTop)){
+                double progression = (turret_y-(Coordinates.Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING-transitionTop))/transitionTop;
                 if (progression>1){progression=1;}
                 if (progression<0){progression=0;}
 
-                goal_y=Coordinates.GOAL_Y-(difference*progression);
+                goal_y=Coordinates.GOAL_Y-(differenceTop*progression);
             }
+
+
+//            double differenceBottom = (Coordinates.xFlip(Coordinates.GOAL_X_WHEN_AT_BOTTOM_OF_FIELD,IsRed))-goal_x;
+//            double transitionBottom = 4;
+//
+//            if (turret_y<= (Coordinates.Y_LEVEL_TO_CHANGE_TO_BOTTOM_SHOOTING+transitionBottom)){
+//                double progression = (turret_y-(Coordinates.Y_LEVEL_TO_CHANGE_TO_BOTTOM_SHOOTING-transitionBottom))/transitionBottom;
+//                if (progression>1){progression=1;}
+//                if (progression<0){progression=0;}
+////
+//                goal_x=goal_x+(differenceBottom*progression);
+//            }
+
+        double targetX = Coordinates.xFlip(Coordinates.GOAL_X_WHEN_AT_BOTTOM_OF_FIELD, IsRed);
+        double differenceBottom = targetX - goal_x;
+
+        double transitionLine = Coordinates.Y_LEVEL_TO_CHANGE_TO_BOTTOM_SHOOTING;
+        double range = 4.0;
+
+            // 1. Calculate how far we are into the zone (0.0 at the line, 1.0 at the bottom of the range)
+        double progression = (transitionLine + range - turret_y) / (range * 2);
+
+            // 2. Clamp it so it doesn't break physics
+        if (progression > 1) progression = 1;
+        if (progression < 0) progression = 0;
+
+            // 3. Apply the offset
+            // When progression is 1 (at the bottom), goal_x becomes the targetX
+        goal_x = goal_x + (differenceBottom * progression);
 
             /// ---------
 

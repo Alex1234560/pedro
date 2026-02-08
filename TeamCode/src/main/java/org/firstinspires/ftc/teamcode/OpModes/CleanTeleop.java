@@ -62,6 +62,7 @@ public class CleanTeleop extends OpMode {
     private boolean FastMode = true;
     private boolean start_program_witouth_auto_first = true;
 
+    private boolean ShootingRangesTuningMode = false;
     //buttons
     private boolean reset_position_button_pressed = false;
     private boolean WasXPressed;
@@ -72,6 +73,7 @@ public class CleanTeleop extends OpMode {
 
     @Override
     public void init(){
+        ShootingRangesTuningMode = false;
         // makes it easier in game, less buttons to click so taht u can start right up
         start_program_witouth_auto_first = AutoFunctions.LastPoseRecorded==null;
         AutoFunctions.DidAutoGoToEnd=false;
@@ -124,7 +126,7 @@ public class CleanTeleop extends OpMode {
         handleParking();
         follower.update();
         shooter.update();
-        if (true){camera.update();}//camera.update();//
+        if (ManuallyAdjustableValues){camera.update();}//camera.update();//
         turretRotation.update(follower, StartingPosition, IsRed);
         turretRotation.handleBearing(camera.getBearing(),camera.getYaw());
 
@@ -295,7 +297,9 @@ public class CleanTeleop extends OpMode {
         FlywheelSpeedForTuningOffset = 0;
         HoodAngleOffset = 0;
 
-        turretRotation.ManualTurretControl(ManuallyAdjustableValues);
+        if (!ShootingRangesTuningMode) {
+            turretRotation.ManualTurretControl(ManuallyAdjustableValues);
+        }
         //UseOdosForSpeedAndDistance = !UseOdosForSpeedAndDistance;
         fieldCentricDrive=!fieldCentricDrive;
     }
@@ -315,7 +319,7 @@ public class CleanTeleop extends OpMode {
         }
 
 
-        if (camera.getRangeEquivalentToOdoRange()!=-1){
+        if (camera.getRangeEquivalentToOdoRange()!=-1 && !ShootingRangesTuningMode){
             double[] turretGoals = ShootingInterpolation.get(camera.getRangeEquivalentToOdoRange());
             HoodAngle=turretGoals[0];
             FlywheelSpeedForTuning=turretGoals[1];
@@ -487,6 +491,13 @@ public class CleanTeleop extends OpMode {
         else{
             IsRed = AutoFunctions.IsRed;
         }
+
+        if (ShootingRangesTuningMode)
+            {
+                telemetry.addData("!!WARNING!! TUNING MODE ACTIVATED (NEVER USE IN COMPETITION)", "");
+            }
+
+        if (gamepad1.leftStickButtonWasPressed()&&gamepad1.back){ShootingRangesTuningMode=!ShootingRangesTuningMode;}
 
     }
 

@@ -13,9 +13,10 @@ public class Coordinates {
     public static final double GOAL_Y = 141;
 
     public static final double GOAL_Y_WHEN_AT_TOP_OF_FIELD = 135;
-    //public static final double GOAL_X_WHEN_AT_BOTTOM_OF_FIELD = 137;
+    public static final double GOAL_X_WHEN_AT_BOTTOM_OF_FIELD = 3.5;
 
     public static double Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING = 130;
+    public static double Y_LEVEL_TO_CHANGE_TO_BOTTOM_SHOOTING = 48;
 
     public static final double GOAL_X_FOR_CAMERA = 16;
     public static final double GOAL_Y_FOR_CAMERA = 131;
