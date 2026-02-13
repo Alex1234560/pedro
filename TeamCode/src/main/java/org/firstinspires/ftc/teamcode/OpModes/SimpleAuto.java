@@ -180,9 +180,10 @@ public class SimpleAuto extends OpMode {
                     if (loop_times >= 4) {
                         AutoPark();
                     }
+
                     else{
                         //buildPoses();
-                        buildPaths();
+
                         if (loop_times==1){
                             intakeStart=intakeFromClassifierPosStart;
                             intakeEnd=intakeFromClassifierPosEnd;
@@ -195,6 +196,7 @@ public class SimpleAuto extends OpMode {
                             intakeStart=intakeStart1;
                             intakeEnd=intakeEnd1;
                         }
+                        buildPaths();
                         setPathState(PathState.DRIVE_TO_INTAKE_POS);
                     }
                 }
@@ -289,7 +291,11 @@ public class SimpleAuto extends OpMode {
         AutoFunctions.IsRed = IsRed;
         AutoFunctions.DidAutoGoToEnd = false;
         autoTimer.resetTimer();
+
         buildPoses();
+        intakeStart=intakeStart2;
+        intakeEnd=intakeEnd2;
+
         turretRotation.CalibrateTurretToCenter();
         buildPaths();
         follower.setPose(startPose);
@@ -297,9 +303,8 @@ public class SimpleAuto extends OpMode {
         shooter.start(); // to start spinning up flywheel from the start
         setPathState(pathState);
 
-        //first paths
-        intakeStart=intakeStart2;
-        intakeEnd=intakeEnd2;
+
+
     }
 
     @Override
@@ -337,6 +342,7 @@ public class SimpleAuto extends OpMode {
     }
 
     public void buildPaths() {
+
         driveStartToShootPos = follower.pathBuilder()
                 .addPath(new BezierCurve(startPose, shootPosControlPoint, shootPos))
                 .setLinearHeadingInterpolation(startPose.getHeading(), shootPos.getHeading())
@@ -353,7 +359,7 @@ public class SimpleAuto extends OpMode {
     public PathChain buildPath(Pose start, Pose end) {
         return follower.pathBuilder()
                 .addPath(new BezierLine(start, end))
-                .setLinearHeadingInterpolation(start.getHeading(), Math.toRadians(end.getHeading()))
+                .setLinearHeadingInterpolation(start.getHeading(), end.getHeading())
                 .build();
     }
 
