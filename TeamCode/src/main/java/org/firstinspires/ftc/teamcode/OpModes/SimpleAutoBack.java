@@ -21,10 +21,10 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-
+@Disabled
 @Configurable
 @Autonomous
-public class SimpleAuto extends OpMode {
+public class SimpleAutoBack extends OpMode {
 
     private Follower follower;
 
@@ -189,13 +189,14 @@ public class SimpleAuto extends OpMode {
                             intakeEnd=intakeFromClassifierPosEnd;
                         }
                         if (loop_times==2){
-                            intakeStart=intakeStart3;
-                            intakeEnd=intakeEnd3;
-                        }
-                        if (loop_times==3){
                             intakeStart=intakeStart1;
                             intakeEnd=intakeEnd1;
                         }
+                        if (loop_times==3){
+                            intakeStart=intakeStart3;
+                            intakeEnd=intakeEnd3;
+                        }
+
                         buildPaths();
                         setPathState(PathState.DRIVE_TO_INTAKE_POS);
                     }
