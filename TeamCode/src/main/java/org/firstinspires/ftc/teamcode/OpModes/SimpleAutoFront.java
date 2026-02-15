@@ -82,9 +82,9 @@ public class SimpleAutoFront extends OpMode {
 
     // ------ these are for use only in this AUTO -------
     private static  Pose intakeStart,intakeEnd; //
-    private static  Pose shootPos,shootPosControlPoint, intakeFromClassifierPosStart,intakeFromClassifierPosEnd;
+    private static  Pose shootPos,shootPosControlPoint, intakeFromClassifierPosStart,intakeFromClassifierPosEnd, EmptyClassifierControlPoint;
     private static  Pose intakeStart1,intakeEnd1,intakeStart2,intakeEnd2,intakeStart3,intakeEnd3;
-    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos;
+    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos, clearClassifierFromEnd2;
 
     private boolean isStateBusy;
     private boolean AutoParkTriggered;
@@ -143,16 +143,38 @@ public class SimpleAutoFront extends OpMode {
 
                 if (!IsRobotBusy && isStateBusy ==true){
                     isStateBusy = false;
+                    if (loop_times!=0) {
+                        setPathState(PathState.DRIVE_BACK_TO_SHOOT);
+                    }
+                    else{
+                        setPathState(PathState.CLEAR_CLASSIFIER);
+                    }
+                }
+
+                break;
+
+            case CLEAR_CLASSIFIER:
+
+
+                if (isStateBusy == false && !IsRobotBusy) {
+                    follower.followPath(clearClassifierFromEnd2, true);
+                    isStateBusy = true;
+                }
+
+                if (isStateBusy == true && !IsRobotBusy && pathTimer.getElapsedTimeSeconds()>2) {
+                    isStateBusy = false;
                     setPathState(PathState.DRIVE_BACK_TO_SHOOT);
                 }
+
 
                 break;
 
 
             case DRIVE_BACK_TO_SHOOT:
 
-                if (isStateBusy == false && !IsRobotBusy && (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>3)) {
-                    follower.followPath(driveFromIntakeToShootPos, true);
+                if (isStateBusy == false && !IsRobotBusy && (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>2)) {
+                    if (loop_times!=0){follower.followPath(driveFromIntakeToShootPos, true);}
+                    if (loop_times==0){follower.followPath(buildPath(EmptyClassifierPos, shootPos), true);}
                     isStateBusy = true;
                 }
 
@@ -348,6 +370,11 @@ public class SimpleAutoFront extends OpMode {
                 .setLinearHeadingInterpolation(startPose.getHeading(), shootPos.getHeading())
                 .build();
 
+        clearClassifierFromEnd2 = follower.pathBuilder()
+                .addPath(new BezierCurve(intakeEnd2, EmptyClassifierControlPoint, EmptyClassifierPos))
+                .setLinearHeadingInterpolation(intakeEnd2.getHeading(), EmptyClassifierPos.getHeading())
+                .build();
+
         driveIntakeForward= buildPath(intakeStart, intakeEnd);
 
         driveShootPosToIntake = buildPath(shootPos, intakeStart);
@@ -377,8 +404,8 @@ public class SimpleAutoFront extends OpMode {
         intakeEnd3= new Pose(Cords.xFlip(17, IsRed),  35.5, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
 
-        EmptyClassifierPos = new Pose(Cords.xFlip(15.8, IsRed), 63, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        //EmptyClassifierControlPoint = new Pose(Cords.xFlip(24.25,IsRed), 80);
+        EmptyClassifierPos = new Pose(Cords.xFlip(16.6, IsRed), 62.9, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        EmptyClassifierControlPoint = new Pose(Cords.xFlip(25.755102040816325,IsRed), 60.98979591836735);
 
 
         intakeFromClassifierPosStart = new Pose(Cords.xFlip(28, IsRed), 60, Math.toRadians(Cords.angleFlip(151, IsRed)));
