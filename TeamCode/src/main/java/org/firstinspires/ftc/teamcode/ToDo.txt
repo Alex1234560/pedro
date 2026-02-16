@@ -4,30 +4,22 @@
 
  -------- When on field -------
 - check back shooting consistency
- - tune the allowed error of the flywheel for the front and back.
- - tune aiming switching at a certain y point, it is implemented but needs to be tuned.
- - Tune VelocityInterpolation values.
- - check turret rotation aiming consistency
-  - bug check
+- tune the allowed error of the flywheel for the front and back.
+- tune aiming switching at a certain y point, it is implemented but needs to be tuned.
+- Tune VelocityInterpolation values.
+- check turret rotation aiming consistency
+- bug check
 
 
  -------- High Priority -------
-- make manual adjustable values easier to use, so it can rotate according to odo or not.
-- finish simple auto thing.
-- make auto for back to match with exsurgo
-
 
 ----------- Medium Priority ----------
-- try using integrated PIDF instead of costum, makes code cleaner
-- make flywheel PIDF better, one optioon is to modify f on the fly, so next tijme u spin up the flywheel in game itll be more accurate.
 - make ball throughput better
-- make autos better.
-- Make teleop also store turret rotation and pose location in case we need to rerun teleop
 
 -------- Low Priority ---------
+- try using integrated PIDF instead of costum, makes code cleaner
 - if robot isn't moving in teleop, use follower.holdPoint(lastTargetPose); to keep it where it is.
 - switch processing for turret from degrees to radians for more precise measurements.
-
 - Adjust PIDF for shooter if neccesary.
 
 

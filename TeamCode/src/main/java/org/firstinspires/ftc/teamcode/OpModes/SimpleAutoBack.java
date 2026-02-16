@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -21,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretRotation;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Disabled
+
 @Configurable
 @Autonomous
 public class SimpleAutoBack extends OpMode {
@@ -57,6 +56,8 @@ public class SimpleAutoBack extends OpMode {
         // StartPos - EndPos
         DRIVE_TO_SHOOT_POS,
         DRIVE_TO_INTAKE_POS,
+        PRE_INTAKE_BALLS,
+        BACK_TO_INTAKE_START,
         INTAKE_BALLS,
         CLEAR_CLASSIFIER,
         DRIVE_BACK_TO_SHOOT,
@@ -68,6 +69,7 @@ public class SimpleAutoBack extends OpMode {
     PathState pathState;
 
     private double loop_times;
+    private boolean GrabFromSpikeMark;
     private boolean IsRobotBusy = false;
 
     // -------- everything Poses ---------
@@ -82,13 +84,16 @@ public class SimpleAutoBack extends OpMode {
     private static Pose ParkPos;
 
     // ------ these are for use only in this AUTO -------
-    private static  Pose intakeStart,intakeEnd; //
-    private static  Pose shootPos,shootPosControlPoint, intakeFromClassifierPosStart,intakeFromClassifierPosEnd;
-    private static  Pose intakeStart1,intakeEnd1,intakeStart2,intakeEnd2,intakeStart3,intakeEnd3;
-    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos;
+    private static  Pose intakeStart, intakeEnd; //
+    private static  Pose intakeCornerStart, intakeCornerEnd,intakeTunnelStart,intakeTunnelEnd; //
+    private static  Pose shootPos;
+    private static  Pose intakeSpikeMarkStart,intakeSpikeMarkEnd;
+    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos,driveIntakeBackward;
 
     private boolean isStateBusy;
     private boolean AutoParkTriggered;
+
+    private String PickupLocation;
 
     public void AutoPark(){
         isStateBusy = false;
@@ -112,6 +117,7 @@ public class SimpleAutoBack extends OpMode {
 
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS:
+
                 if(!isStateBusy){
                     follower.followPath(driveStartToShootPos, 1,false);
                     isStateBusy=true;
@@ -127,17 +133,50 @@ public class SimpleAutoBack extends OpMode {
 
             case DRIVE_TO_INTAKE_POS:
 
-                if (!IsRobotBusy){
+                if (!IsRobotBusy && isStateBusy==false) {
                     follower.followPath(driveShootPosToIntake, true);
-                    if (!IsRobotBusy) {
-                        setPathState(PathState.INTAKE_BALLS);
-                    }
+                    isStateBusy=true;
+                }
+
+
+                if (!IsRobotBusy && isStateBusy==true) {
+                    isStateBusy=false;
+                    if(PickupLocation=="CORNER")
+                    {setPathState(PathState.PRE_INTAKE_BALLS);}
+                    else
+                    {setPathState(PathState.INTAKE_BALLS);}
+
+                }
+
+                break;
+
+            case PRE_INTAKE_BALLS:
+                if (isStateBusy == false && !IsRobotBusy){
+                    follower.followPath(driveIntakeForward, .8,true);
+                    isStateBusy = true;
+                }
+
+                if (!IsRobotBusy && isStateBusy ==true){
+                    isStateBusy = false;
+                    setPathState(PathState.BACK_TO_INTAKE_START);
+                }
+
+                break;
+            case BACK_TO_INTAKE_START:
+                if (isStateBusy == false && !IsRobotBusy){
+                    follower.followPath(driveIntakeBackward, .8,true);
+                    isStateBusy = true;
+                }
+
+                if (!IsRobotBusy && isStateBusy ==true){
+                    isStateBusy = false;
+                    setPathState(PathState.INTAKE_BALLS);
                 }
                 break;
 
             case INTAKE_BALLS:
 
-                if (isStateBusy == false && autoFunctions.isRobotInPosition(intakeStart,follower)){
+                if (isStateBusy == false && AutoFunctions.isRobotInPositionCustomAmounts(intakeStart,follower,100,6)){
                     follower.followPath(driveIntakeForward, .8,true);
                     isStateBusy = true;
                 }
@@ -152,7 +191,7 @@ public class SimpleAutoBack extends OpMode {
 
             case DRIVE_BACK_TO_SHOOT:
 
-                if (isStateBusy == false && !IsRobotBusy && (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>3)) {
+                if (isStateBusy == false && !IsRobotBusy ) {//&& (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>3)
                     follower.followPath(driveFromIntakeToShootPos, true);
                     isStateBusy = true;
                 }
@@ -177,29 +216,36 @@ public class SimpleAutoBack extends OpMode {
                 else if (isStateBusy ==true&&!IsRobotBusy&&pathTimer.getElapsedTimeSeconds()>1){
                     isStateBusy =false;
 
-                    if (loop_times >= 4) {
-                        AutoPark();
-                    }
 
-                    else{
+
                         //buildPoses();
 
-                        if (loop_times==1){
-                            intakeStart=intakeFromClassifierPosStart;
-                            intakeEnd=intakeFromClassifierPosEnd;
+                        if (GrabFromSpikeMark) {
+
+                            if (loop_times == 1) {
+                                PickupLocation = "SPIKE_MARK";
+                                intakeStart = intakeSpikeMarkStart;
+                                intakeEnd = intakeSpikeMarkEnd;
+                            }
+                            if (loop_times == 2 || loop_times == 4) {
+                                PickupLocation = "TUNNEL";
+                                intakeStart = intakeTunnelStart;
+                                intakeEnd = intakeTunnelEnd;
+//                            intakeStart=intakeSpikeMarkStart;
+//                            intakeEnd=intakeSpikeMarkEnd;
+                            }
+                            if (loop_times == 3 || loop_times == 5) {
+                                PickupLocation = "CORNER";
+                                intakeStart = intakeCornerStart;
+                                intakeEnd = intakeCornerEnd;
+                                //
+                            }
                         }
-                        if (loop_times==2){
-                            intakeStart=intakeStart1;
-                            intakeEnd=intakeEnd1;
-                        }
-                        if (loop_times==3){
-                            intakeStart=intakeStart3;
-                            intakeEnd=intakeEnd3;
-                        }
+
 
                         buildPaths();
                         setPathState(PathState.DRIVE_TO_INTAKE_POS);
-                    }
+
                 }
                 break;
 
@@ -215,7 +261,7 @@ public class SimpleAutoBack extends OpMode {
 
                     follower.breakFollowing();
 
-                    ParkPos = new Pose(Cords.xFlip(36.83312262958282, IsRed), 74.0973451327433, Math.toRadians(Cords.angleFlip(180, IsRed)));
+                    ParkPos = new Pose(Cords.xFlip(44, IsRed), 29, Math.toRadians(Cords.angleFlip(180, IsRed)));
                     Pose currentPose = follower.getPose();
 
                     driveToParkPath = follower.pathBuilder()
@@ -249,6 +295,7 @@ public class SimpleAutoBack extends OpMode {
 
     @Override
     public void init(){
+        GrabFromSpikeMark=true;
         OutakeBallsOnShoot = true;
         isStateBusy=false;
         AutoParkTriggered = false;
@@ -277,7 +324,9 @@ public class SimpleAutoBack extends OpMode {
         if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
         if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
 
-        telemetry.addData("Ball Line Classifier Activation", "Y to switch");
+        telemetry.addData(" Grab From Spike Mark (Y to toggle): ", GrabFromSpikeMark);
+        if (gamepad1.yWasPressed() || gamepad2.yWasPressed()) {GrabFromSpikeMark = !GrabFromSpikeMark;} // blue
+
         telemetry.addData("Outake When Shooting?", "A to switch");
 
         if (gamepad1.aWasPressed() || gamepad2.aWasPressed()){OutakeBallsOnShoot=!OutakeBallsOnShoot;}
@@ -294,8 +343,9 @@ public class SimpleAutoBack extends OpMode {
         autoTimer.resetTimer();
 
         buildPoses();
-        intakeStart=intakeStart2;
-        intakeEnd=intakeEnd2;
+        intakeStart =intakeCornerStart;
+        intakeEnd =intakeCornerEnd;
+        PickupLocation = "CORNER";
 
         turretRotation.CalibrateTurretToCenter();
         buildPaths();
@@ -344,12 +394,11 @@ public class SimpleAutoBack extends OpMode {
 
     public void buildPaths() {
 
-        driveStartToShootPos = follower.pathBuilder()
-                .addPath(new BezierCurve(startPose, shootPosControlPoint, shootPos))
-                .setLinearHeadingInterpolation(startPose.getHeading(), shootPos.getHeading())
-                .build();
+        driveStartToShootPos = buildPath(intakeEnd, shootPos);
 
         driveIntakeForward= buildPath(intakeStart, intakeEnd);
+
+        driveIntakeBackward = buildPath(intakeEnd, intakeStart);
 
         driveShootPosToIntake = buildPath(shootPos, intakeStart);
 
@@ -366,26 +415,17 @@ public class SimpleAutoBack extends OpMode {
 
     private void buildPoses(){
 
-        startPose = new Pose(Cords.xFlip(Coordinates.FRONT_START_X, IsRed), Coordinates.FRONT_START_Y, Math.toRadians(Cords.angleFlip(Coordinates.StartingRobotAngleDeg, IsRed)));
-        shootPos = new Pose(Cords.xFlip(52, IsRed), 89, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        shootPosControlPoint = new Pose(Cords.xFlip(44.28000884955753, IsRed), 109.20315297092289);
+        startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        shootPos = new Pose(Cords.xFlip(57, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeStart = new Pose(Cords.xFlip(21, IsRed), 9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(11, IsRed),  9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeCornerStart = new Pose(Cords.xFlip(21, IsRed), 9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeCornerEnd = new Pose(Cords.xFlip(11, IsRed),  9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeSpikeMarkStart = new Pose(Cords.xFlip(47.5, IsRed), 35, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeSpikeMarkEnd = new Pose(Cords.xFlip(13.530973451327434, IsRed),  35, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
-        intakeStart1 = new Pose(Cords.xFlip(51, IsRed), 85, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd1 = new Pose(Cords.xFlip(17, IsRed),  85, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeStart2 = new Pose(Cords.xFlip(51, IsRed), 58, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd2= new Pose(Cords.xFlip(17, IsRed),  58, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeStart3 = new Pose(Cords.xFlip(51, IsRed), 35.5, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd3= new Pose(Cords.xFlip(17, IsRed),  35.5, Math.toRadians(Cords.angleFlip(180, IsRed)));
-
-
-        EmptyClassifierPos = new Pose(Cords.xFlip(15.8, IsRed), 63, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        //EmptyClassifierControlPoint = new Pose(Cords.xFlip(24.25,IsRed), 80);
-
-
-        intakeFromClassifierPosStart = new Pose(Cords.xFlip(28, IsRed), 60, Math.toRadians(Cords.angleFlip(151, IsRed)));
-        intakeFromClassifierPosEnd = new Pose(Cords.xFlip(12, IsRed), 60, Math.toRadians(Cords.angleFlip(151, IsRed)));
-
-
+        intakeTunnelStart = new Pose(Cords.xFlip(13.3, IsRed), 14, Math.toRadians(Cords.angleFlip(130, IsRed)));
+        intakeTunnelEnd = new Pose(Cords.xFlip(13.3, IsRed),  43, Math.toRadians(Cords.angleFlip(130, IsRed)));
 
     }
 

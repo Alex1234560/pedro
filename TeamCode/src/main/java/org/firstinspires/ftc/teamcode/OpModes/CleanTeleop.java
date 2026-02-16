@@ -494,7 +494,7 @@ public class CleanTeleop extends OpMode {
 
         if (ShootingRangesTuningMode)
             {
-                telemetry.addData("!!WARNING!! TUNING MODE ACTIVATED (NEVER USE IN COMPETITION)", "");
+                telemetry.addData("!!WARNING!! TUNING MODE ACTIVATED (NEVER USE IN COMPETITION) ( left stick button on gamepad1 and back to deactivate", "");
             }
 
         if (gamepad1.leftStickButtonWasPressed()&&gamepad1.back){ShootingRangesTuningMode=!ShootingRangesTuningMode;}
