@@ -12,6 +12,7 @@
 
 
  -------- High Priority -------
+make front auto be able to choose when it clears the clasifier so we can collaborate with teammates.
 
 ----------- Medium Priority ----------
 - make ball throughput better
