@@ -12,7 +12,8 @@
 
 
  -------- High Priority -------
-make front auto be able to choose when it clears the clasifier so we can collaborate with teammates.
+on front autos empty classifier more times, or make an option to empty it more times.
+^^ I believe autos are perfect now unless we have a Competent teammate at the back
 
 ----------- Medium Priority ----------
 - make ball throughput better

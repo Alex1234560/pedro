@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 @Autonomous
-public class SimpleAutoFront extends OpMode {
+public class NewAutoFront extends OpMode {
 
     private Follower follower;
 
@@ -33,6 +33,8 @@ public class SimpleAutoFront extends OpMode {
 
     public static boolean IsRed = false;
     private static boolean OutakeBallsOnShoot;
+    private static boolean clear_classifier_again;
+    private static boolean intake_from_classifier;
     public static double PARK_TIME_TRIGGER = 27;
 
     private Timer pathTimer, opModeTimer;
@@ -81,10 +83,10 @@ public class SimpleAutoFront extends OpMode {
     private static Pose ParkPos;
 
     // ------ these are for use only in this AUTO -------
-    private static  Pose intakeStart,intakeEnd; //
-    private static  Pose shootPos,shootPosControlPoint, intakeFromClassifierPosStart,intakeFromClassifierPosEnd, EmptyClassifierControlPoint;
+    private static  Pose intakeStart,intakeEnd,EmptyClassifierPosEnd2; //
+    private static  Pose shootPos,shootPosControlPoint,EmptyClassifierControlPointFromEnd1, intakeFromClassifierPosStart,intakeFromClassifierPosEnd, EmptyClassifierControlPointFromEnd2;
     private static  Pose intakeStart1,intakeEnd1,intakeStart2,intakeEnd2,intakeStart3,intakeEnd3;
-    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos, clearClassifierFromEnd2;
+    private PathChain driveStartToShootPos, driveShootPosToIntake, driveIntakeForward, driveFromIntakeToShootPos, clearClassifierFromEnd2,clearClassifierFromEnd1;
 
     private boolean isStateBusy;
     private boolean AutoParkTriggered;
@@ -143,12 +145,16 @@ public class SimpleAutoFront extends OpMode {
 
                 if (!IsRobotBusy && isStateBusy ==true){
                     isStateBusy = false;
-                    if (loop_times!=0) {
-                        setPathState(PathState.DRIVE_BACK_TO_SHOOT);
-                    }
-                    else{
+                    if (loop_times==0){
                         setPathState(PathState.CLEAR_CLASSIFIER);
                     }
+                    else if (loop_times==2 && clear_classifier_again){
+                        setPathState(PathState.CLEAR_CLASSIFIER);
+                    }
+                    else {
+                        setPathState(PathState.DRIVE_BACK_TO_SHOOT);
+                    }
+
                 }
 
                 break;
@@ -157,7 +163,12 @@ public class SimpleAutoFront extends OpMode {
 
 
                 if (isStateBusy == false && !IsRobotBusy) {
-                    follower.followPath(clearClassifierFromEnd2, true);
+                    if (loop_times==0)
+                    {follower.followPath(clearClassifierFromEnd2, true);}
+
+                    if (loop_times==2)
+                    {follower.followPath(clearClassifierFromEnd1, true);}
+
                     isStateBusy = true;
                 }
 
@@ -204,6 +215,10 @@ public class SimpleAutoFront extends OpMode {
 
                     else{
                         //buildPoses();
+
+                        if ( intake_from_classifier==false && loop_times==1){
+                            loop_times=2;
+                        }
 
                         if (loop_times==1){
                             intakeStart=intakeFromClassifierPosStart;
@@ -271,9 +286,11 @@ public class SimpleAutoFront extends OpMode {
     @Override
     public void init(){
         OutakeBallsOnShoot = true;
+        clear_classifier_again = true;
         isStateBusy=false;
         AutoParkTriggered = false;
         loop_times = 0;
+        intake_from_classifier = false;
 
         pathState = PathState.DRIVE_TO_SHOOT_POS;
         pathTimer = new Timer();
@@ -298,12 +315,16 @@ public class SimpleAutoFront extends OpMode {
         if (gamepad1.x || gamepad2.x) {IsRed = false;} // blue
         if (gamepad1.b || gamepad2.b) {IsRed = true;} //red
 
-        telemetry.addData("Ball Line Classifier Activation", "Y to switch");
-        telemetry.addData("Outake When Shooting?", "A to switch");
+        telemetry.addData("intake from classifier? ( Y to switch ): ",intake_from_classifier );
+        if (gamepad1.yWasPressed() || gamepad2.yWasPressed()){intake_from_classifier=!intake_from_classifier;}
 
+        telemetry.addData("clear classifier at top spike mark (back to toggle): ",clear_classifier_again );
+        if (gamepad1.backWasPressed() || gamepad2.backWasPressed()){clear_classifier_again=!clear_classifier_again;}
+
+        telemetry.addData("Outake balls On Shoot( A to switch):  ", OutakeBallsOnShoot);
         if (gamepad1.aWasPressed() || gamepad2.aWasPressed()){OutakeBallsOnShoot=!OutakeBallsOnShoot;}
 
-        telemetry.addData("Outake balls On Shoot: ", OutakeBallsOnShoot);
+
         telemetry.update();
 
     }
@@ -371,8 +392,14 @@ public class SimpleAutoFront extends OpMode {
                 .build();
 
         clearClassifierFromEnd2 = follower.pathBuilder()
-                .addPath(new BezierCurve(intakeEnd2, EmptyClassifierControlPoint, EmptyClassifierPos))
-                .setLinearHeadingInterpolation(intakeEnd2.getHeading(), EmptyClassifierPos.getHeading())
+                .addPath(new BezierCurve(intakeEnd2, EmptyClassifierControlPointFromEnd2, EmptyClassifierPosEnd2))
+                .setLinearHeadingInterpolation(intakeEnd2.getHeading(), EmptyClassifierPosEnd2.getHeading())
+                .build();
+
+
+        clearClassifierFromEnd1 = follower.pathBuilder()
+                .addPath(new BezierCurve(intakeEnd1, EmptyClassifierControlPointFromEnd1, EmptyClassifierPos))
+                .setLinearHeadingInterpolation(intakeEnd1.getHeading(), EmptyClassifierPos.getHeading())
                 .build();
 
         driveIntakeForward= buildPath(intakeStart, intakeEnd);
@@ -405,7 +432,10 @@ public class SimpleAutoFront extends OpMode {
 
 
         EmptyClassifierPos = new Pose(Cords.xFlip(16.6, IsRed), 62.9, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        EmptyClassifierControlPoint = new Pose(Cords.xFlip(25.755102040816325,IsRed), 60.98979591836735);
+        EmptyClassifierControlPointFromEnd1 = new Pose(Cords.xFlip(23.8,IsRed), 75.093);
+
+        EmptyClassifierControlPointFromEnd2 = new Pose(Cords.xFlip(25.755102040816325,IsRed), 60.98979591836735);
+        EmptyClassifierPosEnd2= new Pose(Cords.xFlip(16.7, IsRed), 77.6, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
 
         intakeFromClassifierPosStart = new Pose(Cords.xFlip(28, IsRed), 60, Math.toRadians(Cords.angleFlip(151, IsRed)));
