@@ -3,6 +3,7 @@
 - Check interpolation code for bugs.
 
  -------- When on field -------
+
 - check back shooting consistency
 - tune the allowed error of the flywheel for the front and back.
 - tune aiming switching at a certain y point, it is implemented but needs to be tuned.
@@ -12,8 +13,8 @@
 
 
  -------- High Priority -------
-on front autos empty classifier more times, or make an option to empty it more times.
-^^ I believe autos are perfect now unless we have a Competent teammate at the back
+not sure if clearing classifier is working on new auto front, check that in field :).
+- test new autos in field :)
 
 ----------- Medium Priority ----------
 - make ball throughput better

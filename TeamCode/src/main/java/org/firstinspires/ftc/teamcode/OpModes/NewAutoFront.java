@@ -184,8 +184,10 @@ public class NewAutoFront extends OpMode {
             case DRIVE_BACK_TO_SHOOT:
 
                 if (isStateBusy == false && !IsRobotBusy && (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>2)) {
-                    if (loop_times!=0){follower.followPath(driveFromIntakeToShootPos, true);}
+
                     if (loop_times==0){follower.followPath(buildPath(EmptyClassifierPos, shootPos), true);}
+                    else if (loop_times==2){follower.followPath(buildPath(EmptyClassifierPosEnd2, shootPos), true);}
+                    else {follower.followPath(driveFromIntakeToShootPos, true);}
                     isStateBusy = true;
                 }
 
