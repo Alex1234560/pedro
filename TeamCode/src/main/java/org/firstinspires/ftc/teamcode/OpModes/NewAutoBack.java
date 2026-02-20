@@ -141,7 +141,8 @@ public class NewAutoBack extends OpMode {
                 if (!IsRobotBusy && isStateBusy==true) {
                     isStateBusy=false;
                     if(PickupLocation=="CORNER")
-                    {setPathState(PathState.PRE_INTAKE_BALLS);}
+                    {setPathState(PathState.INTAKE_BALLS);}
+                    //{setPathState(PathState.PRE_INTAKE_BALLS);}
                     else
                     {setPathState(PathState.INTAKE_BALLS);}
 
@@ -176,7 +177,7 @@ public class NewAutoBack extends OpMode {
             case INTAKE_BALLS:
 
                 if (isStateBusy == false && AutoFunctions.isRobotInPositionCustomAmounts(intakeStart,follower,100,6)){
-                    follower.followPath(driveIntakeForward, .8,true);
+                    follower.followPath(driveIntakeForward, .8,false);
                     isStateBusy = true;
                 }
 
@@ -414,7 +415,7 @@ public class NewAutoBack extends OpMode {
 
     private void buildPoses(){
 
-        startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        startPose = new Pose(Cords.xFlip(62.55, IsRed), 9.4, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootPos = new Pose(Cords.xFlip(57, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeStart = new Pose(Cords.xFlip(21, IsRed), 9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeEnd = new Pose(Cords.xFlip(11, IsRed),  9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));

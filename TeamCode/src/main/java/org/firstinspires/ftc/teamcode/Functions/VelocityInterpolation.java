@@ -6,10 +6,10 @@ package org.firstinspires.ftc.teamcode.Functions; // Make sure this matches your
 public class VelocityInterpolation {
     private static final Point[] TABLE = {
             //front
-            new Point(0, .003),
-            new Point(15, .183 ),
-            new Point(118, .4 ),
-            new Point(200, 2.403),
+            //new Point(0, .003),
+            new Point(15, .75 ),
+            new Point(89, .6 ),
+            new Point(95, .75),
 
 
     };

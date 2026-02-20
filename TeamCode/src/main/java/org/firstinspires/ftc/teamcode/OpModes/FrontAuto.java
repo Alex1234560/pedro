@@ -195,7 +195,7 @@ public class FrontAuto extends OpMode {
                     isStateBusy = true;
                 }
 
-                if (pathTimer.getElapsedTimeSeconds()>2 && isStateBusy ==true ){
+                if (pathTimer.getElapsedTimeSeconds()>1.45 && isStateBusy ==true ){
 
                     isStateBusy = false;
                     setPathState(PathState.DRIVE_BACK_TO_SHOOT);
@@ -229,13 +229,13 @@ public class FrontAuto extends OpMode {
                 if (isStateBusy==true){}//intake.intakeOn(1,1);}
 
                 //if(isStateBusy == false&&(autoFunctions.isRobotInPosition(shootPos,follower)||pathTimer.getElapsedTimeSeconds()>4)&&!follower.isBusy()){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
-                if(isStateBusy == false&&!follower.isBusy()){
+                if(isStateBusy == false&&!follower.isBusy()&&pathTimer.getElapsedTimeSeconds()>.4){
                     //intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;
                 }
 
-                else if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>1){
+                else if (isStateBusy ==true&&!shooter.isBusy()&&pathTimer.getElapsedTimeSeconds()>.5){
                     isStateBusy =false;
 
                     if (loop_times >= 3) {
@@ -249,10 +249,15 @@ public class FrontAuto extends OpMode {
                         }
                         if (loop_times == 2){
                             ball_line_offset=BallIntakePosition3;
+
                         }
 
                         buildPoses();
                         buildPaths();
+
+                        if (loop_times==2||loop_times==1){
+                            intakeEnd = new Pose(Cords.xFlip(10, IsRed),  intakeEnd.getY(), intakeEnd.getHeading());
+                        }
                         setPathState(PathState.DRIVE_TO_INTAKE_POS);
                     }
                     //intake.intakeOff();

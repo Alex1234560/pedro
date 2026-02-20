@@ -19,7 +19,7 @@ public class FunctionsAndValues {
     // swiched it from 60 to 300 cuz i believe the time it takes for the ball to reach flywheeel it goes up to speed enough to be accurate
     public static double BACK_RANGE_START = 100;
 
-    public static double SPEED_TOLERANCE_TO_SHOOT_BACK = 80;
+    public static double SPEED_TOLERANCE_TO_SHOOT_BACK = 40;
     public static double SPEED_TOLERANCE_TO_SHOOT_FRONT = 80;
     public static double SpeedToleranceToStartShooting = SPEED_TOLERANCE_TO_SHOOT_BACK;
 

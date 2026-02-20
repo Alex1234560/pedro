@@ -10,15 +10,15 @@ public class ShootingInterpolation {
             new Point(31.7, .15,  927),
             new Point(38, .2189,  970),
             new Point(67, .5,  1061),
-            new Point(82.75, .68,  1249),
-            new Point(84.8, .673,  1186),
+            new Point(80.507, .717427,  1121),
+            new Point(90.85, .68,  1190),
             new Point(101.75, .9,  1340),
 
             //back
             new Point(124.88, .9,  1442),
-            new Point(139.277, .9,  1493),
-            new Point(143.786, .9,  1520),
-            new Point(154.18, .9,  1586.4)
+            new Point(136.2446, .9,  1450),
+            new Point(146.5, .9,  1463),
+            new Point(153.67, .9,  1501)
 
 
     };

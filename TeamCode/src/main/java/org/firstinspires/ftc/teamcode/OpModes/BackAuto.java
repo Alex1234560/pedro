@@ -111,11 +111,11 @@ public class BackAuto extends OpMode {
         if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER && !AutoParkTriggered){
             AutoPark();
         }
-        if (!AutoParkTriggered) {
+        if (pathState!=PathState.AUTOPARK && pathState != PathState.DRIVE_BACK_TO_SHOOT) {
             intake.intakeOn(1, 1);
         }
         // only spitting out balls if theres already a ball ready to shoot and is in shoot state.
-        else if (pathState==PathState.SHOOT&&shooter.IsBallDetected()){ intake.intakeOn(-1, 1);}
+        else if (pathState==PathState.DRIVE_BACK_TO_SHOOT){ intake.intakeOn(-1, 1);}
         else{intake.intakeOff();}
 
         switch(pathState) {
@@ -383,16 +383,12 @@ public class BackAuto extends OpMode {
 
         ShootPosToIntakePosPaths[0] = driveShootPosToBallsIntakeSpikeMarkBalls;
         ShootPosToIntakePosPaths[1] = driveShootPosToIntakeCornerBalls;
-
-
-
     }
-
     private void buildPoses(){
-        startPose = new Pose(Cords.xFlip(62.47408343868521, IsRed), 9.787610619469017, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        startPose = new Pose(Cords.xFlip(62.55, IsRed), 9.4, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootPos = new Pose(Cords.xFlip(57, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeStart = new Pose(Cords.xFlip(33.89254108723136, IsRed), 12.336283185840703, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd = new Pose(Cords.xFlip(11, IsRed),  12.336, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeStart = new Pose(Cords.xFlip(33.89254108723136, IsRed), 10, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(10, IsRed),  10, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeSpikeMarkStart = new Pose(Cords.xFlip(47.5, IsRed), 35, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeSpikeMarkEnd = new Pose(Cords.xFlip(13.530973451327434, IsRed),  35, Math.toRadians(Cords.angleFlip(180, IsRed)));
 

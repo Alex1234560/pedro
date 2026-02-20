@@ -9,11 +9,11 @@ public class Coordinates {
     // BLUE POSES ARE DEFAULT, THESE ARE BLUE side POSES
     public static final double StartingRobotAngleDeg = 144;
 
-    public static final double GOAL_X = 0;
-    public static final double GOAL_Y = 141;
+    public static final double GOAL_X = 0;//0
+    public static final double GOAL_Y = 144;//141
 
     public static final double GOAL_Y_WHEN_AT_TOP_OF_FIELD = 135;
-    public static final double GOAL_X_WHEN_AT_BOTTOM_OF_FIELD = 3.5;
+    public static final double GOAL_X_WHEN_AT_BOTTOM_OF_FIELD = 5;
 
     public static double Y_LEVEL_TO_CHANGE_TO_TOP_SHOOTING = 130;
     public static double Y_LEVEL_TO_CHANGE_TO_BOTTOM_SHOOTING = 48;
