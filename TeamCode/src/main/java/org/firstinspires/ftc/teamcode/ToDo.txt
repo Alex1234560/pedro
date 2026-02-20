@@ -3,17 +3,12 @@
 - Check interpolation code for bugs.
 
  -------- When on field -------
-
-- check back shooting consistency
-- tune the allowed error of the flywheel for the front and back.
-- tune aiming switching at a certain y point, it is implemented but needs to be tuned.
+- check front auto classifier emptying on dif locations in case we auto with someone.
 - Tune VelocityInterpolation values.
-- check turret rotation aiming consistency
-- bug check
+
 
 
  -------- High Priority -------
-- fix intaking too many balls during auto in the back, so that it can reverse the intake, currently reversing but not for long it reverses right back.
 - memorize reset position location and button clicks.
 - memorize and teach diego how to control turret if eveyrhting goes wrong.
 

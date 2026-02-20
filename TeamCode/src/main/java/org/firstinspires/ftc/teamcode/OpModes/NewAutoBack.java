@@ -32,7 +32,10 @@ public class NewAutoBack extends OpMode {
 
     public static boolean IsRed = false;
     private static boolean OutakeBallsOnShoot;
+    private static boolean GrabFromTunnel;
     public static double PARK_TIME_TRIGGER = 27;
+
+    private double OVERRIDE_TIME_IF_INTAKING_FOR_TOO_LONG = 1.5;
 
     private Timer pathTimer, opModeTimer;
 
@@ -112,6 +115,7 @@ public class NewAutoBack extends OpMode {
         else if (!HasTimeElapsed) {
             intake.intakeOn(1,1);
         }
+
         else{intake.intakeOff();}
 
         switch(pathState) {
@@ -141,11 +145,10 @@ public class NewAutoBack extends OpMode {
                 if (!IsRobotBusy && isStateBusy==true) {
                     isStateBusy=false;
                     if(PickupLocation=="CORNER")
-                    {setPathState(PathState.INTAKE_BALLS);}
+                    {setPathState(PathState.PRE_INTAKE_BALLS);}
                     //{setPathState(PathState.PRE_INTAKE_BALLS);}
                     else
                     {setPathState(PathState.INTAKE_BALLS);}
-
                 }
 
                 break;
@@ -156,14 +159,21 @@ public class NewAutoBack extends OpMode {
                     isStateBusy = true;
                 }
 
-                if (!IsRobotBusy && isStateBusy ==true){
+                if (( pathTimer.getElapsedTimeSeconds()>1.5 )&&(!IsRobotBusy||autoFunctions.isRobotInPositionCustomAmounts(intakeEnd,follower,0,10) && isStateBusy ==true)){
                     isStateBusy = false;
                     setPathState(PathState.BACK_TO_INTAKE_START);
                 }
 
+                else if (pathTimer.getElapsedTimeSeconds()>OVERRIDE_TIME_IF_INTAKING_FOR_TOO_LONG){
+                    follower.breakFollowing();
+                    isStateBusy = false;
+                    setPathState(PathState.BACK_TO_INTAKE_START);
+                }
+
+
                 break;
             case BACK_TO_INTAKE_START:
-                if (isStateBusy == false && !IsRobotBusy){
+                if (isStateBusy == false){
                     follower.followPath(driveIntakeBackward, .8,true);
                     isStateBusy = true;
                 }
@@ -181,7 +191,13 @@ public class NewAutoBack extends OpMode {
                     isStateBusy = true;
                 }
 
-                if (!IsRobotBusy && isStateBusy ==true){
+                if ( pathTimer.getElapsedTimeSeconds()>.5&&!IsRobotBusy && isStateBusy ==true&&autoFunctions.isRobotInPositionCustomAmounts(intakeEnd,follower,.2,15)){//pathTimer.getElapsedTimeSeconds()>1.5){
+                    isStateBusy = false;
+                    setPathState(PathState.DRIVE_BACK_TO_SHOOT);
+                }
+
+                else if (pathTimer.getElapsedTimeSeconds()>OVERRIDE_TIME_IF_INTAKING_FOR_TOO_LONG){
+                    follower.breakFollowing();
                     isStateBusy = false;
                     setPathState(PathState.DRIVE_BACK_TO_SHOOT);
                 }
@@ -191,7 +207,7 @@ public class NewAutoBack extends OpMode {
 
             case DRIVE_BACK_TO_SHOOT:
 
-                if (isStateBusy == false && !IsRobotBusy ) {//&& (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>3)
+                if (isStateBusy == false) {//&& (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>3)
                     follower.followPath(driveFromIntakeToShootPos, true);
                     isStateBusy = true;
                 }
@@ -227,14 +243,14 @@ public class NewAutoBack extends OpMode {
                                 intakeStart = intakeSpikeMarkStart;
                                 intakeEnd = intakeSpikeMarkEnd;
                             }
-                            if (loop_times == 2 || loop_times == 4) {
+                            if ((loop_times == 2 || loop_times == 4)&&GrabFromTunnel) {
                                 PickupLocation = "TUNNEL";
                                 intakeStart = intakeTunnelStart;
                                 intakeEnd = intakeTunnelEnd;
 //                            intakeStart=intakeSpikeMarkStart;
 //                            intakeEnd=intakeSpikeMarkEnd;
                             }
-                            if (loop_times == 3 || loop_times == 5) {
+                            if ((loop_times == 3 || loop_times == 5)||(!GrabFromTunnel && loop_times!=1)) {
                                 PickupLocation = "CORNER";
                                 intakeStart = intakeCornerStart;
                                 intakeEnd = intakeCornerEnd;
@@ -296,6 +312,7 @@ public class NewAutoBack extends OpMode {
     @Override
     public void init(){
         GrabFromSpikeMark=true;
+        GrabFromTunnel=true;
         OutakeBallsOnShoot = true;
         isStateBusy=false;
         AutoParkTriggered = false;
@@ -327,11 +344,13 @@ public class NewAutoBack extends OpMode {
         telemetry.addData(" Grab From Spike Mark (Y to toggle): ", GrabFromSpikeMark);
         if (gamepad1.yWasPressed() || gamepad2.yWasPressed()) {GrabFromSpikeMark = !GrabFromSpikeMark;} // blue
 
-        telemetry.addData("Outake When Shooting?", "A to switch");
+        telemetry.addData(" Grab From Tunnel (A to toggle): ", GrabFromTunnel);
+        if (gamepad1.aWasPressed() || gamepad2.aWasPressed()) {GrabFromTunnel = !GrabFromTunnel;} // blue
 
-        if (gamepad1.aWasPressed() || gamepad2.aWasPressed()){OutakeBallsOnShoot=!OutakeBallsOnShoot;}
+        //telemetry.addData("Outake When Shooting?", "A to switch");
+        //if (gamepad1.aWasPressed() || gamepad2.aWasPressed()){OutakeBallsOnShoot=!OutakeBallsOnShoot;}
+        //telemetry.addData("Outake balls On Shoot: ", OutakeBallsOnShoot);
 
-        telemetry.addData("Outake balls On Shoot: ", OutakeBallsOnShoot);
         telemetry.update();
 
     }
@@ -417,8 +436,8 @@ public class NewAutoBack extends OpMode {
 
         startPose = new Pose(Cords.xFlip(62.55, IsRed), 9.4, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootPos = new Pose(Cords.xFlip(57, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeStart = new Pose(Cords.xFlip(21, IsRed), 9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
-        intakeEnd = new Pose(Cords.xFlip(11, IsRed),  9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeStart = new Pose(Cords.xFlip(20, IsRed), 9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        intakeEnd = new Pose(Cords.xFlip(7.7, IsRed),  9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeCornerStart = new Pose(Cords.xFlip(21, IsRed), 9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeCornerEnd = new Pose(Cords.xFlip(11, IsRed),  9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeSpikeMarkStart = new Pose(Cords.xFlip(47.5, IsRed), 35, Math.toRadians(Cords.angleFlip(180, IsRed)));
