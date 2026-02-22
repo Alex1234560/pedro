@@ -109,19 +109,7 @@ public class NewAutoBack extends OpMode {
             AutoPark();
         }
 
-        if (!HasTimeElapsed && pathState== PathState.SHOOT && OutakeBallsOnShoot) {
-            intake.intakeOn(-1,1);
-        }
 
-//        else if ( pathState== PathState.DRIVE_BACK_TO_SHOOT && shooter.IsBallDetected() && OutakeBallsOnShoot) {
-//            intake.intakeOn(-1,1);
-//        }
-
-        else if (!HasTimeElapsed) {
-            intake.intakeOn(1,1);
-        }
-
-        else{intake.intakeOff();}
 
         switch(pathState) {
             case DRIVE_TO_SHOOT_POS:
@@ -213,7 +201,7 @@ public class NewAutoBack extends OpMode {
             case DRIVE_BACK_TO_SHOOT:
 
                 if (isStateBusy == false) {//&& (shooter.IsBallDetected()||pathTimer.getElapsedTimeSeconds()>3)
-                    follower.followPath(driveFromIntakeToShootPos, true);
+                    follower.followPath(driveFromIntakeToShootPos, .9,true);
                     isStateBusy = true;
                 }
 
@@ -228,7 +216,6 @@ public class NewAutoBack extends OpMode {
 
                 //if(isStateBusy == false&&(autoFunctions.isRobotInPosition(shootPos,follower)||pathTimer.getElapsedTimeSeconds()>4)&&!follower.isBusy()){// pathTimer.getElapsedTimeSeconds()>WAIT_TO_SHOOT_TIME){
                 if(isStateBusy == false&&!IsRobotBusy){
-                    //intake.intakeOn(1,1); // to cycle balls to shooter
                     shooter.fireShots(3);
                     isStateBusy=true;
                     loop_times +=1;
@@ -305,6 +292,36 @@ public class NewAutoBack extends OpMode {
             default:
                 break;
         }
+
+        if (!HasTimeElapsed&&OutakeBallsOnShoot) {
+
+            if ( pathState == PathState.SHOOT ) {
+                intake.intakeOn(-1, 1);
+            }
+
+            else if ( pathState == PathState.DRIVE_BACK_TO_SHOOT &&
+                    pathTimer.getElapsedTimeSeconds()>1.2       ) {
+
+                intake.intakeOn(-1,1);
+            }
+
+            // so that direcion switch isnt so aggresive.
+
+            else if ( pathState == PathState.DRIVE_TO_INTAKE_POS &&
+                    pathTimer.getElapsedTimeSeconds()<.2       ) {
+
+                intake.intakeOff();
+            }
+
+            else {
+                intake.intakeOn(1, 1);
+            }
+        }
+
+        else{intake.intakeOff();}
+
+        //shooter.Off();
+
     }
 
     public void setPathState(PathState newState){
@@ -440,6 +457,7 @@ public class NewAutoBack extends OpMode {
     private void buildPoses(){
 
         startPose = new Pose(Cords.xFlip(62.55, IsRed), 9.4, Math.toRadians(Cords.angleFlip(180, IsRed)));
+        //shootPos = new Pose(Cords.xFlip(58, IsRed), 21, Math.toRadians(Cords.angleFlip(180, IsRed)));
         shootPos = new Pose(Cords.xFlip(57, IsRed), 12, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeStart = new Pose(Cords.xFlip(20, IsRed), 9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
         intakeEnd = new Pose(Cords.xFlip(7.7, IsRed),  9.7, Math.toRadians(Cords.angleFlip(180, IsRed)));
@@ -449,7 +467,7 @@ public class NewAutoBack extends OpMode {
         intakeSpikeMarkEnd = new Pose(Cords.xFlip(13.530973451327434, IsRed),  35, Math.toRadians(Cords.angleFlip(180, IsRed)));
 
         intakeTunnelStart = new Pose(Cords.xFlip(13.3, IsRed), 14, Math.toRadians(Cords.angleFlip(130, IsRed)));
-        intakeTunnelEnd = new Pose(Cords.xFlip(13.3, IsRed),  43, Math.toRadians(Cords.angleFlip(130, IsRed)));
+        intakeTunnelEnd = new Pose(Cords.xFlip(9.6, IsRed),  42, Math.toRadians(Cords.angleFlip(90, IsRed)));
 
     }
 
