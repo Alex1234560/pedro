@@ -35,7 +35,7 @@ public class NewAutoBack extends OpMode {
     private static boolean GrabFromTunnel;
     public static double PARK_TIME_TRIGGER = 27;
 
-    private double OVERRIDE_TIME_IF_INTAKING_FOR_TOO_LONG = 1.5;
+    private double OVERRIDE_TIME_IF_INTAKING_FOR_TOO_LONG = 3;
 
     private Timer pathTimer, opModeTimer;
 
@@ -112,6 +112,11 @@ public class NewAutoBack extends OpMode {
         if (!HasTimeElapsed && pathState== PathState.SHOOT && OutakeBallsOnShoot) {
             intake.intakeOn(-1,1);
         }
+
+//        else if ( pathState== PathState.DRIVE_BACK_TO_SHOOT && shooter.IsBallDetected() && OutakeBallsOnShoot) {
+//            intake.intakeOn(-1,1);
+//        }
+
         else if (!HasTimeElapsed) {
             intake.intakeOn(1,1);
         }
@@ -212,7 +217,7 @@ public class NewAutoBack extends OpMode {
                     isStateBusy = true;
                 }
 
-                if (isStateBusy == true && !IsRobotBusy) {
+                if (isStateBusy == true && !IsRobotBusy && AutoFunctions.isRobotInPositionCustomAmounts(shootPos,follower,.2,10)) {
                     isStateBusy = false;
                     setPathState(PathState.SHOOT);
                 }

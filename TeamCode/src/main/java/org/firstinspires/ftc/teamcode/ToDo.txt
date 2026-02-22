@@ -5,6 +5,7 @@
  -------- When on field -------
 - check front auto classifier emptying on dif locations in case we auto with someone.
 - Tune VelocityInterpolation values.
+- tune GOAL_X_WHEN_AT_BOTTOM_OF_FIELD with the panels.
 
 
 

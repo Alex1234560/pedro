@@ -10,6 +10,7 @@ public class VelocityInterpolation {
             new Point(15, .75 ),
             new Point(89, .6 ),
             new Point(95, .75),
+            new Point(120, 0),
 
 
     };

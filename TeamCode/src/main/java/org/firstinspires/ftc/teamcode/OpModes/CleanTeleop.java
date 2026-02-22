@@ -33,6 +33,10 @@ public class CleanTeleop extends OpMode {
     //timer
     private ElapsedTime runtime = new ElapsedTime();
 
+
+    private ElapsedTime shootTimer = new ElapsedTime();
+    private double WAIT_TIME_AT_BACK_BETWEEN_SHOTS = .5;
+
     // Setup for classes
     private final Coordinates Cords = new Coordinates();
     private FunctionsAndValues FAndV = new FunctionsAndValues();
@@ -42,6 +46,7 @@ public class CleanTeleop extends OpMode {
     private HoodAngle hood = new HoodAngle();
     private AprilTagVision camera;
     private TurretRotation turretRotation = new TurretRotation();
+
 
     //pedro stuff
     private Follower follower;
