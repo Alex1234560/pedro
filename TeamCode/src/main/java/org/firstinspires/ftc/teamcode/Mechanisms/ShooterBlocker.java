@@ -11,8 +11,8 @@ public class ShooterBlocker {
 
     //private static double ShooterAngle = FunctionsAndValues.startPoint;
 
-    public static double UNBLOCK_POINT = .3;
-    public static double BLOCK_POINT = .2;//.7
+    public static double UNBLOCK_POINT = .7;
+    public static double BLOCK_POINT = .85;//.7
 
 
     public void init(HardwareMap hardwareMap){

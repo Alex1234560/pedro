@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterBlocker;
 
-@Disabled
+
 //@Configurable
 @TeleOp
 public class BlockerShooterTryTeleop extends OpMode
@@ -48,7 +48,7 @@ public class BlockerShooterTryTeleop extends OpMode
             shooterBlocker.Unblock();
         }
         if (gamepad1.bWasPressed()){
-            shooterBlocker.Unblock();
+            shooterBlocker.Block();
         }
 
 

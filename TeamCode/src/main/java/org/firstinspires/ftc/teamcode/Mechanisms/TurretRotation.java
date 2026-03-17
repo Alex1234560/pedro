@@ -44,8 +44,8 @@ public class TurretRotation {
     private static double FULL_TURN = 1666;// ticks that make a full turn
 
     // ----- this are the limits that makes teh turret rotate in the opposite direction to not cross any cables -----
-    private static double SWITCH_ANGLE_POS = 10;
-    private static double SWITCH_ANGLE_NEG = -360;
+    private static double SWITCH_ANGLE_POS = 30;
+    private static double SWITCH_ANGLE_NEG = -350;
 
     private double double_robot_angle_deg;
     private double actual_target_angle = 0;// these is the variable used to tell the turret what angle we want.
@@ -58,8 +58,8 @@ public class TurretRotation {
     private double manual_control_offset;
 
     private static boolean COMPENSATE_FOR_TURRET_OFFSET = true;
-    //public static double[] TurretOffsetINCHESXY = {2.85244094,-2.536};
-    private static double[] TurretOffsetINCHESXY = {-2.85244094,2.536};
+    //private static double[] TurretOffsetINCHESXY = {-2.85244094,2.536};
+    private static double[] TurretOffsetINCHESXY = {-2.85244094,0};
     private static double SIGN_MULTIPLIER_ROBOT_ANGLE_OFFSET = 1;
 
     private double turret_x;

@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.Coordinates;
 import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
+import org.firstinspires.ftc.teamcode.Functions.ShootingCalculatorCynthia;
 import org.firstinspires.ftc.teamcode.Functions.ShootingInterpolation;
 import org.firstinspires.ftc.teamcode.Mechanisms.AprilTagVision;
 import org.firstinspires.ftc.teamcode.Mechanisms.FlywheelAndFeederLogic;
@@ -199,6 +200,14 @@ public class CleanTeleop extends OpMode {
             telemetryM.addData("Yaw " ,camera.getYaw());
             telemetryM.addData("Distance (camera) " ,camera.getRangeEquivalentToOdoRange());
 
+
+            //test for physics based
+            double distance = turretRotation.GetDistanceFromGoal(IsRed);
+            ShootingCalculatorCynthia.ShootingParameters turretGoals2 = ShootingCalculatorCynthia.calculate(distance);
+            telemetryM.addData("PHYSICS BASED GUESSES" ,"");
+            telemetryM.addData("Physics Angle" ,turretGoals2.angle);
+            telemetryM.addData("Physics Speed" ,turretGoals2.tps);
+
         }
 
         //telemetryM.addData("GOAL_Y FOR DEBUGGING ", turretRotation.ReturnGoalY());
@@ -349,7 +358,10 @@ public class CleanTeleop extends OpMode {
 
     else {
 
+
+
         double distance = turretRotation.GetDistanceFromGoal(IsRed);
+
         double[] turretGoals = ShootingInterpolation.get(distance);
         hood.SetPosition(turretGoals[0]);
         shooter.setFlywheelTPS(turretGoals[1]);
