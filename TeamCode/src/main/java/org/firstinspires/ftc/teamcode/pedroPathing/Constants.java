@@ -61,9 +61,12 @@ public class Constants {
 //            .forwardPodY(1.4)
 //            .strafePodX(0)
 
+//            .forwardPodY(4)// TUNE THIS ONE
+//            .strafePodX(.3)
+
             //smallest ive gotten so far.
-            .forwardPodY(-1)// TUNE THIS ONE
-            .strafePodX(.5)
+            .forwardPodY(4)// TUNE THIS ONE
+            .strafePodX(-.1)
 
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
