@@ -74,14 +74,16 @@ public class TurretRotation {
 
 
     // ---------- PIDF values for turret ---------------
-    public static double kP = .005;
-    public static double kI = 0.0008;
-    public static double kD = 0.008;
-    public static double kF = 0.02;
-//    public static double kP = .01;
-//    public static double kI = 0.0001;
-//    public static double kD = 0.002;
-//    public static double kF = 0.032;
+    public static double kD = .002;
+    public static double kF = 0.025;
+    public static double kI = 0;
+    public static double kP = 0.008;
+
+
+//    public static double kP = .005;
+//    public static double kI = 0.0008;
+//    public static double kD = 0.008;
+//    public static double kF = 0.02;
     SimplePIDF RotationalPIDF = new SimplePIDF(
             kP,  // kP  (start small)
             kI,     // kI  (usually 0)
