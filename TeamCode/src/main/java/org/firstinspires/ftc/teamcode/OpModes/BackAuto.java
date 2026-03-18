@@ -112,11 +112,12 @@ public class BackAuto extends OpMode {
         if (autoTimer.getElapsedTimeSeconds() > PARK_TIME_TRIGGER && !AutoParkTriggered){
             AutoPark();
         }
-        if (pathState!=PathState.AUTOPARK && pathState != PathState.DRIVE_BACK_TO_SHOOT) {
+
+        //timer to make sure ball doesnt go into flywheel when flywheel is off.
+        if (pathState!=PathState.AUTOPARK && autoTimer.getElapsedTimeSeconds()>1.5) {
             intake.intakeOn(1, 1);
         }
-        // only spitting out balls if theres already a ball ready to shoot and is in shoot state.
-        else if (pathState==PathState.DRIVE_BACK_TO_SHOOT){ intake.intakeOn(-1, 1);}
+
         else{intake.intakeOff();}
 
         switch(pathState) {

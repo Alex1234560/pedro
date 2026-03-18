@@ -9,8 +9,8 @@ import org.firstinspires.ftc.teamcode.Functions.FunctionsAndValues;
 @Configurable
 public class DistanceSensorClass
 {
-    public static double CHANGE_POINT = .15;
-    public static double TOO_FAR = .15;
+    public static double CHANGE_POINT = .14;
+    //public static double TOO_FAR = .15;
 
 
 
@@ -57,10 +57,6 @@ public class DistanceSensorClass
 
         if (distance> CHANGE_POINT){return false;}
         else{return true;}
-    }
-    public boolean IsBallTooFarIn(){
-        if (distance<= TOO_FAR){return true;}
-        else{return false;}
     }
 
     public double ReturnValueForPreload(){

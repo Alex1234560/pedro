@@ -1,25 +1,28 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Mechanisms.DistanceSensorClass;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterBlocker;
 
 
 //@Configurable
 @TeleOp
-public class BlockerShooterTryTeleop extends OpMode
+public class DistanceSensorTunerTeleop extends OpMode
 {
 
-    ShooterBlocker shooterBlocker = new ShooterBlocker();
+    private TelemetryManager telemetryM;
+    DistanceSensorClass DistanceSensor = new DistanceSensorClass();
 //    private double position;
 //    public static double change_amount=.005;
 
     @Override
     public void init() {
-        shooterBlocker.init(hardwareMap);
-
+        DistanceSensor.init(hardwareMap);
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     /*
@@ -44,17 +47,20 @@ public class BlockerShooterTryTeleop extends OpMode
     public void loop() {
 
 
-        if (gamepad1.aWasPressed()){
-            shooterBlocker.Unblock();
-        }
-        if (gamepad1.bWasPressed()){
-            shooterBlocker.Block();
-        }
+//        if (gamepad1.aWasPressed()){
+//            shooterBlocker.Unblock();
+//        }
+//        if (gamepad1.bWasPressed()){
+//            shooterBlocker.Block();
+//        }
+
+        DistanceSensor.update();
+
+        telemetryM.addData("Is Ball Detected", DistanceSensor.IsBallDetected());
+        telemetryM.addData("Distance", DistanceSensor.GetDistance());
+        telemetryM.update(telemetry);
 
 
-        //parkingServos.SetPosition(position);
-        telemetry.addData("Position", shooterBlocker.getPosition());
-        telemetry.update();
 
     }
 
