@@ -293,29 +293,28 @@ public class NewAutoBack extends OpMode {
                 break;
         }
 
-        if (!HasTimeElapsed&&OutakeBallsOnShoot) {
+        if (!HasTimeElapsed) {
+            intake.intakeOn(1, 1);
 
-            if ( pathState == PathState.SHOOT ) {
-                intake.intakeOn(-1, 1);
-            }
-
-            else if ( pathState == PathState.DRIVE_BACK_TO_SHOOT &&
-                    pathTimer.getElapsedTimeSeconds()>1.2       ) {
-
-                intake.intakeOn(-1,1);
-            }
+//            if ( pathState == PathState.SHOOT ) {
+//                intake.intakeOn(-1, 1);
+//            }
+//
+//            else if ( pathState == PathState.DRIVE_BACK_TO_SHOOT &&
+//                    pathTimer.getElapsedTimeSeconds()>1.2       ) {
+//
+//                intake.intakeOn(-1,1);
+//            }
 
             // so that direcion switch isnt so aggresive.
 
-            else if ( pathState == PathState.DRIVE_TO_INTAKE_POS &&
-                    pathTimer.getElapsedTimeSeconds()<.2       ) {
+//            else if ( pathState == PathState.DRIVE_TO_INTAKE_POS &&
+//                    pathTimer.getElapsedTimeSeconds()<.2       ) {
+//
+//                intake.intakeOff();
+//            }
 
-                intake.intakeOff();
-            }
 
-            else {
-                intake.intakeOn(1, 1);
-            }
         }
 
         else{intake.intakeOff();}
@@ -387,6 +386,7 @@ public class NewAutoBack extends OpMode {
         intakeStart =intakeCornerStart;
         intakeEnd =intakeCornerEnd;
         PickupLocation = "CORNER";
+        OutakeBallsOnShoot = false;
 
         turretRotation.CalibrateTurretToCenter();
         buildPaths();

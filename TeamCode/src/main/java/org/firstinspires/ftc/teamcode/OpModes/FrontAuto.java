@@ -126,10 +126,10 @@ public class FrontAuto extends OpMode {
             AutoPark();
         }
 
-        if (!HasTimeElapsed && pathState==PathState.SHOOT && OutakeBallsOnShoot) {
-            intake.intakeOn(-1,1);
-        }
-        else if (!HasTimeElapsed) {
+//        if (!HasTimeElapsed && pathState==PathState.SHOOT && OutakeBallsOnShoot) {
+//            intake.intakeOn(-1,1);
+//        }
+         if (!HasTimeElapsed) {
             intake.intakeOn(1,1);
         }
         else{intake.intakeOff();}

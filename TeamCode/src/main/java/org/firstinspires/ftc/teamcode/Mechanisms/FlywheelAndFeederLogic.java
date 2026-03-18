@@ -17,8 +17,8 @@ public class FlywheelAndFeederLogic {
     private FunctionsAndValues FAndV;
     private DcMotorEx ShooterMotor = null;
     private DcMotorEx ShooterMotor2 = null;
-    private CRServo BallFeederServo = null;
-    private CRServo BallFeederServo2 = null;
+//    private CRServo BallFeederServo = null;
+//    private CRServo BallFeederServo2 = null;
 
     private ElapsedTime stateTimer = new ElapsedTime();
     private ElapsedTime shootTimer = new ElapsedTime();
@@ -62,8 +62,9 @@ public class FlywheelAndFeederLogic {
         distanceSensor.init(hardwareMap);
         shooterBlocker.init(hardwareMap);
 
-        BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
-        BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");
+//        BallFeederServo = hardwareMap.get(CRServo.class, "BallFeederServo");
+//        BallFeederServo2 = hardwareMap.get(CRServo.class, "BallFeederServo2");
+
         ShooterMotor = hardwareMap.get(DcMotorEx.class, "Shooter");
         ShooterMotor2 = hardwareMap.get(DcMotorEx.class, "Shooter2");
 
@@ -76,8 +77,8 @@ public class FlywheelAndFeederLogic {
 
         ShooterMotor.setPower(0);
         ShooterMotor2.setPower(0);
-        BallFeederServo.setPower(0);
-        BallFeederServo2.setPower(0);
+//        BallFeederServo.setPower(0);
+//        BallFeederServo2.setPower(0);
 
         distanceSensor.SetBallsShotCount(100);
 
@@ -108,8 +109,8 @@ public class FlywheelAndFeederLogic {
 
     public void SpinBallFeeder(double power) {
 
-        BallFeederServo.setPower(power);
-        BallFeederServo2.setPower(power);
+//        BallFeederServo.setPower(power);
+//        BallFeederServo2.setPower(power);
 
     }
 
@@ -168,10 +169,6 @@ public class FlywheelAndFeederLogic {
                     setShooterState(FlywheelState.RESET);
                 }
 
-                //to get balls unstuck in case of a jam. isnt working rn.
-                if (stateTimer.seconds()>TIME_TO_GET_BALLS_UNSTUCK && stateTimer.seconds()<TIME_TO_GET_BALLS_UNSTUCK+REVERSING_TIME){
-                    ball_feeder_servo_power=  -1;
-                }
 
                 break;
 
@@ -183,12 +180,12 @@ public class FlywheelAndFeederLogic {
 
 
         //preee feeding balls.
-        if (ball_feeder_servo_power==0 &&!IsBallDetected() ){
-            ball_feeder_servo_power= FunctionsAndValues.PowerValueForPreloading;
+//        if (ball_feeder_servo_power==0 &&!IsBallDetected() ){
+//            ball_feeder_servo_power= FunctionsAndValues.PowerValueForPreloading;
+//
+//        }
 
-        }
-
-        SpinBallFeeder(ball_feeder_servo_power);
+        //SpinBallFeeder(ball_feeder_servo_power);
 
         if (!block_shooter){
             Unblock();}
@@ -212,7 +209,7 @@ public class FlywheelAndFeederLogic {
     public void Off(){
         flywheel_on=false;
         flywheelState = FlywheelState.IDLE;
-        SpinBallFeeder(0);
+        //SpinBallFeeder(0);
     }
 
     public void On(){

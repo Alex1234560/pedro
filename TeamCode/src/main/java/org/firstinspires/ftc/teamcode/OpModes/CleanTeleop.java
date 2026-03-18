@@ -273,25 +273,27 @@ public class CleanTeleop extends OpMode {
         boolean Trigger = shootButton;
         //if (Trigger){block_shooter=true;}
 
-        if (gamepad2.back){shooter.SpinBallFeeder(-1);}
+        if (gamepad2.back){
+            //shooter.SpinBallFeeder(-1);
+        }
 
         else if (Trigger && shooter.IsFlywheelUpToSpeed() && turretRotation.isTurretFinishedRotating()){
-            shooter.SpinBallFeeder(1);
+            //shooter.SpinBallFeeder(1);
         }
 
         else if (Trigger && gamepad2.right_bumper){
-            shooter.SpinBallFeeder(1);
+            //shooter.SpinBallFeeder(1);
         }
 
         //so that any button that intakes can spin ball feeder
         else if (IntakePowerValue>0 && !shooter.IsBallDetected()){//&& !shooter.IsBallDetected()){ //&& !shooter.IsBallTooFarIn() ){
 
-            shooter.SpinBallFeeder(FunctionsAndValues.PowerValueForPreloading);
+            //shooter.SpinBallFeeder(FunctionsAndValues.PowerValueForPreloading);
             block_shooter=true;
 
         }
 
-        else{shooter.SpinBallFeeder(0);
+        else{//shooter.SpinBallFeeder(0);
             block_shooter=true;
         }
 
